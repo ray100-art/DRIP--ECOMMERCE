@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DRIP — Product</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@1,400&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black: #0a0a0a; --white: #fafaf8; --cream: #f5f0e8;
+      --red: #c8102e; --red-dark: #9e0c24;
+      --gray-100: #f4f4f4; --gray-200: #e8e8e8; --gray-500: #888; --gray-700: #444;
+      --green: #16a34a; --gold: #c9a84c;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--white); color: var(--black); }
+
+    /* NAV */
+    nav { background: var(--black); height: 64px; display: flex; align-items: center; padding: 0 40px; position: sticky; top: 0; z-index: 100; }
+    .nav-inner { width: 100%; max-width: 1280px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 0.1em; color: var(--white); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .nav-logo-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--red); }
+    .nav-links { display: flex; gap: 28px; }
+    .nav-links a { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 13px; font-weight: 500; letter-spacing: 0.05em; transition: color .2s; }
+    .nav-links a:hover { color: var(--white); }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-icon-btn { background: none; border: none; color: rgba(255,255,255,0.6); font-size: 18px; cursor: pointer; transition: color .2s; position: relative; }
+    .nav-icon-btn:hover { color: var(--white); }
+    .cart-count { position: absolute; top: -6px; right: -6px; width: 16px; height: 16px; border-radius: 50%; background: var(--red); color: #fff; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+
+    /* BREADCRUMB */
+    .breadcrumb { max-width: 1280px; margin: 0 auto; padding: 16px 40px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--gray-500); }
+    .breadcrumb a { color: var(--gray-500); text-decoration: none; transition: color .2s; }
+    .breadcrumb a:hover { color: var(--black); }
+    .breadcrumb i { font-size: 10px; }
+
+    /* PRODUCT LAYOUT */
+    .product-layout { max-width: 1280px; margin: 0 auto; padding: 0 40px 80px; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+
+    /* GALLERY */
+    .gallery { position: sticky; top: 84px; }
+    .main-img {
+      width: 100%; aspect-ratio: 3/4; border-radius: 20px;
+      background: var(--gray-100); display: flex; align-items: center; justify-content: center;
+      font-size: 160px; margin-bottom: 16px; overflow: hidden; cursor: zoom-in;
+      transition: transform .4s; position: relative;
+    }
+    .main-img:hover { transform: scale(1.02); }
+    .img-badge { position: absolute; top: 20px; left: 20px; background: var(--red); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 5px 12px; border-radius: 6px; }
+    .img-wishlist { position: absolute; top: 20px; right: 20px; width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.9); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--gray-500); transition: all .2s; backdrop-filter: blur(4px); }
+    .img-wishlist:hover, .img-wishlist.active { color: var(--red); }
+    .thumbnails { display: flex; gap: 10px; }
+    .thumb { width: 72px; height: 90px; border-radius: 10px; background: var(--gray-100); display: flex; align-items: center; justify-content: center; font-size: 30px; cursor: pointer; border: 2px solid transparent; transition: all .2s; flex-shrink: 0; }
+    .thumb:hover { border-color: var(--gray-400); }
+    .thumb.active { border-color: var(--black); }
+
+    /* PRODUCT INFO */
+    .product-info { padding-top: 8px; }
+    .product-badges { display: flex; gap: 8px; margin-bottom: 12px; }
+    .tag { font-size: 10px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; }
+    .tag-new { background: var(--black); color: var(--white); }
+    .tag-hot { background: var(--red); color: var(--white); }
+    .tag-sale { background: var(--gold); color: var(--white); }
+    .tag-cat { border: 1px solid var(--gray-200); color: var(--gray-500); }
+    .product-name { font-family: 'Bebas Neue', sans-serif; font-size: 52px; letter-spacing: 0.03em; line-height: 0.95; margin-bottom: 12px; }
+    .product-rating { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+    .stars { color: var(--gold); font-size: 14px; letter-spacing: 2px; }
+    .rating-count { font-size: 13px; color: var(--gray-500); }
+    .rating-link { font-size: 13px; color: var(--black); text-decoration: underline; cursor: pointer; }
+
+    .price-row { display: flex; align-items: baseline; gap: 12px; margin-bottom: 24px; }
+    .price-current { font-family: 'Bebas Neue', sans-serif; font-size: 44px; letter-spacing: 0.03em; color: var(--black); }
+    .price-original { font-size: 20px; color: var(--gray-400); text-decoration: line-through; }
+    .price-save { font-size: 13px; color: var(--green); font-weight: 600; background: #dcfce7; padding: 3px 10px; border-radius: 20px; }
+
+    .divider { height: 1px; background: var(--gray-200); margin: 24px 0; }
+
+    /* SIZE SELECTOR */
+    .option-label { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px; }
+    .option-label span { color: var(--gray-500); font-weight: 400; margin-left: 6px; }
+    .sizes { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+    .size-btn { width: 52px; height: 52px; border-radius: 10px; border: 1.5px solid var(--gray-200); background: none; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s; }
+    .size-btn:hover { border-color: var(--black); }
+    .size-btn.active { background: var(--black); color: var(--white); border-color: var(--black); }
+    .size-btn.unavailable { opacity: 0.3; cursor: not-allowed; text-decoration: line-through; }
+
+    /* COLOR SELECTOR */
+    .colors { display: flex; gap: 10px; margin-bottom: 24px; }
+    .color-btn { width: 32px; height: 32px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; transition: all .2s; box-shadow: inset 0 0 0 2px rgba(0,0,0,0.1); }
+    .color-btn:hover { transform: scale(1.1); }
+    .color-btn.active { border-color: var(--black); }
+
+    /* QTY + ADD */
+    .add-row { display: flex; gap: 12px; margin-bottom: 16px; }
+    .qty-selector { display: flex; align-items: center; border: 1.5px solid var(--gray-200); border-radius: 12px; overflow: hidden; }
+    .qty-btn { width: 44px; height: 56px; background: none; border: none; font-size: 18px; cursor: pointer; color: var(--gray-700); transition: background .2s; display: flex; align-items: center; justify-content: center; }
+    .qty-btn:hover { background: var(--gray-100); }
+    .qty-num { width: 44px; text-align: center; font-size: 15px; font-weight: 700; }
+    .add-btn {
+      flex: 1; padding: 0 32px; height: 56px; background: var(--black); color: var(--white);
+      border: none; border-radius: 12px; font-family: 'DM Sans', sans-serif;
+      font-size: 14px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      cursor: pointer; transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+    .add-btn:hover { background: var(--red); transform: translateY(-2px); }
+    .add-btn.added { background: var(--green); }
+    .wishlist-btn {
+      width: 56px; height: 56px; border: 1.5px solid var(--gray-200); border-radius: 12px;
+      background: none; font-size: 20px; cursor: pointer; color: var(--gray-500);
+      display: flex; align-items: center; justify-content: center; transition: all .2s;
+    }
+    .wishlist-btn:hover, .wishlist-btn.active { color: var(--red); border-color: var(--red); }
+
+    .buy-now-btn {
+      width: 100%; padding: 17px; background: none; color: var(--black);
+      border: 2px solid var(--black); border-radius: 12px;
+      font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; transition: all .2s;
+      margin-bottom: 24px;
+    }
+    .buy-now-btn:hover { background: var(--black); color: var(--white); }
+
+    /* FEATURES */
+    .features { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+    .feature { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--gray-700); }
+    .feature i { color: var(--green); font-size: 16px; width: 20px; }
+
+    /* ACCORDION */
+    .accordion { border-top: 1px solid var(--gray-200); }
+    .accordion-item { border-bottom: 1px solid var(--gray-200); }
+    .accordion-header { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; cursor: pointer; font-size: 14px; font-weight: 600; }
+    .accordion-header i { font-size: 16px; color: var(--gray-500); transition: transform .3s; }
+    .accordion-header.open i { transform: rotate(45deg); }
+    .accordion-body { font-size: 14px; line-height: 1.8; color: var(--gray-700); padding-bottom: 18px; display: none; }
+    .accordion-body.open { display: block; }
+
+    /* REVIEWS */
+    .reviews-section { max-width: 1280px; margin: 0 auto; padding: 0 40px 80px; }
+    .section-title { font-family: 'Bebas Neue', sans-serif; font-size: 40px; letter-spacing: 0.05em; margin-bottom: 32px; }
+    .reviews-layout { display: grid; grid-template-columns: 280px 1fr; gap: 48px; }
+    .reviews-summary { }
+    .big-rating { font-family: 'Bebas Neue', sans-serif; font-size: 80px; letter-spacing: -2px; line-height: 1; }
+    .big-stars { color: var(--gold); font-size: 20px; letter-spacing: 3px; margin-bottom: 6px; }
+    .big-count { color: var(--gray-500); font-size: 13px; margin-bottom: 24px; }
+    .rating-bars { display: flex; flex-direction: column; gap: 8px; }
+    .rating-bar-row { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+    .rating-bar-track { flex: 1; height: 6px; background: var(--gray-200); border-radius: 3px; overflow: hidden; }
+    .rating-bar-fill { height: 100%; background: var(--gold); border-radius: 3px; }
+    .reviews-list { display: flex; flex-direction: column; gap: 28px; }
+    .review-card { padding-bottom: 28px; border-bottom: 1px solid var(--gray-200); }
+    .review-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .reviewer-name { font-size: 14px; font-weight: 700; }
+    .reviewer-date { font-size: 12px; color: var(--gray-500); }
+    .review-stars { color: var(--gold); font-size: 13px; letter-spacing: 2px; margin-bottom: 8px; }
+    .review-text { font-size: 14px; line-height: 1.7; color: var(--gray-700); }
+    .review-verified { font-size: 11px; color: var(--green); margin-top: 8px; display: flex; align-items: center; gap: 4px; }
+
+    /* RELATED */
+    .related-section { background: var(--gray-100); padding: 80px 40px; }
+    .related-inner { max-width: 1280px; margin: 0 auto; }
+    .related-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 32px; }
+    .related-card { background: var(--white); border-radius: 14px; overflow: hidden; cursor: pointer; transition: all .3s; }
+    .related-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(0,0,0,0.1); }
+    .related-img { aspect-ratio: 3/4; background: var(--gray-100); display: flex; align-items: center; justify-content: center; font-size: 60px; }
+    .related-info { padding: 16px; }
+    .related-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .related-price { font-size: 15px; font-weight: 700; }
+    .related-old { font-size: 12px; color: var(--gray-500); text-decoration: line-through; margin-left: 6px; }
+
+    /* CART TOAST */
+    .toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--black); color: var(--white); padding: 14px 24px; border-radius: 12px; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 10px; z-index: 200; transition: transform .4s cubic-bezier(.34,1.56,.64,1); }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast i { color: var(--green); font-size: 18px; }
+
+        @media (min-width: 769px) {
+      #hamburgerBtn { display: none !important; }
+      .mobile-menu { display: none !important; }
+      .bottom-nav { display: none !important; }
+    }
+    @media (max-width: 1024px) { .product-layout { gap: 40px; } .related-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 768px) {
+      #hamburgerBtn { display: flex !important; }
+      .nav-links, ul.nav-links { display: none !important; } .product-layout { grid-template-columns: 1fr; padding: 0 20px 60px; } .gallery { position: static; } .reviews-layout { grid-template-columns: 1fr; } .breadcrumb { padding: 16px 20px; } .reviews-section { padding: 0 20px 60px; } .related-section { padding: 60px 20px; } nav { padding: 0 20px; } .product-name { font-size: 40px; } }
+  
+    body { animation: pageIn .35s ease both; }
+    @keyframes pageIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    .reveal { opacity:0; transform:translateY(28px); transition: opacity .55s ease, transform .55s ease; }
+    .reveal.visible { opacity:1; transform:translateY(0); }
+    .mobile-menu { position:fixed; inset:0; z-index:500; background:#0a0a0a; display:flex; flex-direction:column; padding:80px 32px 40px; transform:translateX(100%); transition:transform .35s cubic-bezier(0.22,1,0.36,1); }
+    .mobile-menu.open { transform:translateX(0); }
+    .mobile-menu-link { font-family:'Bebas Neue',sans-serif; font-size:40px; letter-spacing:0.06em; color:#fff; text-decoration:none; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:space-between; transition:color .2s; }
+    .mobile-menu-link:hover { color:#b8942a; }
+    .mobile-menu-close { position:absolute; top:20px; right:20px; background:none; border:none; color:#fff; font-size:28px; cursor:pointer; }
+    .bottom-nav { display:none; position:fixed; bottom:0; left:0; right:0; z-index:300; background:#fff; border-top:1px solid #e8e8e8; padding:8px 0 max(8px,env(safe-area-inset-bottom)); box-shadow:0 -4px 20px rgba(0,0,0,0.08); }
+    .bottom-nav-inner { display:flex; justify-content:space-around; align-items:center; }
+    .bottom-nav-item { display:flex; flex-direction:column; align-items:center; gap:3px; color:#888; text-decoration:none; font-size:10px; font-weight:600; letter-spacing:0.05em; padding:4px 8px; transition:color .2s; background:none; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; }
+    .bottom-nav-item i { font-size:20px; }
+    .bottom-nav-item.active { color:#0a0a0a; }
+    .bottom-nav-item.active i { color:#c8102e; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">DRIP <span class="nav-logo-dot"></span></a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="products.html">Shop</a>
+      <a href="profile.html">Profile</a>
+      <a href="wishlist.html">Wishlist</a>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" onclick="window.location.href='wishlist.html'"><i class="bi bi-heart"></i></button>
+      <button class="nav-icon-btn" id="cartBtn"><i class="bi bi-bag"></i><div class="cart-count" id="cartCount">0</div></button>
+    </div>
+  </div>
+</nav>
+
+<div class="breadcrumb">
+  <a href="index.html">Home</a>
+  <i class="bi bi-chevron-right"></i>
+  <a href="products.html">Shop</a>
+  <i class="bi bi-chevron-right"></i>
+  <a href="products.html">Women</a>
+  <i class="bi bi-chevron-right"></i>
+  <span id="bcProduct">Floral Wrap Dress</span>
+</div>
+
+<div class="product-layout">
+
+  <!-- GALLERY -->
+  <div class="gallery">
+    <div class="main-img" id="mainImg">
+      <div class="img-badge" id="mainBadge">NEW</div>
+      <img id="mainImage" src="" alt="Product" style="width:100%;height:100%;object-fit:cover;display:none;border-radius:20px;">
+      <span id="mainEmoji" style="font-size:160px;display:flex;align-items:center;justify-content:center;width:100%;height:100%;">👗</span>
+      <button class="img-wishlist" id="galleryWishlist" onclick="toggleWishlist()"><i class="bi bi-heart"></i></button>
+    </div>
+    <div class="thumbnails" id="thumbs"></div>
+  </div>
+
+  <!-- INFO -->
+  <div class="product-info">
+    <div class="product-badges">
+      <span class="tag tag-new" id="tagNew">NEW</span>
+      <span class="tag tag-cat" id="tagCat">Women</span>
+    </div>
+    <h1 class="product-name" id="productName">Floral Wrap Dress</h1>
+    <div class="product-rating">
+      <div class="stars">★★★★★</div>
+      <div class="rating-count">4.9</div>
+      <div class="rating-link" onclick="scrollToReviews()">(124 reviews)</div>
+    </div>
+
+    <div class="price-row">
+      <div class="price-current" id="priceDisplay">KES 0</div>
+      <div class="price-original" id="priceOld" style="display:none"></div>
+      <div class="price-save" id="priceSave" style="display:none"></div>
+    </div>
+
+    <p style="font-size:14px;line-height:1.8;color:var(--gray-700);margin-bottom:24px;" id="productDesc">
+      A beautifully crafted wrap dress featuring an elegant floral print. Made from premium lightweight fabric, perfect for any occasion — from brunch to evening events. The adjustable tie waist flatters every silhouette.
+    </p>
+
+    <div class="divider"></div>
+
+    <!-- SIZE -->
+    <div class="option-label">Size <span id="selectedSize">— Select one</span></div>
+    <div class="sizes" id="sizesContainer"></div>
+
+    <!-- COLOR -->
+    <div class="option-label">Color <span id="selectedColor">— Select one</span></div>
+    <div class="colors" id="colorsContainer"></div>
+
+    <div class="divider"></div>
+
+    <!-- QTY + ADD -->
+    <div class="add-row">
+      <div class="qty-selector">
+        <button class="qty-btn" onclick="changeQty(-1)"><i class="bi bi-dash"></i></button>
+        <div class="qty-num" id="qtyNum">1</div>
+        <button class="qty-btn" onclick="changeQty(1)"><i class="bi bi-plus"></i></button>
+      </div>
+      <button class="add-btn" id="addBtn" onclick="addToCart()"><i class="bi bi-bag-plus"></i> Add to Bag</button>
+      <button class="wishlist-btn" id="wishlistBtn" onclick="toggleWishlist()"><i class="bi bi-heart"></i></button>
+    </div>
+    <button class="buy-now-btn" onclick="buyNow()">Buy Now</button>
+
+    <div class="features">
+      <div class="feature"><i class="bi bi-truck"></i> Free shipping over KES 5,000</div>
+      <div class="feature"><i class="bi bi-arrow-return-left"></i> Free 30-day returns</div>
+      <div class="feature"><i class="bi bi-shield-check"></i> Authentic guarantee</div>
+      <div class="feature"><i class="bi bi-box-seam"></i> Ships in 24 hours</div>
+    </div>
+
+    <div class="accordion">
+      <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          Product Details <i class="bi bi-plus-lg"></i>
+        </div>
+        <div class="accordion-body">
+          Composition: 95% Viscose, 5% Elastane. Imported. Machine washable cold. Do not tumble dry. 
+          Available in sizes XS–3XL. Model is 5'9" wearing size S. True to size.
+        </div>
+      </div>
+      <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          Shipping & Returns <i class="bi bi-plus-lg"></i>
+        </div>
+        <div class="accordion-body">
+          Standard shipping (5–7 business days) is FREE on orders over KES 5,000. Express and Next Day options available at checkout. 
+          Returns accepted within 30 days — items must be unworn with original tags attached.
+        </div>
+      </div>
+      <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          Size Guide <i class="bi bi-plus-lg"></i>
+        </div>
+        <div class="accordion-body">
+          XS: Bust 32–33", Waist 24–25", Hip 35–36"<br>
+          S: Bust 34–35", Waist 26–27", Hip 37–38"<br>
+          M: Bust 36–37", Waist 28–29", Hip 39–40"<br>
+          L: Bust 38–40", Waist 30–32", Hip 41–43"<br>
+          XL: Bust 41–43", Waist 33–35", Hip 44–46"
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- REVIEWS -->
+<div class="reviews-section" id="reviewsSection">
+  <div class="section-title">Customer Reviews</div>
+  <div class="reviews-layout">
+    <div class="reviews-summary">
+      <div class="big-rating">4.9</div>
+      <div class="big-stars">★★★★★</div>
+      <div class="big-count">Based on 124 reviews</div>
+      <div class="rating-bars">
+        <div class="rating-bar-row"><span>5★</span><div class="rating-bar-track"><div class="rating-bar-fill" style="width:82%"></div></div><span>102</span></div>
+        <div class="rating-bar-row"><span>4★</span><div class="rating-bar-track"><div class="rating-bar-fill" style="width:12%"></div></div><span>15</span></div>
+        <div class="rating-bar-row"><span>3★</span><div class="rating-bar-track"><div class="rating-bar-fill" style="width:4%"></div></div><span>5</span></div>
+        <div class="rating-bar-row"><span>2★</span><div class="rating-bar-track"><div class="rating-bar-fill" style="width:1%"></div></div><span>2</span></div>
+        <div class="rating-bar-row"><span>1★</span><div class="rating-bar-track"><div class="rating-bar-fill" style="width:0%"></div></div><span>0</span></div>
+      </div>
+    </div>
+    <div class="reviews-list">
+      <div class="review-card">
+        <div class="review-header"><div><div class="reviewer-name">Amara J.</div><div class="reviewer-date">March 2, 2026</div></div><div class="review-stars">★★★★★</div></div>
+        <div class="review-text">Absolutely stunning dress! The fabric is so lightweight and flowy. I wore it to a wedding and got compliments all night. The wrap style is super flattering — I'm ordering another color!</div>
+        <div class="review-verified"><i class="bi bi-check-circle-fill"></i> Verified Purchase</div>
+      </div>
+      <div class="review-card">
+        <div class="review-header"><div><div class="reviewer-name">Sofia R.</div><div class="reviewer-date">Feb 28, 2026</div></div><div class="review-stars">★★★★★</div></div>
+        <div class="review-text">True to size and beautifully made. The floral print is even prettier in person. Ships fast too — arrived in just 2 days with express shipping.</div>
+        <div class="review-verified"><i class="bi bi-check-circle-fill"></i> Verified Purchase</div>
+      </div>
+      <div class="review-card">
+        <div class="review-header"><div><div class="reviewer-name">Zoe W.</div><div class="reviewer-date">Feb 20, 2026</div></div><div class="review-stars">★★★★☆</div></div>
+        <div class="review-text">Great dress overall, beautiful design. Only reason for 4 stars is I wish it came in more colors. Otherwise perfect — quality is excellent for the price.</div>
+        <div class="review-verified"><i class="bi bi-check-circle-fill"></i> Verified Purchase</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RELATED -->
+<div class="related-section">
+  <div class="related-inner">
+    <div class="section-title">You Might Also Like</div>
+    <div class="related-grid" id="relatedGrid"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><i class="bi bi-check-circle-fill"></i> <span id="toastMsg">Added to bag!</span></div>
+
+<script>
+  /* ===== PRODUCT DATA ===== */
+  const PRODUCTS = {
+  1:  {name:'Floral Wrap Midi Dress',      brand:'Zara',             cat:'Women',       price:11570, originalPrice:15600,  badge:'NEW',  imageUrl:'/images/floral-wrap-midi-dress.jpg', desc:'A beautifully crafted wrap dress featuring an elegant floral print. Made from premium lightweight fabric perfect for any occasion.', sizes:['XS','S','M','L','XL'], colors:['#e8b4c8','#a8d5b5','#b4c8e8']},
+  2:  {name:'Wide Leg Linen Trousers',     brand:'H&M',              cat:'Women',       price:9360,  originalPrice:12350,  badge:'SALE', imageUrl:'/images/wide-leg-linen-trousers.jpg', desc:'Relaxed wide-leg trousers in breathable linen blend. High waist silhouette with side pockets. Perfect for office or weekend.', sizes:['XS','S','M','L','XL'], colors:['#f5f0e8','#2a2a2a','#8a9aa8']},
+  3:  {name:'Silk Satin Blouse',           brand:'Zara',             cat:'Women',       price:12350, originalPrice:null,   badge:'NEW',  imageUrl:'/images/silk-satin-blouse.jpg', desc:'Luxuriously soft silk-feel satin blouse with a relaxed fit. V-neck design with delicate button front closure.', sizes:['XS','S','M','L'], colors:['#f5f0e8','#e8c4d0','#2a2a2a']},
+  4:  {name:'Oversized Knit Cardigan',     brand:'Pull&Bear',        cat:'Women',       price:14300, originalPrice:18850,  badge:'SALE', imageUrl:'/images/oversized-knit-cardigan.jpg', desc:'Chunky oversized cardigan with drop shoulders. Cosy ribbed texture in a versatile neutral palette. Wear open or buttoned.', sizes:['XS','S','M','L','XL'], colors:['#e8e0d4','#c8b8a8','#2a2a2a']},
+  5:  {name:'Pleated Mini Skirt',          brand:'Shein',            cat:'Women',       price:7540,  originalPrice:null,   badge:'HOT',  imageUrl:'/images/pleated-mini-skirt.jpg', desc:'Trendy pleated mini skirt with elasticated waistband. School-girl aesthetic meets modern fashion. Pairs with everything.', sizes:['XS','S','M','L'], colors:['#2a2a2a','#c8d0e8','#e8c4d0']},
+  6:  {name:'Linen Co-ord Jumpsuit',       brand:'Mango',            cat:'Women',       price:17550, originalPrice:null,   badge:'SALE', imageUrl:'/images/linen-coord-jumpsuit.jpg', desc:'Effortlessly chic linen jumpsuit in a relaxed co-ord style. Adjustable tie waist. Holiday-ready and office-appropriate.', sizes:['XS','S','M','L','XL'], colors:['#f5f0e8','#d4c8b8']},
+  7:  {name:'Boho Floral Maxi Dress',      brand:'ASOS',             cat:'Women',       price:10270, originalPrice:13650,  badge:'NEW',  imageUrl:'/images/boho-floral-maxi-dress.jpg', desc:'Flowing boho maxi dress with a vibrant floral print. V-neckline with tiered skirt. Perfect for summer events.', sizes:['XS','S','M','L','XL'], colors:['#e8d4c0','#c8d8e8']},
+  8:  {name:'Power Shoulder Blazer Dress', brand:'Zara',             cat:'Women',       price:20540, originalPrice:27300,  badge:'HOT',  imageUrl:'/images/power-shoulder-blazer-dress.jpg', desc:'Make a statement in this power-shoulder blazer dress. Structured silhouette with gold button detailing. CEO energy.', sizes:['XS','S','M','L'], colors:['#2a2a2a','#1a2a4a','#c8b8a8']},
+  9:  {name:'Ribbed Bodycon Mini Dress',   brand:'PrettyLittleThing',cat:'Women',       price:8580,  originalPrice:11440,  badge:'NEW',  imageUrl:'/images/ribbed-bodycon-mini-dress.jpg', desc:'Form-fitting ribbed bodycon mini dress. Stretchy fabric that hugs every curve. Night-out essential.', sizes:['XS','S','M','L'], colors:['#2a2a2a','#e8c4d0','#c8b8a8']},
+  10: {name:'Satin Slip Evening Dress',    brand:'ASOS',             cat:'Women',       price:15470, originalPrice:19890,  badge:'HOT',  imageUrl:'/images/satin-slip-evening-dress.jpg', desc:'Elegant satin slip dress with adjustable straps. Bias cut for a flattering drape. Perfect for formal events.', sizes:['XS','S','M','L','XL'], colors:['#c8a830','#e8c4d0','#2a2a2a']},
+  11: {name:'Cropped Denim Jacket',        brand:"Levi's",           cat:'Women',       price:16900, originalPrice:22100,  badge:'NEW',  imageUrl:'/images/cropped-denim-jacket-women.jpg', desc:'Classic cropped denim jacket with a relaxed fit. Chest pockets and adjustable button cuffs. Timeless streetwear staple.', sizes:['XS','S','M','L','XL'], colors:['#3a4a5a','#f5f5f5']},
+  12: {name:'High Waist Mom Jeans',        brand:"Levi's",           cat:'Women',       price:13520, originalPrice:17550,  badge:'SALE', imageUrl:'/images/high-waist-mom-jeans.jpg', desc:"Iconic Levi's mom jeans with a high-rise fit. Relaxed through the hip and thigh. Vintage-inspired denim perfection.", sizes:['24','26','28','30','32'], colors:['#3a4a5a','#c8b898','#1a1a1a']},
+  13: {name:'Printed Wrap Blouse',         brand:'H&M',              cat:'Women',       price:8190,  originalPrice:null,   badge:'NEW',  imageUrl:'/images/printed-wrap-blouse.jpg', desc:'Feminine wrap blouse with a vibrant print. V-neck with self-tie waist for an adjustable fit.', sizes:['XS','S','M','L','XL'], colors:['#e8d4c0','#d4e8d4']},
+  14: {name:'Velvet Midi Slip Dress',      brand:'Zara',             cat:'Women',       price:18200, originalPrice:23400,  badge:'HOT',  imageUrl:'/images/velvet-midi-slip-dress.jpg', desc:'Luxurious velvet midi slip dress. Rich texture with a smooth lining. The ultimate party season piece.', sizes:['XS','S','M','L'], colors:['#2a1a4a','#2a2a2a','#8a1a1a']},
+  15: {name:'Trench Coat Classic',         brand:'Burberry',         cat:'Women',       price:45500, originalPrice:58500,  badge:'SALE', imageUrl:'/images/trench-coat-classic.jpg', desc:'The iconic Burberry trench coat. Double-breasted silhouette in premium gabardine. A forever investment piece.', sizes:['XS','S','M','L','XL'], colors:['#c8a878','#2a2a2a']},
+  16: {name:'Corset Top Bralette',         brand:'Shein',            cat:'Women',       price:5720,  originalPrice:7800,   badge:'HOT',  imageUrl:'/images/corset-top-bralette.jpg', desc:'Trendy corset-style bralette with boning detail. Pairs with high-waist jeans or skirts. Y2K aesthetic.', sizes:['XS','S','M','L'], colors:['#2a2a2a','#e8c4d0','#f5f0e8']},
+  17: {name:'Campus Oversized Hoodie',     brand:'Champion',         cat:'Women',       price:9100,  originalPrice:12350,  badge:'NEW',  imageUrl:'/images/campus-oversized-hoodie.jpg', desc:'Cosy Champion campus hoodie in heavyweight fleece. Relaxed fit with kangaroo pocket. Campus essential.', sizes:['XS','S','M','L','XL','XXL'], colors:['#d8e8d4','#c8d4e8','#2a2a2a']},
+  18: {name:'Leather Mini Skirt',          brand:'Zara',             cat:'Women',       price:12870, originalPrice:16900,  badge:'HOT',  imageUrl:'/images/pleated-mini-skirt.jpg', desc:'Edgy faux leather mini skirt. A-line silhouette with side zip. Pairs with oversized tops or crop blazers.', sizes:['XS','S','M','L'], colors:['#1a1a1a']},
+  19: {name:'Printed Maxi Wrap Skirt',     brand:'Mango',            cat:'Women',       price:10920, originalPrice:null,   badge:'NEW',  imageUrl:'/images/printed-maxi-wrap-skirt.jpg', desc:'Flowy printed maxi wrap skirt in a vibrant pattern. Adjustable tie waist. Holiday and resort wear.', sizes:['XS','S','M','L','XL'], colors:['#e8d4c0','#c8e8d4']},
+  20: {name:'Puffer Quilted Jacket',       brand:'The North Face',   cat:'Women',       price:28600, originalPrice:36400,  badge:'SALE', imageUrl:'/images/puffer-quilted-jacket-women.jpg', desc:'Warm North Face quilted puffer jacket. 700-fill down insulation. Packable and windproof. Cold-weather essential.', sizes:['XS','S','M','L','XL'], colors:['#1a2a4a','#c8102e','#2a2a2a']},
+  21: {name:'Slim Fit Chino Trousers',     brand:'Zara Man',         cat:'Men',         price:11050, originalPrice:14300,  badge:'SALE', imageUrl:'/images/slim-fit-chino-trousers.jpg', desc:'Sharp slim-fit chinos in stretch cotton. Clean lines with a modern tapered cut. Office to evening.', sizes:['28','30','32','34','36'], colors:['#c8b898','#2a2a2a','#3a4a5a']},
+  22: {name:'Oxford Button-Down Shirt',    brand:'Ralph Lauren',     cat:'Men',         price:8840,  originalPrice:null,   badge:'NEW',  imageUrl:'/images/oxford-button-down-shirt.jpg', desc:"Ralph Lauren's iconic Oxford shirt. Classic collar with chest pocket. Versatile for smart-casual or formal looks.", sizes:['S','M','L','XL','XXL'], colors:['#f5f5f5','#c8d4e8','#e8c4c4']},
+  23: {name:'Premium Leather Jacket',      brand:'AllSaints',        cat:'Men',         price:38350, originalPrice:49400,  badge:'HOT',  imageUrl:'/images/premium-leather-jacket.jpg', desc:'AllSaints premium lambskin leather jacket. Asymmetric zip with quilted lining. The ultimate statement outerwear.', sizes:['S','M','L','XL'], colors:['#1a1a1a','#3a2a1a']},
+  24: {name:'Merino Wool Crew Sweater',    brand:'Uniqlo',           cat:'Men',         price:16640, originalPrice:21450,  badge:'SALE', imageUrl:'/images/merino-wool-crew-sweater.jpg', desc:'Ultra-fine merino wool crew neck sweater. Lightweight yet warm. Machine washable. Capsule wardrobe essential.', sizes:['S','M','L','XL','XXL'], colors:['#2a2a2a','#c8b898','#3a4a5a','#8a2a2a']},
+  25: {name:'Cargo Utility Shorts',        brand:'Carhartt',         cat:'Men',         price:8060,  originalPrice:10400,  badge:'NEW',  imageUrl:'/images/cargo-utility-shorts.jpg', desc:'Rugged Carhartt cargo shorts with multiple utility pockets. Relaxed fit in durable cotton canvas.', sizes:['28','30','32','34','36'], colors:['#c8b898','#2a3a2a','#2a2a2a']},
+  26: {name:'Linen Summer Shirt',          brand:'Zara Man',         cat:'Men',         price:10140, originalPrice:13000,  badge:'SALE', imageUrl:'/images/linen-summer-shirt.jpg', desc:'Breathable linen shirt for warm days. Relaxed fit with a resort collar. Roll the sleeves for a casual look.', sizes:['S','M','L','XL','XXL'], colors:['#f5f0e8','#c8d4c8','#3a4a5a']},
+  27: {name:'Classic Denim Jacket',        brand:"Levi's",           cat:'Men',         price:18850, originalPrice:24700,  badge:'HOT',  imageUrl:'/images/classic-denim-jacket-men.jpg', desc:"Levi's Trucker denim jacket — the original. Iconic fit with chest flap pockets. A wardrobe staple since 1962.", sizes:['S','M','L','XL','XXL'], colors:['#3a4a5a','#5a6a7a']},
+  28: {name:'Tech Fleece Track Suit',      brand:'Nike',             cat:'Men',         price:21840, originalPrice:28600,  badge:'NEW',  imageUrl:'/images/tech-fleece-track-suit.jpg', desc:"Nike Tech Fleece tracksuit — engineered for comfort and style. Tapered fit with bonded seams. Campus king.", sizes:['S','M','L','XL','XXL'], colors:['#1a1a2a','#2a2a2a','#c8102e']},
+  29: {name:'2-Piece Business Suit',       brand:'Hugo Boss',        cat:'Men',         price:65000, originalPrice:84500,  badge:'HOT',  imageUrl:'/images/2-piece-business-suit.jpg', desc:'Hugo Boss slim-fit 2-piece suit in premium wool blend. Notch lapel with double vent. Boardroom to black tie.', sizes:['38','40','42','44','46'], colors:['#2a2a38','#1a1a1a','#4a4a3a']},
+  30: {name:'Slim Fit Tuxedo Suit',        brand:'Calvin Klein',     cat:'Men',         price:72800, originalPrice:91000,  badge:'NEW',  imageUrl:'/images/wide-leg-linen-trousers.jpg', desc:'Calvin Klein slim tuxedo in Italian fabric. Peak lapels with satin trim. For when the occasion demands perfection.', sizes:['38','40','42','44'], colors:['#1a1a1a']},
+  31: {name:'Campus Graphic Hoodie',       brand:'Adidas',           cat:'Men',         price:9750,  originalPrice:13000,  badge:'HOT',  imageUrl:'/images/campus-oversized-hoodie.jpg', desc:'Adidas Originals campus hoodie with bold graphic print. Heavyweight French terry fleece. Streetwear icon.', sizes:['S','M','L','XL','XXL'], colors:['#1a2a4a','#2a2a2a','#c8102e']},
+  32: {name:'Oversized Streetwear Tee',    brand:'Supreme',          cat:'Men',         price:7150,  originalPrice:null,   badge:'NEW',  imageUrl:'/images/oversized-streetwear-tee.jpg', desc:'Supreme box logo oversized tee. 100% heavyweight cotton. Drop shoulder with boxy fit. Streetwear culture.', sizes:['S','M','L','XL','XXL'], colors:['#f5f5f5','#1a1a1a','#c8102e']},
+  33: {name:'Slim Chino Suit Trousers',    brand:'Hugo Boss',        cat:'Men',         price:18200, originalPrice:23400,  badge:'SALE', imageUrl:'/images/slim-chino-suit-trousers.jpg', desc:'Hugo Boss slim-fit suit trousers in stretch wool blend. Flat front with side adjusters. Wear with jacket or separately.', sizes:['28','30','32','34','36'], colors:['#2a2a38','#3a3a28','#1a1a1a']},
+  34: {name:'Puffer Down Jacket',          brand:'The North Face',   cat:'Men',         price:32500, originalPrice:42250,  badge:'SALE', imageUrl:'/images/puffer-down-jacket-men.jpg', desc:'North Face 700-fill goose down jacket. Waterproof DryVent shell. Warmth without the bulk. Winter companion.', sizes:['S','M','L','XL','XXL'], colors:['#1a1a2a','#2a2a2a','#c8a830']},
+  35: {name:'Campus Jogger Pants',         brand:'Adidas',           cat:'Men',         price:8450,  originalPrice:11050,  badge:'NEW',  imageUrl:'/images/campus-jogger-pants.jpg', desc:'Adidas campus jogger pants in French terry. Tapered leg with elastic waistband and cuffs. Campus to gym.', sizes:['S','M','L','XL','XXL'], colors:['#2a3a2a','#1a1a2a','#c8102e']},
+  36: {name:'Flannel Check Overshirt',     brand:'Carhartt',         cat:'Men',         price:12350, originalPrice:16250,  badge:'HOT',  imageUrl:'/images/flannel-check-overshirt.jpg', desc:'Carhartt flannel overshirt in classic check. Wear as a shirt or layer over tees. Rugged workwear heritage.', sizes:['S','M','L','XL','XXL'], colors:['#4a2a2a','#2a3a4a','#3a4a2a']},
+  37: {name:'Polo Shirt Classic Fit',      brand:'Ralph Lauren',     cat:'Men',         price:10400, originalPrice:13520,  badge:'SALE', imageUrl:'/images/polo-shirt-classic-fit.jpg', desc:"Ralph Lauren's iconic polo shirt. Piqué cotton with signature embroidered pony. The original preppy essential.", sizes:['S','M','L','XL','XXL'], colors:['#f5f5f5','#c8d4e8','#2a2a2a','#2a3a2a']},
+  38: {name:'Washed Denim Jeans',          brand:"Levi's",           cat:'Men',         price:15470, originalPrice:20150,  badge:'NEW',  imageUrl:'/images/washed-denim-jeans.jpg', desc:"Levi's 501 original fit jeans in authentic washed denim. The blueprint for all jeans. Iconic since 1873.", sizes:['28','30','32','34','36','38'], colors:['#3a4a5a','#1a1a1a','#c8b898']},
+  39: {name:'Bomber Flight Jacket',        brand:'Alpha Industries', cat:'Men',         price:24700, originalPrice:31850,  badge:'HOT',  imageUrl:'/images/bomber-flight-jacket.jpg', desc:'Alpha Industries MA-1 bomber jacket. Nylon shell with knit collar and cuffs. The original flight jacket.', sizes:['S','M','L','XL','XXL'], colors:['#2a3a1a','#1a1a2a','#c8a830']},
+  40: {name:'Formal Dress Shirt White',    brand:'Calvin Klein',     cat:'Men',         price:9100,  originalPrice:11700,  badge:'SALE', imageUrl:'/images/oxford-button-down-shirt.jpg', desc:'Calvin Klein slim fit dress shirt in premium cotton. Spread collar for ties. Wrinkle-resistant finish.', sizes:['S','M','L','XL','XXL'], colors:['#f5f5f5','#c8d4e8']},
+  41: {name:'Adidas Forum Low Sneakers',   brand:'Adidas',           cat:'Shoes',       price:14300, originalPrice:18200,  badge:'HOT',  imageUrl:'/images/adidas-forum-low.jpg', desc:"Adidas Forum Low — the basketball classic reborn. Structured upper with iconic ankle strap. '80s heritage.", sizes:['38','39','40','41','42','43','44','45'], colors:['#f5f5f5','#1a1a1a','#c8102e']},
+  42: {name:'Nike Air Force 1 White',      brand:'Nike',             cat:'Shoes',       price:16250, originalPrice:20800,  badge:'HOT',  imageUrl:'/images/nike-air-force-1.jpg', desc:"Nike Air Force 1 '07 — the world's best-selling sneaker. Clean white leather with Air cushioning. Timeless.", sizes:['38','39','40','41','42','43','44','45','46'], colors:['#f5f5f5']},
+  43: {name:'Adidas Stan Smith',           brand:'Adidas',           cat:'Shoes',       price:13000, originalPrice:16900,  badge:'SALE', imageUrl:'/images/adidas-stan-smith.jpg', desc:'Adidas Stan Smith — the original tennis shoe turned style icon. Leather upper with signature heel tab.', sizes:['38','39','40','41','42','43','44','45'], colors:['#f5f5f5','#2a4a2a','#1a1a1a']},
+  44: {name:'Nike Air Max 270',            brand:'Nike',             cat:'Shoes',       price:22100, originalPrice:28600,  badge:'NEW',  imageUrl:'/images/nike-air-max-270.jpg', desc:'Nike Air Max 270 with the largest Air unit yet. Lightweight knit upper with a bold silhouette. All-day comfort.', sizes:['38','39','40','41','42','43','44','45'], colors:['#1a1a1a','#c8102e','#c8a830']},
+  45: {name:'Chelsea Ankle Boots',         brand:'Dr. Martens',      cat:'Shoes',       price:25350, originalPrice:32500,  badge:'HOT',  imageUrl:'/images/chelsea-ankle-boots.jpg', desc:"Dr. Martens Chelsea boots — oil-resistant leather with elastic gore panels. The brand's most iconic silhouette.", sizes:['36','37','38','39','40','41','42','43'], colors:['#1a1a1a','#3a2a1a']},
+  46: {name:'Platform Block Heel Sandals', brand:'Steve Madden',     cat:'Shoes',       price:12350, originalPrice:15990,  badge:'NEW',  imageUrl:'/images/platform-block-heel-sandals.jpg', desc:'Steve Madden platform block heel sandals. Adjustable ankle strap with comfort cushioning. Day-to-night style.', sizes:['36','37','38','39','40','41'], colors:['#1a1a1a','#c8b898','#e8c4d0']},
+  47: {name:'New Balance 574 Classic',     brand:'New Balance',      cat:'Shoes',       price:17550, originalPrice:22750,  badge:'SALE', imageUrl:'/images/adidas-stan-smith.jpg', desc:'New Balance 574 — the ultimate dad shoe turned fashion staple. ENCAP midsole technology. Clean, versatile aesthetic.', sizes:['38','39','40','41','42','43','44','45'], colors:['#d4d4d4','#c8b898','#1a2a4a']},
+  48: {name:'Converse Chuck Taylor High',  brand:'Converse',         cat:'Shoes',       price:11700, originalPrice:14950,  badge:'HOT',  imageUrl:'/images/converse-chuck-taylor-high.jpg', desc:'Converse Chuck Taylor All Star High Top. Canvas upper with vulcanised rubber sole. A cultural icon since 1917.', sizes:['36','37','38','39','40','41','42','43','44','45'], colors:['#1a1a1a','#f5f5f5','#c8102e']},
+  49: {name:'Leather Oxford Dress Shoes',  brand:'Clarks',           cat:'Shoes',       price:19500, originalPrice:25350,  badge:'SALE', imageUrl:'/images/leather-oxford-dress-shoes.jpg', desc:'Clarks premium leather Oxford dress shoes. Welted construction for lasting quality. Cushion Plus technology.', sizes:['39','40','41','42','43','44','45','46'], colors:['#1a1a1a','#3a2a1a']},
+  50: {name:'Vans Old Skool Classic',      brand:'Vans',             cat:'Shoes',       price:10400, originalPrice:13520,  badge:'NEW',  imageUrl:'/images/vans-old-skool-classic.jpg', desc:"Vans Old Skool — the original side stripe design. Suede and canvas upper with waffle outsole. Skate culture icon.", sizes:['36','37','38','39','40','41','42','43','44','45'], colors:['#1a1a1a','#f5f5f5','#c8102e']},
+  51: {name:'Puma Suede Classic',          brand:'Puma',             cat:'Shoes',       price:11050, originalPrice:14300,  badge:'HOT',  imageUrl:'/images/puma-suede-classic.jpg', desc:'Puma Suede Classic — worn by the best since 1968. Soft suede upper with formstrip branding. Old school cool.', sizes:['38','39','40','41','42','43','44'], colors:['#1a1a1a','#c8102e','#2a3a2a']},
+  52: {name:'Timberland 6-Inch Boots',     brand:'Timberland',       cat:'Shoes',       price:26000, originalPrice:33800,  badge:'SALE', imageUrl:'/images/timberland-6inch-boots.jpg', desc:'Timberland Premium 6-inch waterproof boots. Nubuck leather with seam-sealed construction. Hip-hop to hiking.', sizes:['39','40','41','42','43','44','45','46'], colors:['#c8a878','#1a1a1a']},
+  53: {name:'Loafer Penny Shoes',          brand:'Gucci',            cat:'Shoes',       price:48100, originalPrice:62400,  badge:'HOT',  imageUrl:'/images/gucci-horsebit-loafers.jpg', desc:'Gucci horsebit loafers in polished leather. The most recognisable shoes in the world. Investment-worthy luxury.', sizes:['38','39','40','41','42','43','44','45'], colors:['#1a1a1a','#3a2a1a','#c8a830']},
+  54: {name:'Running Sneakers Pro',        brand:'Nike',             cat:'Shoes',       price:19500, originalPrice:25350,  badge:'NEW',  imageUrl:'/images/nike-air-force-1.jpg', desc:'Nike Pegasus running shoes with React foam cushioning. Breathable mesh upper. Road to track versatility.', sizes:['38','39','40','41','42','43','44','45'], colors:['#1a2a4a','#c8102e','#f5f5f5']},
+  55: {name:'Adidas Ultraboost 22',        brand:'Adidas',           cat:'Shoes',       price:24700, originalPrice:32500,  badge:'HOT',  imageUrl:'/images/adidas-forum-low.jpg', desc:'Adidas Ultraboost 22 with responsive Boost cushioning. Primeknit+ upper for adaptive comfort. Run in style.', sizes:['38','39','40','41','42','43','44','45','46'], colors:['#f5f5f5','#1a1a1a','#c8a830']},
+  56: {name:'Slip-On Canvas Shoes',        brand:'Vans',             cat:'Shoes',       price:8450,  originalPrice:10920,  badge:'SALE', imageUrl:'/images/vans-old-skool-classic.jpg', desc:'Vans Slip-On — effortless style with elastic side accents. Canvas upper with waffle rubber outsole.', sizes:['36','37','38','39','40','41','42','43','44'], colors:['#1a1a1a','#f5f5f5','#e8d4c0']},
+  57: {name:'Stiletto Pointed Heels',      brand:'Steve Madden',     cat:'Shoes',       price:14950, originalPrice:19500,  badge:'NEW',  imageUrl:'/images/platform-block-heel-sandals.jpg', desc:'Steve Madden pointed-toe stiletto heels. Sleek patent finish with 10cm heel. Power dressing at its finest.', sizes:['36','37','38','39','40','41'], colors:['#1a1a1a','#f5f5f5','#e8c4d0']},
+  58: {name:'Jordan 1 Retro High OG',      brand:'Jordan',           cat:'Shoes',       price:29900, originalPrice:38350,  badge:'HOT',  imageUrl:'/images/jordan-1-retro-high.jpg', desc:'Air Jordan 1 Retro High OG — the shoe that started a revolution. Premium leather upper with Nike Air cushioning.', sizes:['40','41','42','43','44','45','46'], colors:['#c8102e','#1a1a1a','#f5f5f5']},
+  59: {name:'Casio G-Shock DW-5600',       brand:'Casio',            cat:'Watches',     price:13000, originalPrice:16900,  badge:'HOT',  imageUrl:'/images/casio-gshock-dw5600.jpg', desc:'Casio G-Shock DW-5600 — indestructible. 200m water resistance, shock protection, solar charging. Built for life.', sizes:['One Size'], colors:['#1a1a1a','#c8102e','#c8a830']},
+  60: {name:'Seiko 5 Sports Automatic',    brand:'Seiko',            cat:'Watches',     price:22100, originalPrice:28600,  badge:'NEW',  imageUrl:'/images/seiko-5-sports-automatic.jpg', desc:'Seiko 5 Sports automatic watch. Self-winding movement with 41-hour power reserve. Diver-inspired aesthetic.', sizes:['One Size'], colors:['#1a2a4a','#2a3a4a','#c8a830']},
+  61: {name:'Daniel Wellington Classic',   brand:'Daniel Wellington',cat:'Watches',     price:19500, originalPrice:25350,  badge:'SALE', imageUrl:'/images/daniel-wellington-classic.jpg', desc:'Daniel Wellington Classic with interchangeable strap. Minimalist design with Japanese quartz movement. Dress-watch perfection.', sizes:['36mm','40mm'], colors:['#f0ead8','#1a1a1a','#c8102e']},
+  62: {name:'Fossil Gen 6 Smartwatch',     brand:'Fossil',           cat:'Watches',     price:32500, originalPrice:42250,  badge:'NEW',  imageUrl:'/images/fossil-gen6-smartwatch.jpg', desc:'Fossil Gen 6 smartwatch powered by Wear OS. Health tracking, GPS, NFC payments. Hybrid of fashion and function.', sizes:['44mm'], colors:['#1a1a1a','#c8b898']},
+  63: {name:'Casio Vintage Gold',          brand:'Casio',            cat:'Watches',     price:9100,  originalPrice:11700,  badge:'HOT',  imageUrl:'/images/casio-vintage-gold.jpg', desc:'Casio Vintage A168 in gold-tone stainless steel. Classic digital display with retro charm. Y2K fashion darling.', sizes:['One Size'], colors:['#c8a830']},
+  64: {name:'Tommy Hilfiger Classic',      brand:'Tommy Hilfiger',   cat:'Watches',     price:16250, originalPrice:21060,  badge:'SALE', imageUrl:'/images/tommy-hilfiger-classic-watch.jpg', desc:'Tommy Hilfiger classic with navy and red flag detail. Stainless steel case with genuine leather strap.', sizes:['One Size'], colors:['#1a2a4a','#1a1a1a']},
+  65: {name:'Citizen Eco-Drive Solar',     brand:'Citizen',          cat:'Watches',     price:28600, originalPrice:37050,  badge:'NEW',  imageUrl:'/images/citizen-eco-drive-solar.jpg', desc:'Citizen Eco-Drive — powered by any light source, never needs a battery. Sapphire crystal with 100m water resistance.', sizes:['One Size'], colors:['#2a2a2a','#c8b898']},
+  66: {name:'Nixon Time Teller',           brand:'Nixon',            cat:'Watches',     price:14300, originalPrice:18590,  badge:'HOT',  imageUrl:'/images/nixon-time-teller.jpg', desc:'Nixon Time Teller — stripped-back analog design. Single-piece stainless steel case. Surf and skate heritage.', sizes:['One Size'], colors:['#1a1a1a','#f5f5f5','#c8a830']},
+  67: {name:'Armani Exchange Stainless',   brand:'Armani Exchange',  cat:'Watches',     price:24700, originalPrice:32110,  badge:'SALE', imageUrl:'/images/armani-exchange-stainless.jpg', desc:'Armani Exchange three-hand watch in brushed stainless steel. Minimalist dial with AX branding. Italian luxury made accessible.', sizes:['One Size'], colors:['#2a2a2a','#c8a830']},
+  68: {name:'Garmin Forerunner 255',       brand:'Garmin',           cat:'Watches',     price:45500, originalPrice:58500,  badge:'NEW',  imageUrl:'/images/garmin-forerunner-255.jpg', desc:'Garmin Forerunner 255 GPS running watch. Up to 14-day battery life. Advanced training metrics and health monitoring.', sizes:['41mm','46mm'], colors:['#1a2a1a','#1a1a2a','#2a2a2a']},
+  69: {name:'Casio F-91W Digital',         brand:'Casio',            cat:'Watches',     price:3250,  originalPrice:4550,   badge:'SALE', imageUrl:'/images/casio-f91w-digital.jpg', desc:'Casio F-91W — the most iconic budget watch ever made. Resin case with LED backlight. A cultural object.', sizes:['One Size'], colors:['#1a1a1a','#f5f5f5']},
+  70: {name:'Michael Kors Rose Gold',      brand:'Michael Kors',     cat:'Watches',     price:35100, originalPrice:45500,  badge:'HOT',  imageUrl:'/images/michael-kors-rose-gold.jpg', desc:'Michael Kors Runway rose gold chronograph. Oversized dial with crystal-set bezel. Glamour on your wrist.', sizes:['38mm','42mm'], colors:['#e8c4b4','#c8a830']},
+  71: {name:'Leather Tote Shoulder Bag',   brand:'Coach',            cat:'Accessories', price:23140, originalPrice:30030,  badge:'HOT',  imageUrl:'/images/leather-tote-shoulder-bag.jpg', desc:'Coach leather tote in signature pebble leather. Zip top closure with interior organisation. Work to weekend.', sizes:['One Size'], colors:['#c8a878','#1a1a1a','#c8b898']},
+  72: {name:'Silk Printed Square Scarf',   brand:'Gucci',            cat:'Accessories', price:8450,  originalPrice:10920,  badge:'SALE', imageUrl:'/images/silk-printed-square-scarf.jpg', desc:'Gucci-inspired silk square scarf. Vibrant printed design with hand-rolled edges. Wear on hair, neck, or bag.', sizes:['70x70cm','90x90cm'], colors:['#e8d4c0','#c8d8e8']},
+  73: {name:'Mini Crossbody Bag',          brand:'Coach',            cat:'Accessories', price:17550, originalPrice:22750,  badge:'NEW',  imageUrl:'/images/mini-crossbody-bag.jpg', desc:'Coach mini crossbody in smooth leather. Adjustable strap with silver hardware. Evening bag that fits your essentials.', sizes:['One Size'], colors:['#1a1a1a','#c8a878','#e8c4d0']},
+  74: {name:'Snapback Cap Streetwear',     brand:'New Era',          cat:'Accessories', price:5850,  originalPrice:7800,   badge:'HOT',  imageUrl:'/images/snapback-cap-streetwear.jpg', desc:'New Era 9FIFTY snapback cap. Structured crown with flat brim. Adjustable closure for a custom fit. Street essential.', sizes:['One Size'], colors:['#1a1a1a','#c8102e','#1a2a4a']},
+  75: {name:'Gold Cuban Link Chain',       brand:'DRIP Gold',        cat:'Accessories', price:11570, originalPrice:15080,  badge:'HOT',  imageUrl:'/images/gold-cuban-link-chain.jpg', desc:'18K gold-plated Cuban link chain. 10mm wide with lobster clasp closure. Anti-tarnish coating. Statement jewellery.', sizes:['45cm','50cm','55cm'], colors:['#c8a830']},
+  76: {name:'Aviator Sunglasses',          brand:'Ray-Ban',          cat:'Accessories', price:22100, originalPrice:28730,  badge:'SALE', imageUrl:'/images/aviator-sunglasses.jpg', desc:'Ray-Ban Aviator Classic with mineral glass lenses. UV400 protection. The original aviator since 1937.', sizes:['One Size'], colors:['#c8a830','#2a2a2a']},
+  77: {name:'Leather Belt Braided',        brand:'Tommy Hilfiger',   cat:'Accessories', price:6500,  originalPrice:8450,   badge:'NEW',  imageUrl:'/images/leather-belt-braided.jpg', desc:'Tommy Hilfiger braided leather belt. Reversible design in smooth and woven textures. Silver pin buckle.', sizes:['S','M','L','XL'], colors:['#3a2a1a','#1a1a1a']},
+  78: {name:'Canvas Backpack Campus',      brand:'Herschel',         cat:'Accessories', price:14300, originalPrice:18590,  badge:'HOT',  imageUrl:'/images/leather-belt-braided.jpg', desc:'Herschel Little America backpack. 25L capacity with padded laptop sleeve. Vintage-inspired hardware. Campus royalty.', sizes:['One Size'], colors:['#4a3a2a','#1a2a4a','#1a1a1a']},
+  79: {name:'Gold Hoop Earrings Set',      brand:'DRIP Gold',        cat:'Accessories', price:4550,  originalPrice:5850,   badge:'NEW',  imageUrl:'/images/gold-hoop-earrings-set.jpg', desc:'14K gold-plated hoop earring set. Three sizes — 20mm, 30mm, 40mm. Hypoallergenic with secure closure.', sizes:['One Size'], colors:['#c8a830']},
+  80: {name:'Waist Fanny Pack',            brand:'Adidas',           cat:'Accessories', price:5200,  originalPrice:6760,   badge:'SALE', imageUrl:'/images/leather-tote-shoulder-bag.jpg', desc:'Adidas Originals waist pack. Adjustable webbing strap with buckle closure. Front and back zip pockets.', sizes:['One Size'], colors:['#1a1a2a','#c8102e','#f5f5f5']},
+  81: {name:'Beanie Knit Winter Hat',      brand:'Carhartt',         cat:'Accessories', price:4160,  originalPrice:5460,   badge:'NEW',  imageUrl:'/images/beanie-knit-winter-hat.jpg', desc:'Carhartt WIP watch hat in heavyweight knit. Ribbed construction with folded cuff. Cold weather essential.', sizes:['One Size'], colors:['#2a2a2a','#c8a830','#c8102e']},
+  82: {name:'Cat Eye Sunglasses',          brand:'Prada',            cat:'Accessories', price:29900, originalPrice:38870,  badge:'HOT',  imageUrl:'/images/prada-cat-eye.jpg', desc:"Prada cat-eye sunglasses in acetate frames. Gradient lenses with UV400 protection. Prada's signature glamour.", sizes:['One Size'], colors:['#1a0a0a','#c8a830','#e8c4d0']},
+  83: {name:'Leather Card Holder Wallet',  brand:'Coach',            cat:'Accessories', price:7150,  originalPrice:9295,   badge:'SALE', imageUrl:'/images/leather-card-holder-wallet.jpg', desc:'Coach slim card holder in pebble leather. 8 card slots with centre slip pocket. Minimalist wallet perfection.', sizes:['One Size'], colors:['#1a1a1a','#3a2a1a','#c8b898']},
+  84: {name:'Straw Bucket Hat Summer',     brand:'H&M',              cat:'Accessories', price:4550,  originalPrice:5850,   badge:'NEW',  imageUrl:'/images/straw-bucket-hat-summer.jpg', desc:'Woven straw bucket hat with adjustable inner band. Packable and lightweight. Beach and holiday essential.', sizes:['One Size'], colors:['#e8d4a0','#c8a878']},
+  85: {name:'Statement Pearl Necklace',    brand:'DRIP Gold',        cat:'Accessories', price:8840,  originalPrice:11440,  badge:'HOT',  imageUrl:'/images/statement-pearl-necklace.jpg', desc:'Freshwater pearl statement necklace. Graduated sizing with 14K gold-plated clasp. Timeless elegance.', sizes:['45cm','50cm'], colors:['#f5f0e8','#c8a830']},
+  86: {name:'Kids Denim Bib Set',          brand:'H&M Kids',         cat:'Kids',        price:7150,  originalPrice:9295,   badge:'NEW',  imageUrl:'/images/kids-denim-bib-set.jpg', desc:'Cute H&M Kids denim bib overalls set. Adjustable shoulder straps with snap buttons at bottom. Adorable and practical.', sizes:['2Y','3Y','4Y','5Y','6Y'], colors:['#3a4a5a','#c8e8f0']},
+  87: {name:'Girls Tutu Party Dress',      brand:'Zara Kids',        cat:'Kids',        price:6240,  originalPrice:8190,   badge:'HOT',  imageUrl:'/images/girls-tutu-party-dress.jpg', desc:'Zara Kids tutu party dress. Layered tulle skirt with glitter bodice. Perfect for birthdays and special occasions.', sizes:['2Y','3Y','4Y','5Y','6Y','7Y'], colors:['#f0d0f0','#f0d0d0','#d0d0f0']},
+  88: {name:'Kids Air Max Sneakers',       brand:'Nike Kids',        cat:'Kids',        price:8060,  originalPrice:10400,  badge:'SALE', imageUrl:'/images/nike-air-force-1.jpg', desc:'Nike Air Max kids sneakers. Lightweight with visible Air unit. Easy slip-on design for little feet.', sizes:['28','29','30','31','32','33','34','35'], colors:['#f5f5f5','#1a1a1a','#c8102e']},
+  89: {name:'Boys Zip-Up Hoodie',          brand:'Adidas Kids',      cat:'Kids',        price:5460,  originalPrice:6760,   badge:'NEW',  imageUrl:'/images/kids-denim-bib-set.jpg', desc:'Adidas Kids zip-up hoodie in cosy fleece. Three stripes on sleeves. Campus style from a young age.', sizes:['5Y','6Y','7Y','8Y','10Y','12Y'], colors:['#1a2a4a','#2a3a2a','#2a2a2a']},
+  90: {name:'Girls Floral Sundress',       brand:'H&M Kids',         cat:'Kids',        price:5850,  originalPrice:7540,   badge:'HOT',  imageUrl:'/images/girls-tutu-party-dress.jpg', desc:'H&M Kids floral sundress with smocked bodice. Adjustable straps for growing kids. Soft woven cotton.', sizes:['2Y','3Y','4Y','5Y','6Y'], colors:['#f0e0f0','#d0f0e0','#f0d0d0']},
+  91: {name:'Boys Cargo Shorts',           brand:'Zara Kids',        cat:'Kids',        price:4550,  originalPrice:5980,   badge:'SALE', imageUrl:'/images/kids-denim-bib-set.jpg', desc:'Zara Kids cargo shorts with side pockets. Adjustable waistband with elastic back. Active kids approved.', sizes:['5Y','6Y','7Y','8Y','10Y'], colors:['#c8b898','#2a3a2a','#1a1a1a']},
+  92: {name:'Kids School Backpack',        brand:'Adidas Kids',      cat:'Kids',        price:6500,  originalPrice:8450,   badge:'NEW',  imageUrl:'/images/leather-belt-braided.jpg', desc:'Adidas Kids classic school backpack. 20L capacity with padded back panel and straps. Front zip pocket.', sizes:['One Size'], colors:['#1a2a4a','#c8102e','#2a3a2a']},
+  93: {name:'Baby Onesie Set 3-Pack',      brand:'H&M Baby',         cat:'Kids',        price:3900,  originalPrice:5070,   badge:'HOT',  imageUrl:'/images/kids-denim-bib-set.jpg', desc:'H&M Baby organic cotton onesie set. Three designs per pack. Envelope neckline for easy dressing. Soft on new skin.', sizes:['0-1M','1-2M','2-4M','4-6M','6-9M','9-12M'], colors:['#f5f0e8','#d0e8f0','#f0d0d0']},
+};
+
+  // Pull related products from same category, excluding current
+  const RELATED = Object.values(PRODUCTS)
+    .filter(p => p.cat === (PRODUCTS[parseInt(new URLSearchParams(window.location.search).get('id'))||1]||PRODUCTS[1]).cat)
+    .filter((p,i) => i < 4)
+    .map((p,i) => ({...p, id: Object.keys(PRODUCTS)[i]}));
+
+  /* ===== LOAD PRODUCT ===== */
+  const urlParams = new URLSearchParams(window.location.search);
+  const productId = parseInt(urlParams.get('id')) || 1;
+  const product = PRODUCTS[productId] || PRODUCTS.default;
+  let qty = 1;
+  let selectedSize = '';
+  let selectedColor = '';
+  let inWishlist = false;
+
+  function initProduct() {
+    document.getElementById('productName').textContent = product.name;
+    document.getElementById('bcProduct').textContent = product.name;
+    document.getElementById('mainEmoji').textContent = product.emoji;
+    const mainImg = document.getElementById('mainImage');
+    const mainEmoji = document.getElementById('mainEmoji');
+    if (product.imageUrl) {
+      mainImg.src = product.imageUrl;
+      mainImg.style.display = 'block';
+      mainEmoji.style.display = 'none';
+      mainImg.onerror = function() { mainImg.style.display='none'; mainEmoji.style.display='flex'; };
+    } else {
+      mainImg.style.display = 'none';
+      mainEmoji.style.display = 'flex';
+    }
+    document.getElementById('mainBadge').textContent = product.badge;
+    document.getElementById('mainBadge').className = 'img-badge' + (product.badge === 'SALE' ? '' : '');
+    document.getElementById('tagCat').textContent = product.cat;
+    document.getElementById('productDesc').textContent = product.desc;
+    document.getElementById('tagNew').textContent = product.badge;
+    document.getElementById('tagNew').className = 'tag ' + (product.badge==='NEW'?'tag-new':product.badge==='HOT'?'tag-hot':'tag-sale');
+    document.title = 'DRIP — ' + product.name;
+    // Price
+    document.getElementById('priceDisplay').textContent = 'KES ' + Number(product.price).toLocaleString('en-KE');
+    if (product.originalPrice) {
+      document.getElementById('priceOld').style.display = '';
+      document.getElementById('priceSave').style.display = '';
+      document.getElementById('priceOld').textContent = 'KES ' + Number(product.originalPrice).toLocaleString('en-KE');
+      document.getElementById('priceSave').textContent = 'Save KES ' + Number(product.originalPrice - product.price).toLocaleString('en-KE');
+    }
+    // Sizes
+    document.getElementById('sizesContainer').innerHTML = product.sizes.map(s =>
+      `<button class="size-btn" onclick="selectSize(this,'${s}')">${s}</button>`).join('');
+    // Colors
+    document.getElementById('colorsContainer').innerHTML = product.colors.map(c =>
+      `<button class="color-btn" style="background:${c};" onclick="selectColor(this,'${c}')"></button>`).join('');
+    // Thumbs
+    document.getElementById('thumbs').innerHTML = product.thumbs.map((e,i) =>
+      `<div class="thumb ${i===0?'active':''}" onclick="selectThumb(this,'${e}')">${e}</div>`).join('');
+    // Wishlist state
+    const wl = JSON.parse(sessionStorage.getItem('drip-wishlist') || '[]');
+    inWishlist = wl.includes(productId);
+    updateWishlistUI();
+    // Cart count
+    updateCartCount();
+  }
+
+  function selectSize(btn, size) {
+    document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active'); selectedSize = size;
+    document.getElementById('selectedSize').textContent = size;
+  }
+  function selectColor(btn, color) {
+    document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active'); selectedColor = color;
+    document.getElementById('selectedColor').textContent = '●';
+    document.getElementById('selectedColor').style.color = color;
+  }
+  function selectThumb(btn, emoji) {
+    document.querySelectorAll('.thumb').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('mainEmoji').textContent = emoji;
+  }
+  function changeQty(d) {
+    qty = Math.max(1, Math.min(10, qty + d));
+    document.getElementById('qtyNum').textContent = qty;
+  }
+
+  function addToCart() {
+    const cart = JSON.parse(sessionStorage.getItem('drip-cart') || '[]');
+    const existing = cart.find(i => i.id === productId);
+    if (existing) existing.qty += qty;
+    else cart.push({id: productId, name: product.name, price: product.price, emoji: product.emoji, imageUrl: product.imageUrl || '', qty});
+    sessionStorage.setItem('drip-cart', JSON.stringify(cart));
+    updateCartCount();
+    const btn = document.getElementById('addBtn');
+    btn.classList.add('added');
+    btn.innerHTML = '<i class="bi bi-check-lg"></i> Added!';
+    setTimeout(() => { btn.classList.remove('added'); btn.innerHTML = '<i class="bi bi-bag-plus"></i> Add to Bag'; }, 2000);
+    showToast(product.name + ' added to your bag!');
+  }
+
+  function buyNow() {
+    addToCart();
+    setTimeout(() => window.location.href = 'checkout.html', 300);
+  }
+
+  function toggleWishlist() {
+    inWishlist = !inWishlist;
+    const wl = JSON.parse(sessionStorage.getItem('drip-wishlist') || '[]');
+    const idx = wl.indexOf(productId);
+    if (inWishlist && idx === -1) wl.push(productId);
+    else if (!inWishlist && idx > -1) wl.splice(idx, 1);
+    sessionStorage.setItem('drip-wishlist', JSON.stringify(wl));
+    updateWishlistUI();
+    showToast(inWishlist ? 'Added to wishlist!' : 'Removed from wishlist');
+  }
+
+  function updateWishlistUI() {
+    const icon = inWishlist ? 'bi bi-heart-fill' : 'bi bi-heart';
+    document.getElementById('wishlistBtn').className = 'wishlist-btn' + (inWishlist ? ' active' : '');
+    document.getElementById('wishlistBtn').innerHTML = `<i class="${icon}"></i>`;
+    document.getElementById('galleryWishlist').className = 'img-wishlist' + (inWishlist ? ' active' : '');
+    document.getElementById('galleryWishlist').innerHTML = `<i class="${icon}"></i>`;
+  }
+
+  function updateCartCount() {
+    const cart = JSON.parse(sessionStorage.getItem('drip-cart') || '[]');
+    document.getElementById('cartCount').textContent = cart.reduce((s,i) => s + i.qty, 0);
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toastMsg').textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  function toggleAccordion(header) {
+    const body = header.nextElementSibling;
+    header.classList.toggle('open');
+    body.classList.toggle('open');
+  }
+
+  function scrollToReviews() {
+    document.getElementById('reviewsSection').scrollIntoView({behavior:'smooth'});
+  }
+
+  /* ===== RELATED ===== */
+  document.getElementById('relatedGrid').innerHTML = RELATED.map(p => `
+    <div class="related-card" onclick="window.location.href='product.html?id=${p.id}'">
+      <div class="related-img">${p.emoji}</div>
+      <div class="related-info">
+        <div class="related-name">${p.name}</div>
+        <div><span class="related-price">$${p.price}</span>${p.oldPrice ? `<span class="related-old">$${p.oldPrice}</span>`:''}</div>
+      </div>
+    </div>`).join('');
+
+  initProduct();
+</script>
+
+<div class="mobile-menu" id="mobileMenu" style="visibility:hidden;pointer-events:none;">
+  <button class="mobile-menu-close" onclick="toggleMobileMenu()"><i class="bi bi-x"></i></button>
+  <a href="shop.html"     class="mobile-menu-link">Home      <i class="bi bi-chevron-right" style="font-size:20px"></i></a>
+  <a href="products.html" class="mobile-menu-link">Shop      <i class="bi bi-chevron-right" style="font-size:20px"></i></a>
+  <a href="orders.html"   class="mobile-menu-link">My Orders <i class="bi bi-chevron-right" style="font-size:20px"></i></a>
+  <a href="wishlist.html" class="mobile-menu-link">Wishlist  <i class="bi bi-chevron-right" style="font-size:20px"></i></a>
+  <a href="profile.html"  class="mobile-menu-link">Profile   <i class="bi bi-chevron-right" style="font-size:20px"></i></a>
+</div>
+<div class="bottom-nav" id="bottomNav">
+  <div class="bottom-nav-inner">
+    <a href="shop.html" class="bottom-nav-item"><i class="bi bi-house-fill"></i>Home</a>
+    <a href="products.html" class="bottom-nav-item active"><i class="bi bi-grid-fill"></i>Shop</a>
+    <a href="orders.html" class="bottom-nav-item"><i class="bi bi-truck"></i>Orders</a>
+    <a href="wishlist.html" class="bottom-nav-item"><i class="bi bi-heart-fill"></i>Wishlist</a>
+    <a href="profile.html" class="bottom-nav-item"><i class="bi bi-person-fill"></i>Profile</a>
+  </div>
+</div>
+</body>
+</html>

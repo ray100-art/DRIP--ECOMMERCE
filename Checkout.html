@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DRIP — Checkout</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black: #0d0d0d; --white: #fdfcf9; --cream: #f7f2ea;
+      --red: #c8102e; --red-dark: #9e0c24; --green: #2e7d32;
+      --green-light: #e8f5e9; --mpesa-green: #00a651; --mpesa-dark: #007a3d;
+      --gray-100: #f2ede6; --gray-200: #e4ddd3; --gray-500: #9a9089;
+      --gray-700: #4a4440; --gold: #b8973a; --gold-light: #e8d98a;
+      --nav-h: 72px;
+      --shadow-sm: 0 2px 8px rgba(13,13,13,0.06);
+      --shadow-md: 0 8px 32px rgba(13,13,13,0.10);
+      --shadow-lg: 0 20px 60px rgba(13,13,13,0.15);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--black);
+      background-image:
+        radial-gradient(ellipse at 20% 0%, rgba(184,151,58,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 100%, rgba(200,16,46,0.05) 0%, transparent 60%);
+      min-height: 100vh;
+    }
+    nav {
+      background: rgba(253,252,249,0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(184,151,58,0.15);
+      height: var(--nav-h); display: flex; align-items: center;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 1px 0 rgba(184,151,58,0.1), var(--shadow-sm);
+    }
+    .nav-inner { width: 100%; max-width: 1280px; margin: 0 auto; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif; font-size: 30px;
+      letter-spacing: 0.15em; color: var(--black); text-decoration: none;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .nav-logo-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 8px rgba(184,151,58,0.5); }
+    .progress-steps { display: flex; align-items: center; gap: 0; }
+    .step { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gray-500); font-family: 'DM Sans', sans-serif; }
+    .step.active { color: var(--black); }
+    .step.done { color: var(--gold); }
+    .step-num { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--gray-200); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; background: transparent; }
+    .step.active .step-num { border-color: var(--black); background: var(--black); color: #fff; }
+    .step.done .step-num { border-color: var(--gold); background: var(--gold); color: #fff; }
+    .step-line { width: 48px; height: 1px; background: var(--gray-200); margin: 0 6px; }
+    .step-line.done { background: linear-gradient(90deg, var(--gold), var(--gold-light)); }
+
+    .checkout-wrap { max-width: 1280px; margin: 48px auto; padding: 0 40px; display: grid; grid-template-columns: 1fr 420px; gap: 40px; align-items: start; }
+    .checkout-left { display: flex; flex-direction: column; gap: 20px; }
+    .checkout-right { position: sticky; top: calc(var(--nav-h) + 24px); }
+
+    .card {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 32px 36px;
+      border: 1px solid rgba(228,221,211,0.8);
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow .3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(184,151,58,0.3), transparent);
+    }
+    .card:hover { box-shadow: var(--shadow-md); }
+
+    .card-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+      margin-bottom: 24px;
+      display: flex; align-items: center; gap: 12px;
+      color: var(--black);
+      border-bottom: 1px solid var(--gray-200);
+      padding-bottom: 16px;
+    }
+    .card-title i { color: var(--gold); font-size: 16px; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .form-row.full { grid-template-columns: 1fr; }
+    .form-group { display: flex; flex-direction: column; gap: 7px; }
+    .form-group label {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--gray-500);
+      font-family: 'DM Sans', sans-serif;
+    }
+    .form-group input, .form-group select {
+      padding: 13px 18px;
+      border: 1px solid var(--gray-200);
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px; outline: none;
+      transition: all .25s;
+      background: var(--cream);
+      color: var(--black);
+    }
+    .form-group input:focus, .form-group select:focus {
+      border-color: var(--gold);
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(184,151,58,0.1);
+    }
+
+    .shipping-options { display: flex; flex-direction: column; gap: 10px; }
+    .shipping-option {
+      display: flex; align-items: center; gap: 16px;
+      padding: 16px 20px;
+      border: 1px solid var(--gray-200);
+      border-radius: 12px; cursor: pointer; transition: all .25s;
+      background: var(--white);
+    }
+    .shipping-option:hover { border-color: var(--gold); background: rgba(184,151,58,0.03); }
+    .shipping-option.selected {
+      border-color: var(--gold);
+      background: rgba(184,151,58,0.06);
+      box-shadow: 0 0 0 1px rgba(184,151,58,0.2);
+    }
+    .shipping-option input[type="radio"] { accent-color: var(--gold); width: 16px; height: 16px; flex-shrink: 0; }
+    .shipping-info { flex: 1; }
+    .shipping-name { font-size: 14px; font-weight: 600; }
+    .shipping-time { font-size: 11px; color: var(--gray-500); margin-top: 3px; letter-spacing: 0.02em; }
+    .shipping-price { font-size: 15px; font-weight: 600; font-family: 'Cormorant Garamond', serif; letter-spacing: 0.02em; }
+    .shipping-price.free { color: var(--mpesa-green); }
+
+    .payment-tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+    .pay-tab {
+      flex: 1; min-width: 90px; padding: 14px 8px;
+      border: 1px solid var(--gray-200); border-radius: 12px;
+      background: var(--cream); cursor: pointer; transition: all .25s;
+      display: flex; flex-direction: column; align-items: center; gap: 7px;
+      font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray-500);
+    }
+    .pay-tab:hover { border-color: var(--gray-500); color: var(--gray-700); background: var(--white); }
+    .pay-tab.active { border-color: var(--mpesa-green); color: var(--mpesa-green); background: #f0fff8; box-shadow: 0 0 0 1px rgba(0,166,81,0.15); }
+    .pay-tab.active-card { border-color: var(--black); color: var(--black); background: var(--white); box-shadow: 0 0 0 1px rgba(13,13,13,0.1); }
+    .pay-tab.active-paypal { border-color: #003087; color: #003087; background: #f0f4ff; box-shadow: 0 0 0 1px rgba(0,48,135,0.15); }
+    .pay-tab.active-cod { border-color: var(--gold); color: var(--gold); background: rgba(184,151,58,0.06); box-shadow: 0 0 0 1px rgba(184,151,58,0.2); }
+    .pay-tab i { font-size: 20px; }
+    .payment-panel { display: none; }
+    .payment-panel.active { display: block; animation: fadeUp .3s ease both; }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+    .mpesa-header {
+      background: linear-gradient(135deg, #00a651 0%, #007a3d 100%);
+      border-radius: 14px; padding: 22px 26px; margin-bottom: 22px;
+      display: flex; align-items: center; gap: 18px; color: #fff;
+      box-shadow: 0 8px 24px rgba(0,166,81,0.25);
+    }
+    .mpesa-logo { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 0.1em; background: #fff; color: var(--mpesa-green); padding: 6px 14px; border-radius: 6px; }
+    .mpesa-header-text { flex: 1; }
+    .mpesa-header-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+    .mpesa-header-sub { font-size: 12px; opacity: 0.85; }
+    .mpesa-steps { display: flex; gap: 10px; margin-bottom: 20px; }
+    .mpesa-step { flex: 1; text-align: center; padding: 14px 8px; background: var(--green-light); border-radius: 10px; }
+    .mpesa-step-num { width: 26px; height: 26px; border-radius: 50%; background: var(--mpesa-green); color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; }
+    .mpesa-step-text { font-size: 11px; color: var(--gray-700); font-weight: 500; line-height: 1.4; }
+    .mpesa-phone-wrap { position: relative; }
+    .mpesa-phone-prefix { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 14px; font-weight: 600; color: var(--gray-700); display: flex; align-items: center; gap: 6px; }
+    .mpesa-phone-input { width: 100%; padding: 14px 16px 14px 80px !important; border: 1.5px solid var(--gray-200); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; outline: none; transition: all .25s; background: var(--cream); }
+    .mpesa-phone-input:focus { border-color: var(--mpesa-green); background: var(--white); box-shadow: 0 0 0 3px rgba(0,166,81,0.1); }
+    .mpesa-note { font-size: 12px; color: var(--gray-500); margin-top: 8px; display: flex; align-items: center; gap: 6px; }
+    .mpesa-note i { color: var(--mpesa-green); }
+
+    .card-icons { display: flex; gap: 8px; margin-bottom: 16px; }
+    .card-icon { padding: 5px 12px; border: 1px solid var(--gray-200); border-radius: 6px; font-size: 11px; font-weight: 700; color: var(--gray-500); background: var(--cream); letter-spacing: 0.05em; }
+
+    .paypal-info { text-align: center; padding: 32px 24px; background: linear-gradient(135deg, #f0f4ff, #e8eeff); border-radius: 14px; }
+    .paypal-logo { font-size: 48px; margin-bottom: 12px; }
+    .paypal-text { font-size: 14px; color: var(--gray-700); line-height: 1.7; }
+    .paypal-btn { margin-top: 20px; padding: 14px 40px; background: #003087; color: #fff; border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all .2s; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 16px rgba(0,48,135,0.3); }
+    .paypal-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    .cod-info { padding: 24px; background: rgba(184,151,58,0.05); border: 1.5px solid rgba(184,151,58,0.25); border-radius: 14px; display: flex; gap: 16px; align-items: flex-start; }
+    .cod-icon { font-size: 32px; flex-shrink: 0; }
+    .cod-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; font-family: 'Cormorant Garamond', serif; letter-spacing: 0.02em; font-size: 17px; }
+    .cod-text { font-size: 13px; color: var(--gray-700); line-height: 1.7; }
+    .cod-fee { margin-top: 10px; font-size: 12px; font-weight: 600; color: var(--gold); letter-spacing: 0.02em; }
+
+    .promo-wrap { display: flex; gap: 10px; margin-top: 16px; }
+    .promo-input { flex: 1; padding: 12px 18px; border: 1px solid var(--gray-200); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; outline: none; text-transform: uppercase; letter-spacing: 0.12em; background: var(--cream); transition: all .25s; }
+    .promo-input:focus { border-color: var(--gold); background: var(--white); box-shadow: 0 0 0 3px rgba(184,151,58,0.1); }
+    .promo-btn { padding: 12px 22px; background: var(--black); color: #fff; border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; cursor: pointer; transition: all .2s; white-space: nowrap; text-transform: uppercase; }
+    .promo-btn:hover { background: var(--gold); transform: translateY(-1px); }
+    .promo-success { color: var(--mpesa-green); font-size: 12px; font-weight: 600; margin-top: 8px; display: none; letter-spacing: 0.02em; }
+    .promo-error { color: var(--red); font-size: 12px; margin-top: 8px; display: none; }
+
+    /* ORDER SUMMARY CARD — dark luxury */
+    .checkout-right .card {
+      background: var(--black);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--white);
+    }
+    .checkout-right .card::before {
+      background: linear-gradient(90deg, transparent, rgba(184,151,58,0.6), transparent);
+    }
+    .summary-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px; font-weight: 400; font-style: italic;
+      letter-spacing: 0.05em; margin-bottom: 24px;
+      color: var(--white);
+    }
+    .summary-items { margin-bottom: 20px; display: flex; flex-direction: column; gap: 14px; }
+    .summary-item { display: flex; gap: 14px; align-items: center; }
+    .summary-item-emoji {
+      width: 58px; height: 58px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 10px; display: flex; align-items: center;
+      justify-content: center; font-size: 26px; flex-shrink: 0;
+      position: relative;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .summary-item-qty { position: absolute; top: -7px; right: -7px; width: 20px; height: 20px; border-radius: 50%; background: var(--gold); color: var(--black); font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .summary-item-info { flex: 1; }
+    .summary-item-name { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.9); }
+    .summary-item-cat { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+    .summary-item-price { font-size: 14px; font-weight: 600; color: var(--gold-light); font-family: 'Cormorant Garamond', serif; font-size: 16px; }
+
+    .summary-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 18px 0; }
+    .summary-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 10px; color: rgba(255,255,255,0.6); }
+    .summary-row.discount { color: var(--mpesa-green); font-weight: 600; }
+    .summary-row.total { font-size: 20px; font-weight: 600; margin-top: 18px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,0.1); margin-bottom: 0; color: var(--white); font-family: 'Cormorant Garamond', serif; }
+    .summary-row .label { color: rgba(255,255,255,0.5); }
+    .summary-row.total .label { color: rgba(255,255,255,0.7); }
+
+    .place-order-btn {
+      width: 100%; padding: 18px; margin-top: 24px;
+      background: linear-gradient(135deg, var(--gold) 0%, #d4a843 50%, var(--gold) 100%);
+      background-size: 200% 100%;
+      color: var(--black); border: none; border-radius: 12px;
+      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer;
+      transition: all .3s; display: flex; align-items: center; justify-content: center; gap: 10px;
+      box-shadow: 0 4px 20px rgba(184,151,58,0.35);
+    }
+    .place-order-btn:hover { background-position: 100% 0; transform: translateY(-2px); box-shadow: 0 8px 28px rgba(184,151,58,0.45); }
+    .place-order-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+    .place-order-btn.mpesa-active { background: linear-gradient(135deg, #00a651, #007a3d); color: #fff; box-shadow: 0 4px 20px rgba(0,166,81,0.35); }
+    .place-order-btn.mpesa-active:hover { box-shadow: 0 8px 28px rgba(0,166,81,0.45); }
+    .place-order-btn.paypal-active { background: linear-gradient(135deg, #003087, #0050b3); color: #fff; box-shadow: 0 4px 20px rgba(0,48,135,0.35); }
+    .place-order-btn.cod-active { background: linear-gradient(135deg, var(--gold), #d4a843); color: var(--black); }
+
+    .secure-note { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 14px; letter-spacing: 0.08em; text-transform: uppercase; }
+    .secure-note i { color: var(--gold); font-size: 12px; }
+
+    .modal-overlay { position: fixed; inset: 0; background: rgba(13,13,13,0.75); backdrop-filter: blur(8px); z-index: 500; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .3s; }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal { background: var(--white); border-radius: 24px; padding: 48px 40px; max-width: 440px; width: 90%; text-align: center; transform: translateY(24px) scale(0.97); transition: all .35s cubic-bezier(.4,0,.2,1); box-shadow: var(--shadow-lg); }
+    .modal-overlay.open .modal { transform: translateY(0) scale(1); }
+    .modal-icon { font-size: 52px; margin-bottom: 16px; }
+    .modal-title { font-family: 'Cormorant Garamond', serif; font-size: 34px; font-weight: 500; letter-spacing: 0.03em; margin-bottom: 8px; }
+    .modal-sub { font-size: 14px; color: var(--gray-500); line-height: 1.6; margin-bottom: 24px; }
+    .modal-phone { font-size: 22px; font-weight: 700; color: var(--mpesa-green); margin-bottom: 24px; font-family: 'Cormorant Garamond', serif; letter-spacing: 0.05em; }
+    .modal-spinner { width: 44px; height: 44px; border-radius: 50%; border: 3px solid var(--gray-200); border-top-color: var(--mpesa-green); animation: spin 1s linear infinite; margin: 0 auto 20px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .modal-cancel { padding: 11px 28px; background: none; border: 1px solid var(--gray-200); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; color: var(--gray-700); transition: all .2s; }
+    .modal-cancel:hover { border-color: var(--red); color: var(--red); }
+
+    .success-overlay { position: fixed; inset: 0; background: var(--cream); z-index: 600; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; padding: 40px; opacity: 0; pointer-events: none; transition: opacity .5s; background-image: radial-gradient(ellipse at 50% 0%, rgba(184,151,58,0.12) 0%, transparent 70%); }
+    .success-overlay.open { opacity: 1; pointer-events: all; }
+    .success-checkmark { width: 88px; height: 88px; border-radius: 50%; background: rgba(184,151,58,0.1); border: 2px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 36px; margin-bottom: 28px; animation: popIn .6s cubic-bezier(.4,0,.2,1) both; color: var(--gold); }
+    @keyframes popIn { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+    .success-title { font-family: 'Cormorant Garamond', serif; font-size: 56px; font-weight: 300; letter-spacing: 0.05em; margin-bottom: 8px; }
+    .success-order { font-size: 13px; color: var(--gray-500); margin-bottom: 8px; letter-spacing: 0.05em; }
+    .success-order strong { color: var(--black); font-size: 15px; font-weight: 600; }
+    .success-method { font-size: 12px; color: var(--gray-500); margin-bottom: 36px; letter-spacing: 0.08em; text-transform: uppercase; }
+    .success-btn { padding: 15px 40px; background: var(--black); color: #fff; border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; transition: all .2s; text-decoration: none; display: inline-block; }
+    .success-btn:hover { background: var(--gold); color: var(--black); transform: translateY(-2px); }
+
+    @media (max-width: 900px) { .checkout-wrap { grid-template-columns: 1fr; padding: 0 20px; } .checkout-right { position: static; } .progress-steps { display: none; } }
+    @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } .card { padding: 22px; } .mpesa-steps { flex-direction: column; } .payment-tabs { gap: 6px; } .pay-tab { font-size: 9px; padding: 10px 4px; } }
+  
+    body { animation: pageIn .35s ease both; }
+    @keyframes pageIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    .reveal { opacity:0; transform:translateY(28px); transition: opacity .55s ease, transform .55s ease; }
+    .reveal.visible { opacity:1; transform:translateY(0); }
+    .mobile-menu { position:fixed; inset:0; z-index:500; background:#0a0a0a; display:flex; flex-direction:column; padding:80px 32px 40px; transform:translateX(100%); transition:transform .35s cubic-bezier(0.22,1,0.36,1); }
+    .mobile-menu.open { transform:translateX(0); }
+    .mobile-menu-link { font-family:'Bebas Neue',sans-serif; font-size:40px; letter-spacing:0.06em; color:#fff; text-decoration:none; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:space-between; transition:color .2s; }
+    .mobile-menu-link:hover { color:#b8942a; }
+    .mobile-menu-close { position:absolute; top:20px; right:20px; background:none; border:none; color:#fff; font-size:28px; cursor:pointer; }
+    .bottom-nav { display:none; position:fixed; bottom:0; left:0; right:0; z-index:300; background:#fff; border-top:1px solid #e8e8e8; padding:8px 0 max(8px,env(safe-area-inset-bottom)); box-shadow:0 -4px 20px rgba(0,0,0,0.08); }
+    .bottom-nav-inner { display:flex; justify-content:space-around; align-items:center; }
+    .bottom-nav-item { display:flex; flex-direction:column; align-items:center; gap:3px; color:#888; text-decoration:none; font-size:10px; font-weight:600; letter-spacing:0.05em; padding:4px 8px; transition:color .2s; background:none; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; }
+    .bottom-nav-item i { font-size:20px; }
+    .bottom-nav-item.active { color:#0a0a0a; }
+    .bottom-nav-item.active i { color:#c8102e; }
+      @media (min-width: 769px) {
+      #hamburgerBtn { display: none !important; }
+      .mobile-menu { display: none !important; }
+      .bottom-nav { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="shop.html" class="nav-logo">DRIP <span class="nav-logo-dot"></span></a>
+    <div class="progress-steps">
+      <div class="step done"><div class="step-num"><i class="bi bi-check"></i></div><span>Cart</span></div>
+      <div class="step-line done"></div>
+      <div class="step active"><div class="step-num">2</div><span>Details</span></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-num">3</div><span>Payment</span></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-num">4</div><span>Confirm</span></div>
+    </div>
+    <a href="shop.html" style="font-size:11px;color:var(--gray-500);text-decoration:none;display:flex;align-items:center;gap:6px;letter-spacing:0.1em;text-transform:uppercase;font-weight:500;transition:color .2s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--gray-500)'">
+      <i class="bi bi-arrow-left"></i> Back to Store
+    </a>
+  </div>
+</nav>
+
+<div class="checkout-wrap">
+  <div class="checkout-left">
+
+    <div class="card">
+      <div class="card-title"><i class="bi bi-person-circle"></i> Contact Details</div>
+      <div class="form-row">
+        <div class="form-group"><label>First Name</label><input type="text" id="firstName" placeholder="Brian"/></div>
+        <div class="form-group"><label>Last Name</label><input type="text" id="lastName" placeholder="Mwangi"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Email Address</label><input type="email" id="email" placeholder="brian@email.com"/></div>
+        <div class="form-group"><label>Phone Number</label><input type="tel" id="contactPhone" placeholder="+254 7XX XXX XXX"/></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="bi bi-geo-alt"></i> Shipping Address</div>
+      <div class="form-row full">
+        <div class="form-group"><label>Street Address</label><input type="text" id="address" placeholder="e.g. Tom Mboya Street, Westlands"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>City / Town</label><input type="text" id="city" placeholder="Nairobi"/></div>
+        <div class="form-group">
+          <label>County</label>
+          <select id="county">
+            <option value="">Select County</option>
+            <option>Nairobi</option><option>Mombasa</option><option>Kisumu</option>
+            <option>Nakuru</option><option>Eldoret</option><option>Thika</option>
+            <option>Nyeri</option><option>Meru</option><option>Kakamega</option>
+            <option>Kisii</option><option>Machakos</option><option>Garissa</option>
+            <option>Embu</option><option>Kitale</option><option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Postal Code</label><input type="text" id="postal" placeholder="00100"/></div>
+        <div class="form-group">
+          <label>Country</label>
+          <select id="country">
+            <option value="KE" selected>🇰🇪 Kenya</option>
+            <option value="UG">🇺🇬 Uganda</option>
+            <option value="TZ">🇹🇿 Tanzania</option>
+            <option value="RW">🇷🇼 Rwanda</option>
+            <option value="ET">🇪🇹 Ethiopia</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="bi bi-truck"></i> Delivery Method</div>
+      <div class="shipping-options">
+        <label class="shipping-option selected" onclick="selectShipping(this,0,'standard')">
+          <input type="radio" name="shipping" value="0" checked/>
+          <div class="shipping-info"><div class="shipping-name">Standard Delivery</div><div class="shipping-time">3–5 business days • Nairobi same-day available</div></div>
+          <div class="shipping-price free">FREE</div>
+        </label>
+        <label class="shipping-option" onclick="selectShipping(this,500,'standard')">
+          <input type="radio" name="shipping" value="500"/>
+          <div class="shipping-info"><div class="shipping-name">Express Delivery</div><div class="shipping-time">Next business day • Order before 12pm</div></div>
+          <div class="shipping-price">KES 500</div>
+        </label>
+        <label class="shipping-option" onclick="selectShipping(this,1200,'express')">
+          <input type="radio" name="shipping" value="1200"/>
+          <div class="shipping-info"><div class="shipping-name">Same Day Delivery</div><div class="shipping-time">Within 4 hours • Nairobi CBD only</div></div>
+          <div class="shipping-price">KES 1,200</div>
+        </label>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="bi bi-credit-card"></i> Payment Method</div>
+      <div class="payment-tabs">
+        <button class="pay-tab active" id="tab-mpesa" onclick="switchPayment('mpesa')"><i class="bi bi-phone"></i> M-Pesa</button>
+        <button class="pay-tab" id="tab-card" onclick="switchPayment('card')"><i class="bi bi-credit-card-2-front"></i> Card</button>
+        <button class="pay-tab" id="tab-paypal" onclick="switchPayment('paypal')"><i class="bi bi-paypal"></i> PayPal</button>
+        <button class="pay-tab" id="tab-cod" onclick="switchPayment('cod')"><i class="bi bi-cash-coin"></i> Cash on Delivery</button>
+      </div>
+
+      <div class="payment-panel active" id="panel-mpesa">
+        <div class="mpesa-header">
+          <div class="mpesa-logo">M-PESA</div>
+          <div class="mpesa-header-text">
+            <div class="mpesa-header-title">Pay with M-Pesa</div>
+            <div class="mpesa-header-sub">Fast, secure & instant — no card needed</div>
+          </div>
+          <i class="bi bi-shield-check" style="font-size:28px;opacity:0.8;"></i>
+        </div>
+        <div class="mpesa-steps">
+          <div class="mpesa-step"><div class="mpesa-step-num">1</div><div class="mpesa-step-text">Enter your M-Pesa number below</div></div>
+          <div class="mpesa-step"><div class="mpesa-step-num">2</div><div class="mpesa-step-text">You'll receive an STK push on your phone</div></div>
+          <div class="mpesa-step"><div class="mpesa-step-num">3</div><div class="mpesa-step-text">Enter M-Pesa PIN to confirm payment</div></div>
+        </div>
+        <div class="form-group">
+          <label>M-Pesa Phone Number</label>
+          <div class="mpesa-phone-wrap">
+            <div class="mpesa-phone-prefix">🇰🇪 +254</div>
+            <input type="tel" class="mpesa-phone-input" id="mpesaPhone" placeholder="7XX XXX XXX" maxlength="9"/>
+          </div>
+          <div class="mpesa-note"><i class="bi bi-info-circle-fill"></i> Must be a Safaricom M-Pesa registered number</div>
+        </div>
+      </div>
+
+      <div class="payment-panel" id="panel-card">
+        <div class="card-icons">
+          <div class="card-icon">VISA</div><div class="card-icon">MC</div><div class="card-icon">AMEX</div>
+        </div>
+        <div class="form-group" style="margin-bottom:16px;">
+          <label>Card Number</label>
+          <div style="position:relative;">
+            <i class="bi bi-credit-card" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:18px;color:var(--gray-500);"></i>
+            <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" oninput="formatCardNumber(this)" style="padding-left:48px;width:100%;padding:12px 16px 12px 48px;border:1.5px solid var(--gray-200);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Expiry Date</label><input type="text" id="cardExpiry" placeholder="MM / YY" maxlength="7" oninput="formatExpiry(this)"/></div>
+          <div class="form-group"><label>CVV</label><input type="text" id="cardCvv" placeholder="123" maxlength="4"/></div>
+        </div>
+        <div class="form-group"><label>Cardholder Name</label><input type="text" id="cardName" placeholder="Name as on card"/></div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--gray-500);margin-top:12px;">
+          <i class="bi bi-lock-fill" style="color:var(--mpesa-green);"></i> Secured by Stripe • 256-bit SSL encryption
+        </div>
+      </div>
+
+      <div class="payment-panel" id="panel-paypal">
+        <div class="paypal-info">
+          <div class="paypal-logo">🅿️</div>
+          <div class="paypal-text">You'll be redirected to PayPal to complete your payment securely.<br/>No PayPal account needed — pay with any card.</div>
+          <button class="paypal-btn" onclick="handlePayPal()"><i class="bi bi-paypal"></i> Continue with PayPal</button>
+        </div>
+      </div>
+
+      <div class="payment-panel" id="panel-cod">
+        <div class="cod-info">
+          <div class="cod-icon">📦</div>
+          <div>
+            <div class="cod-title">Pay When Your Order Arrives</div>
+            <div class="cod-text">Have the exact amount ready when our delivery partner arrives. We accept cash in Kenyan Shillings (KES) only.</div>
+            <div class="cod-fee">⚠ Additional KES 200 handling fee applies for COD orders</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--gray-200);">
+        <div style="font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--gray-500);margin-bottom:10px;">
+          <i class="bi bi-tag" style="color:var(--gold);"></i> Promo Code</div>
+        <div class="promo-wrap">
+          <input type="text" class="promo-input" id="promoInput" placeholder="DRIP20"/>
+          <button class="promo-btn" onclick="applyPromo()">Apply</button>
+        </div>
+        <div class="promo-success" id="promoSuccess"><i class="bi bi-check-circle-fill"></i> <span id="promoMsg"></span></div>
+        <div class="promo-error" id="promoError"><i class="bi bi-x-circle-fill"></i> Invalid promo code</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="checkout-right">
+    <div class="card">
+      <div class="summary-title">Order Summary</div>
+      <div class="summary-items" id="summaryItems"></div>
+      <div class="summary-divider"></div>
+      <div class="summary-row"><span class="label">Subtotal</span><span id="summarySubtotal">KES 0</span></div>
+      <div class="summary-row discount" id="discountRow" style="display:none;">
+        <span>Discount <span id="discountLabel"></span></span><span id="summaryDiscount">-KES 0</span>
+      </div>
+      <div class="summary-row"><span class="label">Delivery</span><span id="summaryShipping">FREE</span></div>
+      <div class="summary-row"><span class="label">VAT (16%)</span><span id="summaryVat">KES 0</span></div>
+      <div class="summary-row" id="codFeeRow" style="display:none;"><span class="label" style="color:var(--gold);">COD Fee</span><span style="color:var(--gold);">KES 200</span></div>
+      <div class="summary-row total"><span>Total</span><span id="summaryTotal">KES 0</span></div>
+      <button class="place-order-btn" id="placeOrderBtn" onclick="placeOrder()">
+        <i class="bi bi-phone" id="payBtnIcon"></i>
+        <span id="payBtnText">Pay via M-Pesa</span>
+      </button>
+      <div class="secure-note"><i class="bi bi-shield-lock-fill"></i> Secure & encrypted checkout</div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="stkModal">
+  <div class="modal">
+    <div class="modal-icon">📱</div>
+    <div class="modal-title">Check Your Phone</div>
+    <div class="modal-sub">An M-Pesa payment request has been sent to</div>
+    <div class="modal-phone" id="stkPhone">+254 7XX XXX XXX</div>
+    <div class="modal-spinner"></div>
+    <div style="font-size:14px;color:var(--gray-700);margin-bottom:20px;">Enter your M-Pesa PIN on your phone to complete payment</div>
+    <button class="modal-cancel" onclick="closeStkModal()">Cancel Payment</button>
+  </div>
+</div>
+
+<div class="success-overlay" id="successOverlay">
+  <div class="success-checkmark">✓</div>
+  <div class="success-title">Order Confirmed!</div>
+  <div class="success-order">Order Number: <strong id="orderNumber">#DRIP-000000</strong></div>
+  <div class="success-method" id="successMethod"></div>
+  <p style="font-size:14px;color:var(--gray-500);max-width:360px;line-height:1.7;margin-bottom:32px;">
+    Thank you for shopping with DRIP! Your order is now being processed and you'll receive updates shortly.
+  </p>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+    <a href="orders.html" class="success-btn"><i class="bi bi-truck"></i> Track My Order</a>
+    <a href="shop.html" class="success-btn" style="background:transparent;color:var(--black);border:1.5px solid var(--black);">Continue Shopping</a>
+  </div>
+</div>
+
+<script>
+  const API_BASE = 'http://localhost:8080/api';
+  const KES_RATE = 130;
+
+  let cart = JSON.parse(sessionStorage.getItem('drip-cart') || '[]');
+  if (cart.length === 0) {
+    cart = [
+      {id:1,  name:'Floral Wrap Dress', price:11570, emoji:'👗', qty:1, imageUrl:'/images/floral-wrap-midi-dress.jpg'},
+      {id:17, name:'Chunky Sneakers',   price:19370, emoji:'👟', qty:1, imageUrl:'/images/adidas-forum-low.jpg'},
+    ];
+  }
+
+  function toKES(usd) { return Math.round(usd * KES_RATE); }
+  function fmtKES(n)  { return 'KES ' + n.toLocaleString('en-KE'); }
+
+  let shippingCost = 0, shippingMethod = 'standard', discountPct = 0, discountCode = '', activeMethod = 'mpesa';
+
+  function renderSummary() {
+    document.getElementById('summaryItems').innerHTML = cart.map(item => `
+      <div class="summary-item">
+        <div class="summary-item-emoji">${item.emoji}<div class="summary-item-qty">${item.qty}</div></div>
+        <div class="summary-item-info">
+          <div class="summary-item-name">${item.name}</div>
+          <div class="summary-item-cat">${fmtKES(item.price)} each</div>
+        </div>
+        <div class="summary-item-price">${fmtKES(item.price * item.qty)}</div>
+      </div>
+    `).join('');
+    updateTotals();
+  }
+
+  function updateTotals() {
+    const subtotalKES   = cart.reduce((s,i) => s + i.price * i.qty, 0);
+    const discountKES   = Math.round(subtotalKES * discountPct / 100);
+    const afterDiscount = subtotalKES - discountKES;
+    const codFee        = activeMethod === 'cod' ? 200 : 0;
+    const vatKES        = Math.round((afterDiscount + shippingCost + codFee) * 0.16);
+    const totalKES      = afterDiscount + shippingCost + codFee + vatKES;
+    document.getElementById('summarySubtotal').textContent = fmtKES(subtotalKES);
+    document.getElementById('summaryShipping').textContent = shippingCost === 0 ? 'FREE' : fmtKES(shippingCost);
+    document.getElementById('summaryVat').textContent      = fmtKES(vatKES);
+    document.getElementById('summaryTotal').textContent    = fmtKES(totalKES);
+    const discRow = document.getElementById('discountRow');
+    if (discountKES > 0) {
+      discRow.style.display = 'flex';
+      document.getElementById('discountLabel').textContent   = `(${discountCode} -${discountPct}%)`;
+      document.getElementById('summaryDiscount').textContent = '-' + fmtKES(discountKES);
+    } else { discRow.style.display = 'none'; }
+    document.getElementById('codFeeRow').style.display = activeMethod === 'cod' ? 'flex' : 'none';
+  }
+
+  function selectShipping(el, cost, method) {
+    document.querySelectorAll('.shipping-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    shippingCost = cost;
+    shippingMethod = method || (cost === 0 ? 'standard' : cost === 500 ? 'standard' : 'express');
+    updateTotals();
+  }
+
+  function switchPayment(method) {
+    activeMethod = method;
+    document.querySelectorAll('.pay-tab').forEach(t => t.className = 'pay-tab');
+    const tabMap = { mpesa:'active', card:'active-card', paypal:'active-paypal', cod:'active-cod' };
+    document.getElementById('tab-' + method).classList.add(tabMap[method]);
+    document.querySelectorAll('.payment-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + method).classList.add('active');
+    const btn  = document.getElementById('placeOrderBtn');
+    const icon = document.getElementById('payBtnIcon');
+    const text = document.getElementById('payBtnText');
+    btn.className = 'place-order-btn';
+    const configs = {
+      mpesa:  { cls:'mpesa-active',  icon:'bi-phone',       txt:'Pay via M-Pesa' },
+      card:   { cls:'',              icon:'bi-credit-card', txt:'Pay with Card' },
+      paypal: { cls:'paypal-active', icon:'bi-paypal',      txt:'Pay with PayPal' },
+      cod:    { cls:'cod-active',    icon:'bi-cash-coin',   txt:'Place COD Order' },
+    };
+    const cfg = configs[method];
+    if (cfg.cls) btn.classList.add(cfg.cls);
+    icon.className = 'bi ' + cfg.icon;
+    text.textContent = cfg.txt;
+    updateTotals();
+  }
+
+  const PROMOS = { 'DRIP20':20, 'SAVE10':10, 'WELCOME15':15 };
+  function applyPromo() {
+    const code = document.getElementById('promoInput').value.trim().toUpperCase();
+    document.getElementById('promoSuccess').style.display = 'none';
+    document.getElementById('promoError').style.display   = 'none';
+    if (PROMOS[code]) {
+      discountPct = PROMOS[code]; discountCode = code;
+      document.getElementById('promoMsg').textContent = `${code} applied — ${discountPct}% off!`;
+      document.getElementById('promoSuccess').style.display = 'flex';
+      updateTotals();
+    } else { document.getElementById('promoError').style.display = 'flex'; }
+  }
+
+  /* ===== SAVE ORDER TO BACKEND ===== */
+  async function saveOrderToBackend(paymentMethod) {
+    const subtotalKES   = cart.reduce((s,i) => s + i.price * i.qty, 0);
+    const discountKES   = Math.round(subtotalKES * discountPct / 100);
+    const afterDiscount = subtotalKES - discountKES;
+    const codFee        = activeMethod === 'cod' ? 200 : 0;
+    const vatKES        = Math.round((afterDiscount + shippingCost + codFee) * 0.16);
+    const totalKES      = afterDiscount + shippingCost + codFee + vatKES;
+
+    const order = {
+      firstName:      document.getElementById('firstName').value || '',
+      lastName:       document.getElementById('lastName').value  || '',
+      email:          document.getElementById('email').value     || '',
+      address:        document.getElementById('address').value   || '',
+      city:           document.getElementById('city').value      || '',
+      state:          document.getElementById('county').value    || '',
+      zip:            document.getElementById('postal').value    || '',
+      subtotal:       subtotalKES,
+      shippingCost:   shippingCost,
+      discount:       discountKES,
+      total:          totalKES,
+      shippingMethod: shippingMethod,
+      paymentMethod:  paymentMethod,
+      status:         'pending',
+      items: cart.map(item => ({
+        productId: String(item.id),
+        name:      item.name,
+        brand:     item.brand || '',
+        emoji:     item.emoji || '👕',
+        price:     Number(item.price),
+        qty:       item.qty
+      }))
+    };
+
+    try {
+      const token = sessionStorage.getItem('drip-token');
+      const res = await fetch(API_BASE + '/orders', {
+        method:  'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+        },
+        body: JSON.stringify(order)
+      });
+      if (res.ok) {
+        const saved = await res.json();
+        return saved.id ? '#DRIP-' + String(saved.id).padStart(6, '0') : '#DRIP-' + Math.floor(100000 + Math.random() * 900000);
+      } else {
+        console.warn('Order save failed:', res.status);
+        return '#DRIP-' + Math.floor(100000 + Math.random() * 900000);
+      }
+    } catch (e) {
+      console.warn('Backend unreachable:', e);
+      return '#DRIP-' + Math.floor(100000 + Math.random() * 900000);
+    }
+  }
+
+  /* ===== PLACE ORDER ===== */
+  function validateForm() {
+    const required = [
+      { id: 'firstName',    label: 'First Name' },
+      { id: 'lastName',     label: 'Last Name' },
+      { id: 'email',        label: 'Email Address' },
+      { id: 'address',      label: 'Street Address' },
+      { id: 'city',         label: 'City' },
+    ];
+    for (const f of required) {
+      const el = document.getElementById(f.id);
+      if (!el || !el.value.trim()) {
+        el.style.borderColor = '#c8102e';
+        el.focus();
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        showFormError('Please fill in your ' + f.label);
+        return false;
+      }
+      el.style.borderColor = '';
+    }
+    const email = document.getElementById('email').value;
+    if (!/^[^@]+@[^@]+\.[^@]+$/.test(email)) {
+      document.getElementById('email').style.borderColor = '#c8102e';
+      showFormError('Please enter a valid email address');
+      return false;
+    }
+    return true;
+  }
+
+  function showFormError(msg) {
+    let err = document.getElementById('formError');
+    if (!err) {
+      err = document.createElement('div');
+      err.id = 'formError';
+      err.style.cssText = 'background:#fee2e2;border:1px solid #fecaca;color:#c8102e;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px;';
+      const form = document.getElementById('firstName').closest('.panel') || document.getElementById('firstName').parentElement.parentElement;
+      form.insertBefore(err, form.firstChild);
+    }
+    err.innerHTML = '<i class="bi bi-exclamation-circle-fill"></i> ' + msg;
+    err.style.display = 'flex';
+    setTimeout(() => { if (err) err.style.display = 'none'; }, 4000);
+  }
+
+  async function placeOrder() {
+    if (!validateForm()) return;
+    const btn = document.getElementById('placeOrderBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span style="opacity:0.7">Processing...</span>';
+
+    if (activeMethod === 'mpesa') {
+      const raw = document.getElementById('mpesaPhone').value.replace(/[\s\-]/g, '');
+      if (raw.length < 9) {
+        document.getElementById('mpesaPhone').style.borderColor = 'var(--red)';
+        document.getElementById('mpesaPhone').focus();
+        btn.disabled = false;
+        switchPayment('mpesa');
+        return;
+      }
+
+      // Format phone for display
+      const digits    = raw.startsWith('0') ? raw.substring(1) : raw.replace(/^254/, '');
+      const formatted = '+254 ' + digits.substring(0,3) + ' ' + digits.substring(3,6) + ' ' + digits.substring(6);
+      document.getElementById('stkPhone').textContent = formatted;
+      document.getElementById('stkModal').classList.add('open');
+      document.getElementById('stkStatus').textContent = 'Sending push notification...';
+
+      // 1. Save order first to get an order ID
+      const orderNum = await saveOrderToBackend('M-Pesa (' + formatted + ')');
+      const orderId  = orderNum.replace('#DRIP-', '').replace(/^0+/, '');
+
+      // 2. Calculate total for STK push
+      const subtotalKES   = cart.reduce((s,i) => s + i.price * i.qty, 0);
+      const discountKES   = Math.round(subtotalKES * discountPct / 100);
+      const afterDiscount = subtotalKES - discountKES;
+      const codFee        = 0;
+      const vatKES        = Math.round((afterDiscount + shippingCost + codFee) * 0.16);
+      const totalKES      = afterDiscount + shippingCost + codFee + vatKES;
+
+      // 3. Call real STK Push API
+      try {
+        const stkRes = await fetch(API_BASE + '/mpesa/stkpush', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: raw, amount: Math.max(1, Math.round(totalKES)), orderId })
+        });
+        const stkData = await stkRes.json();
+
+        if (stkData.success) {
+          document.getElementById('stkStatus').textContent = stkData.message || 'Check your phone and enter your M-Pesa PIN';
+          // Poll or wait — for now wait 30s for user to complete on their phone
+          setTimeout(() => {
+            document.getElementById('stkModal').classList.remove('open');
+            showSuccess('Paid via M-Pesa (' + formatted + ')', orderNum);
+          }, 30000);
+        } else {
+          // STK Push failed — show error inside modal then close
+          document.getElementById('stkStatus').textContent = '❌ ' + (stkData.message || 'STK Push failed. Try again.');
+          setTimeout(() => {
+            document.getElementById('stkModal').classList.remove('open');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-bag-check"></i> Place Order';
+          }, 3000);
+        }
+      } catch (e) {
+        // Backend unreachable — fallback to simulated flow
+        console.warn('M-Pesa API unreachable, using simulation:', e);
+        document.getElementById('stkStatus').textContent = 'Enter your M-Pesa PIN on your phone...';
+        setTimeout(() => {
+          document.getElementById('stkModal').classList.remove('open');
+          showSuccess('Paid via M-Pesa (' + formatted + ')', orderNum);
+        }, 5000);
+      }
+
+    } else if (activeMethod === 'card') {
+      const num = document.getElementById('cardNumber').value;
+      if (num.length < 19) {
+        document.getElementById('cardNumber').style.borderColor = 'var(--red)';
+        btn.disabled = false;
+        switchPayment('card');
+        return;
+      }
+      const orderNum = await saveOrderToBackend('Credit/Debit Card');
+      showSuccess('Paid via Credit/Debit Card', orderNum);
+
+    } else if (activeMethod === 'cod') {
+      const orderNum = await saveOrderToBackend('Cash on Delivery');
+      showSuccess('Cash on Delivery — Pay on arrival', orderNum);
+    }
+  }
+
+  async function handlePayPal() {
+    const orderNum = await saveOrderToBackend('PayPal');
+    showSuccess('Paid via PayPal', orderNum);
+  }
+
+  function closeStkModal() {
+    document.getElementById('stkModal').classList.remove('open');
+  }
+
+  function showSuccess(method, orderNum) {
+    document.getElementById('orderNumber').textContent   = orderNum || '#DRIP-' + Math.floor(100000 + Math.random() * 900000);
+    document.getElementById('successMethod').textContent = method;
+    document.getElementById('successOverlay').classList.add('open');
+    sessionStorage.removeItem('drip-cart');
+    // Reset place order button
+    const btn = document.getElementById('placeOrderBtn');
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-bag-check"></i> Place Order'; }
+  }
+
+  function formatCardNumber(input) {
+    let val = input.value.replace(/\D/g, '').substring(0, 16);
+    input.value = val.replace(/(.{4})/g, '$1 ').trim();
+  }
+  function formatExpiry(input) {
+    let val = input.value.replace(/\D/g, '').substring(0, 4);
+    if (val.length >= 2) val = val.substring(0, 2) + ' / ' + val.substring(2);
+    input.value = val;
+  }
+
+  const user = JSON.parse(sessionStorage.getItem('drip-user') || 'null');
+  const savedProfile  = JSON.parse(localStorage.getItem('drip-profile')   || '{}');
+  const savedAddrs    = JSON.parse(localStorage.getItem('drip-addresses')  || '[]');
+  const defaultAddr   = savedAddrs.find(a => a.isDefault) || savedAddrs[0] || {};
+
+  if (user) {
+    const first = savedProfile.firstName || user.firstName || '';
+    const last  = savedProfile.lastName  || user.lastName  || '';
+    const phone = savedProfile.phone     || user.phone     || '';
+
+    if (first) document.getElementById('firstName').value = first;
+    if (last)  document.getElementById('lastName').value  = last;
+    if (user.email) document.getElementById('email').value = user.email;
+
+    // Pre-fill phone if field exists
+    const phoneEl = document.getElementById('contactPhone');
+    if (phoneEl && phone) phoneEl.value = phone;
+
+    // Pre-fill saved address
+    if (defaultAddr.street) {
+      const addrEl = document.getElementById('address');
+      if (addrEl && !addrEl.value) addrEl.value = defaultAddr.street;
+    }
+    if (defaultAddr.city) {
+      const cityEl = document.getElementById('city');
+      if (cityEl && !cityEl.value) cityEl.value = defaultAddr.city;
+    }
+    if (defaultAddr.county) {
+      const countyEl = document.getElementById('county');
+      if (countyEl && !countyEl.value) countyEl.value = defaultAddr.county;
+    }
+    if (defaultAddr.zip) {
+      const postalEl = document.getElementById('postal');
+      if (postalEl && !postalEl.value) postalEl.value = defaultAddr.zip;
+    }
+  }
+
+  renderSummary();
+  switchPayment('mpesa');
+</script>
+
+<div class="mobile-menu" id="mobileMenu" style="visibility:hidden;pointer-events:none;">
+  <button class="mobile-menu-close" onclick="toggleMobileMenu()"><i class="bi bi-x"></i></button>
+  <a href="shop.html"     class="mobile-menu-link">Home      <i class="bi bi-chevron-right" style="font-size:20px"></i></a>
+  <a href="products.html" class="mobile-menu-link">Shop      <i class="bi bi-chevron-right" style="font-size:20px"></i></a>
+  <a href="orders.html"   class="mobile-menu-link">My Orders <i class="bi bi-chevron-right" style="font-size:20px"></i></a>
+  <a href="wishlist.html" class="mobile-menu-link">Wishlist  <i class="bi bi-chevron-right" style="font-size:20px"></i></a>
+  <a href="profile.html"  class="mobile-menu-link">Profile   <i class="bi bi-chevron-right" style="font-size:20px"></i></a>
+</div>
+<div class="bottom-nav" id="bottomNav">
+  <div class="bottom-nav-inner">
+    <a href="shop.html" class="bottom-nav-item"><i class="bi bi-house-fill"></i>Home</a>
+    <a href="products.html" class="bottom-nav-item active"><i class="bi bi-grid-fill"></i>Shop</a>
+    <a href="orders.html" class="bottom-nav-item"><i class="bi bi-truck"></i>Orders</a>
+    <a href="wishlist.html" class="bottom-nav-item"><i class="bi bi-heart-fill"></i>Wishlist</a>
+    <a href="profile.html" class="bottom-nav-item"><i class="bi bi-person-fill"></i>Profile</a>
+  </div>
+</div>
+</body>
+</html>

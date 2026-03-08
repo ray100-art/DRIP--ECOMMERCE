@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DRIP — Modern Fashion Store</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <style>
+    :root {
+      --black:#0a0a0a; --white:#ffffff; --cream:#faf9f7;
+      --red:#c8102e; --border:#e8e8e8; --muted:#888;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black);padding-top:100px;animation:fadeUp .4s ease both;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+    /* ANNOUNCE */
+    .announce-bar{position:fixed;top:0;left:0;right:0;z-index:200;background:var(--black);color:#fff;font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;height:36px;display:flex;align-items:center;overflow:hidden;}
+    .announce-track{display:flex;gap:80px;white-space:nowrap;animation:marquee 28s linear infinite;}
+    @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+    /* NAV */
+    nav{position:fixed;top:36px;left:0;right:0;z-index:150;height:64px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 40px;gap:32px;}
+    .nav-logo{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:0.08em;color:var(--black);text-decoration:none;display:flex;align-items:center;gap:6px;flex-shrink:0;}
+    .nav-logo-dot{width:8px;height:8px;background:var(--red);border-radius:50%;}
+    .nav-links{display:flex;gap:28px;list-style:none;flex:1;justify-content:center;}
+    .nav-links a{font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--black);text-decoration:none;transition:color .2s;}
+    .nav-links a:hover{color:var(--red);}
+    .nav-right{display:flex;align-items:center;gap:6px;margin-left:auto;}
+    .nav-btn{width:38px;height:38px;border-radius:50%;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--black);transition:background .2s;position:relative;}
+    .nav-btn:hover{background:#f5f5f5;}
+    .cart-badge{position:absolute;top:2px;right:2px;background:var(--red);color:#fff;font-size:9px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 3px;}
+    .nav-greeting{font-size:13px;font-weight:600;white-space:nowrap;}
+    .nav-signout{font-size:12px;font-weight:600;color:var(--muted);background:none;border:none;cursor:pointer;transition:color .2s;}
+    .nav-signout:hover{color:var(--red);}
+    #hamburgerBtn{display:none;}
+
+    /* HERO */
+    .hero{display:grid;grid-template-columns:1fr 1fr;height:520px;overflow:hidden;}
+    .hero-left{background:var(--black);display:flex;flex-direction:column;justify-content:center;padding:40px 48px;position:relative;overflow:hidden;}
+    .hero-left::before{content:'DRIP';position:absolute;top:-40px;left:-20px;font-family:'Bebas Neue',sans-serif;font-size:320px;color:rgba(255,255,255,0.04);line-height:1;pointer-events:none;}
+    .hero-eyebrow{display:flex;align-items:center;gap:12px;font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:24px;}
+    .hero-eyebrow::before{content:'';width:32px;height:1px;background:var(--red);}
+    .hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,5vw,80px);line-height:.92;letter-spacing:0.03em;color:#fff;margin-bottom:16px;}
+    .hero-title em{color:var(--red);font-style:normal;}
+    .hero-desc{font-size:14px;color:rgba(255,255,255,0.6);line-height:1.6;max-width:360px;margin-bottom:24px;}
+    .hero-ctas{display:flex;gap:16px;flex-wrap:wrap;}
+    .btn-primary{display:inline-flex;align-items:center;gap:8px;background:var(--red);color:#fff;border:none;cursor:pointer;padding:14px 28px;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;border-radius:2px;transition:background .2s,transform .15s;font-family:'DM Sans',sans-serif;}
+    .btn-primary:hover{background:#a50d25;transform:translateY(-1px);}
+    .btn-outline{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,0.3);color:#fff;padding:14px 28px;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;border-radius:2px;transition:all .2s;background:transparent;}
+    .btn-outline:hover{border-color:#fff;background:rgba(255,255,255,0.08);}
+    .hero-right{display:grid;grid-template-rows:1fr 140px 50px;overflow:hidden;}
+    .hero-img-main{overflow:hidden;position:relative;}
+    .hero-img-main img{width:100%;height:100%;object-fit:cover;object-position:center top;}
+    .hero-img-main::after{content:'★ NEW SEASON ★ 2026 ★ NEW SEASON ★ 2026 ★ NEW SEASON ★ 2026 ★ NEW SEASON ★ 2026 ★ ';position:absolute;bottom:16px;left:0;right:0;font-size:10px;font-weight:600;letter-spacing:0.2em;color:rgba(255,255,255,0.85);white-space:nowrap;overflow:hidden;animation:marquee 14s linear infinite;}
+    .hero-bottom{display:grid;grid-template-columns:1fr 1fr;}
+    .hero-mini{position:relative;overflow:hidden;}
+    .hero-mini img{width:100%;height:100%;object-fit:cover;}
+    .hero-mini-label{position:absolute;bottom:10px;left:12px;font-size:10px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:#fff;background:rgba(0,0,0,0.4);padding:4px 8px;border-radius:2px;}
+    .hero-stats{display:flex;justify-content:space-around;align-items:center;background:var(--black);padding:0 24px;}
+    .hero-stat{text-align:center;}
+    .hero-stat-num{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:0.05em;color:#fff;}
+    .hero-stat-label{font-size:9px;color:rgba(255,255,255,0.5);letter-spacing:0.1em;text-transform:uppercase;}
+    .hero-stat-div{width:1px;height:36px;background:rgba(255,255,255,0.15);}
+
+    /* TRUST */
+    .trust-bar{background:var(--cream);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:20px 40px;}
+    .trust-inner{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;max-width:1200px;margin:0 auto;}
+    .trust-item{display:flex;align-items:center;gap:12px;}
+    .trust-icon{font-size:22px;color:var(--red);flex-shrink:0;}
+    .trust-title{font-size:13px;font-weight:700;}
+    .trust-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+
+    /* SECTION */
+    .section{padding:80px 40px;}
+    .section-alt{background:var(--cream);}
+    .sec{max-width:1400px;margin:0 auto;}
+    .sec-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:48px;}
+    .sec-label{font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--red);margin-bottom:6px;}
+    .sec-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,4vw,56px);letter-spacing:0.04em;line-height:1;}
+    .sec-title em{color:var(--red);font-style:normal;}
+    .view-all{font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--black);text-decoration:none;display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--black);padding-bottom:2px;transition:color .2s;}
+    .view-all:hover{color:var(--red);border-color:var(--red);}
+
+    /* PRODUCT GRID */
+    .pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;}
+    .pcard{cursor:pointer;transition:transform .25s;background:#fff;border-radius:4px;overflow:hidden;}
+    .pcard:hover{transform:translateY(-6px);}
+    .pimg{aspect-ratio:3/4;overflow:hidden;position:relative;background:#f5f5f5;}
+    .pimg img{width:100%;height:100%;object-fit:cover;transition:transform .4s;}
+    .pcard:hover .pimg img{transform:scale(1.05);}
+    .pbadge{position:absolute;top:12px;left:12px;font-size:9px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;padding:4px 8px;border-radius:2px;}
+    .b-new{background:var(--black);color:#fff;}
+    .b-sale{background:var(--red);color:#fff;}
+    .b-hot{background:#ff6b2b;color:#fff;}
+    .pwish{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.9);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;opacity:0;transition:opacity .2s;}
+    .pcard:hover .pwish{opacity:1;}
+    .pinfo{padding:14px 12px 12px;}
+    .pbrand{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+    .pname{font-size:14px;font-weight:600;line-height:1.3;margin-bottom:8px;}
+    .pprices{display:flex;align-items:center;gap:8px;}
+    .pprice{font-size:15px;font-weight:700;}
+    .pold{font-size:13px;color:var(--muted);text-decoration:line-through;}
+    .prating{display:flex;align-items:center;gap:4px;margin-top:6px;font-size:12px;color:var(--muted);}
+    .padd{width:100%;margin-top:10px;padding:10px;background:var(--black);color:#fff;border:none;cursor:pointer;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border-radius:2px;transition:background .2s;display:flex;align-items:center;justify-content:center;gap:6px;font-family:'DM Sans',sans-serif;}
+    .padd:hover{background:var(--red);}
+
+    /* CATEGORIES */
+    .catgrid{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:1fr 1fr;gap:16px;height:500px;}
+    .catcard{position:relative;overflow:hidden;cursor:pointer;border-radius:4px;}
+    .catcard:first-child{grid-row:1/3;}
+    .catcard img{width:100%;height:100%;object-fit:cover;transition:transform .4s;}
+    .catcard:hover img{transform:scale(1.05);}
+    .catcard-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.65) 0%,transparent 60%);}
+    .catcard-info{position:absolute;bottom:20px;left:20px;}
+    .catcard-name{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:0.05em;color:#fff;}
+    .catcard-count{font-size:11px;color:rgba(255,255,255,0.7);letter-spacing:0.08em;}
+
+    /* FLASH */
+    .flash-section{background:var(--black);padding:64px 40px;}
+    .flash-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:40px;max-width:1400px;margin-left:auto;margin-right:auto;}
+    .flash-title{font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:0.04em;color:#fff;}
+    .flash-title span{color:var(--red);}
+    .countdown{display:flex;align-items:center;gap:8px;}
+    .cdb{background:rgba(255,255,255,0.1);border-radius:4px;padding:10px 16px;text-align:center;min-width:60px;}
+    .cdb-num{font-family:'Bebas Neue',sans-serif;font-size:32px;color:#fff;line-height:1;}
+    .cdb-lab{font-size:9px;color:rgba(255,255,255,0.5);letter-spacing:0.1em;text-transform:uppercase;}
+    .cdb-sep{font-size:24px;color:rgba(255,255,255,0.4);font-weight:700;}
+    .fgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;max-width:1400px;margin:0 auto;}
+    .fcard{background:rgba(255,255,255,0.04);border-radius:4px;overflow:hidden;cursor:pointer;transition:background .2s;border:1px solid rgba(255,255,255,0.06);}
+    .fcard:hover{background:rgba(255,255,255,0.09);}
+    .fcard-img{aspect-ratio:1;overflow:hidden;position:relative;background:#1a1a1a;}
+    .fcard-img img{width:100%;height:100%;object-fit:cover;}
+    .fdisc{position:absolute;top:10px;right:10px;background:var(--red);color:#fff;font-size:11px;font-weight:800;padding:4px 8px;border-radius:2px;}
+    .finfo{padding:14px;}
+    .fname{font-size:13px;font-weight:600;color:#fff;margin-bottom:8px;}
+    .fprices{display:flex;gap:8px;align-items:center;}
+    .fprice{font-size:15px;font-weight:700;color:var(--red);}
+    .fold{font-size:12px;color:rgba(255,255,255,0.4);text-decoration:line-through;}
+
+    /* TRENDING */
+    .tgrid{display:grid;grid-template-columns:1fr 1fr;gap:32px;}
+    .tfeatured{border-radius:12px;overflow:hidden;position:relative;min-height:420px;cursor:pointer;}
+    .tfeatured img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
+    .tov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.85) 0%,transparent 50%);}
+    .tinfo{position:absolute;bottom:24px;left:24px;right:24px;}
+    .t-rank{display:inline-block;background:var(--red);color:#fff;font-size:10px;font-weight:800;letter-spacing:0.1em;padding:4px 10px;border-radius:2px;margin-bottom:8px;}
+    .t-name{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:0.04em;color:#fff;}
+    .t-price{font-size:16px;color:rgba(255,255,255,0.8);margin-bottom:16px;}
+    .tlist{display:flex;flex-direction:column;justify-content:center;}
+    .titem{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:padding .2s;}
+    .titem:last-child{border-bottom:none;}
+    .titem:hover{padding-left:8px;}
+    .tnum{font-family:'Bebas Neue',sans-serif;font-size:26px;color:#ddd;flex-shrink:0;width:28px;text-align:center;}
+    .tthumb{width:60px;height:60px;border-radius:8px;overflow:hidden;flex-shrink:0;background:#f5f5f5;}
+    .tthumb img{width:100%;height:100%;object-fit:cover;}
+    .tmeta{flex:1;}
+    .tmeta-name{font-size:14px;font-weight:600;}
+    .tmeta-cat{font-size:12px;color:var(--muted);margin-top:2px;}
+    .tprice{font-size:14px;font-weight:700;}
+
+    /* CART */
+    .cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:400;opacity:0;pointer-events:none;transition:opacity .3s;}
+    .cart-overlay.open{opacity:1;pointer-events:all;}
+    .cart-sidebar{position:fixed;top:0;right:0;width:420px;height:100%;background:#fff;z-index:401;transform:translateX(100%);transition:transform .35s cubic-bezier(.22,1,.36,1);display:flex;flex-direction:column;}
+    .cart-sidebar.open{transform:translateX(0);}
+    .cart-head{padding:24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+    .cart-head h2{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:0.05em;}
+    .cart-close{background:none;border:none;font-size:24px;cursor:pointer;}
+    .cart-body{flex:1;overflow-y:auto;padding:16px 24px;}
+    .cart-item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--border);}
+    .ci-img{width:70px;height:84px;border-radius:4px;object-fit:cover;background:#f5f5f5;flex-shrink:0;}
+    .ci-name{font-size:14px;font-weight:600;margin-bottom:4px;}
+    .ci-price{font-size:14px;font-weight:700;color:var(--red);}
+    .ci-qty{display:flex;align-items:center;gap:10px;margin-top:8px;}
+    .qbtn{width:26px;height:26px;border-radius:50%;border:1px solid var(--border);background:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+    .qbtn:hover{background:var(--black);color:#fff;border-color:var(--black);}
+    .ci-rm{margin-left:auto;background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;align-self:flex-start;transition:color .2s;}
+    .ci-rm:hover{color:var(--red);}
+    .cart-foot{padding:20px 24px;border-top:1px solid var(--border);}
+    .cart-sub{display:flex;justify-content:space-between;font-size:15px;font-weight:600;margin-bottom:14px;}
+    .cart-empty{text-align:center;padding:60px 20px;color:var(--muted);}
+    .cart-empty i{font-size:48px;margin-bottom:12px;display:block;}
+
+    /* MOBILE MENU */
+    .mob-menu{position:fixed;inset:0;z-index:500;background:var(--black);display:flex;flex-direction:column;padding:80px 32px 40px;transform:translateX(100%);transition:transform .35s cubic-bezier(.22,1,.36,1);}
+    .mob-menu.open{transform:translateX(0);}
+    .mob-close{position:absolute;top:18px;right:20px;background:none;border:none;color:#fff;font-size:32px;cursor:pointer;}
+    .mob-menu a{font-family:'Bebas Neue',sans-serif;font-size:44px;letter-spacing:0.05em;color:#fff;text-decoration:none;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;align-items:center;transition:color .2s;}
+    .mob-menu a:hover{color:var(--red);}
+
+    /* BOTTOM NAV */
+    .bnav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:300;background:#fff;border-top:1px solid var(--border);padding:8px 0 max(8px,env(safe-area-inset-bottom));box-shadow:0 -4px 20px rgba(0,0,0,0.08);}
+    .bnav-inner{display:flex;justify-content:space-around;}
+    .bn{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--muted);text-decoration:none;font-size:10px;font-weight:600;letter-spacing:0.05em;padding:4px 10px;background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;transition:color .2s;}
+    .bn i{font-size:21px;}
+    .bn.active{color:var(--black);}
+    .bn.active i{color:var(--red);}
+
+    /* FOOTER */
+    footer{background:var(--black);color:rgba(255,255,255,0.7);padding:60px 40px 32px;}
+    .footer-inner{max-width:1400px;margin:0 auto;}
+    .footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:48px;}
+    .footer-logo{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:0.08em;color:#fff;margin-bottom:12px;}
+    .footer-desc{font-size:13px;line-height:1.7;max-width:260px;}
+    .footer-col h4{font-size:11px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:#fff;margin-bottom:16px;}
+    .footer-col a{display:block;font-size:13px;color:rgba(255,255,255,0.6);text-decoration:none;margin-bottom:10px;transition:color .2s;}
+    .footer-col a:hover{color:#fff;}
+    .footer-bottom{border-top:1px solid rgba(255,255,255,0.1);padding-top:24px;display:flex;justify-content:space-between;align-items:center;font-size:12px;}
+
+    /* RESPONSIVE */
+    @media(min-width:769px){
+      #hamburgerBtn{display:none!important;}
+      .mob-menu{display:none!important;}
+      .bnav{display:none!important;}
+    }
+    @media(max-width:1200px){
+      .pgrid{grid-template-columns:repeat(3,1fr);}
+      .fgrid{grid-template-columns:repeat(3,1fr);}
+    }
+    @media(max-width:1024px){
+      .hero{grid-template-columns:1fr;}
+      .hero-right{display:none;}
+      .hero-left{min-height:80vh;}
+      .footer-top{grid-template-columns:1fr 1fr;}
+      .tgrid{grid-template-columns:1fr;}
+      .catgrid{grid-template-columns:1fr 1fr;grid-template-rows:auto;height:auto;}
+      .catcard:first-child{grid-row:auto;grid-column:1/3;height:240px;}
+      .catcard{height:160px;}
+    }
+    @media(max-width:768px){
+      nav{padding:0 20px;}
+      .nav-links{display:none;}
+      #hamburgerBtn{display:flex!important;}
+      .bnav{display:block;}
+      body{padding-bottom:70px;}
+      .hero-left{padding:40px 24px;min-height:auto;height:560px;}
+      .hero-title{font-size:72px;}
+      .section{padding:56px 20px;}
+      .sec-head{flex-direction:column;align-items:flex-start;gap:16px;}
+      .pgrid{grid-template-columns:repeat(2,1fr);gap:14px;}
+      .fgrid{grid-template-columns:repeat(2,1fr);}
+      .trust-inner{grid-template-columns:1fr 1fr;}
+      .footer-top{grid-template-columns:1fr;gap:28px;}
+      .footer-bottom{flex-direction:column;gap:8px;text-align:center;}
+      .cart-sidebar{width:100%;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- Announcement Bar -->
+<div class="announce-bar">
+  <div class="announce-track">
+    <span>Free Shipping on Orders Over KES 5,000 &nbsp;<i class="bi bi-truck"></i></span>
+    <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;New Collection 2026 Is Here &nbsp;<i class="bi bi-stars"></i></span>
+    <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Use Code DRIP20 For 20% Off &nbsp;<i class="bi bi-tag-fill"></i></span>
+    <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Free Returns Within 30 Days &nbsp;<i class="bi bi-arrow-return-left"></i></span>
+    <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Free Shipping on Orders Over KES 5,000 &nbsp;<i class="bi bi-truck"></i></span>
+    <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;New Collection 2026 Is Here &nbsp;<i class="bi bi-stars"></i></span>
+    <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Use Code DRIP20 For 20% Off &nbsp;<i class="bi bi-tag-fill"></i></span>
+    <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Free Returns Within 30 Days &nbsp;<i class="bi bi-arrow-return-left"></i></span>
+  </div>
+</div>
+
+<!-- Nav -->
+<nav>
+  <a href="shop.html" class="nav-logo">DRIP <span class="nav-logo-dot"></span></a>
+  <ul class="nav-links">
+    <li><a href="shop.html">Home</a></li>
+    <li><a href="products.html">Shop</a></li>
+    <li><a href="orders.html">My Orders</a></li>
+    <li><a href="wishlist.html">Wishlist</a></li>
+    <li><a href="profile.html">Profile</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="nav-btn" onclick="window.location.href='search.html'"><i class="bi bi-search"></i></button>
+    <button class="nav-btn" onclick="window.location.href='wishlist.html'"><i class="bi bi-heart"></i></button>
+    <span class="nav-greeting" id="userGreeting" style="display:none">Hi, <span id="userName"></span></span>
+    <button class="nav-signout" id="logoutBtn" style="display:none" onclick="logout()">Sign Out</button>
+    <button class="nav-btn" id="authBtn" onclick="window.location.href='index.html'"><i class="bi bi-person"></i></button>
+    <button class="nav-btn" onclick="openCart()">
+      <i class="bi bi-bag"></i>
+      <span class="cart-badge" id="cartCount">0</span>
+    </button>
+    <button class="nav-btn" id="hamburgerBtn" onclick="toggleMenu()">
+      <i class="bi bi-list" id="menuIcon" style="font-size:24px"></i>
+    </button>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">New Collection 2026</div>
+    <h1 class="hero-title">Wear<br>Your<br><em>Confidence</em></h1>
+    <p class="hero-desc">Discover the latest trends in fashion. Fresh drops every week, curated for the bold and the fashion-forward.</p>
+    <div class="hero-ctas">
+      <a href="products.html" class="btn-primary">Shop Now <i class="bi bi-arrow-right"></i></a>
+      <a href="products.html?cat=Women" class="btn-outline">New Arrivals</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-img-main">
+      <img src="/images/power-shoulder-blazer-dress.jpg" alt="New Collection">
+    </div>
+    <div class="hero-bottom">
+      <div class="hero-mini">
+        <img src="/images/nike-air-force-1.jpg" alt="Sneakers">
+        <div class="hero-mini-label">Sneakers</div>
+      </div>
+      <div class="hero-mini">
+        <img src="/images/premium-leather-jacket.jpg" alt="Outerwear">
+        <div class="hero-mini-label">Outerwear</div>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-num">500+</div><div class="hero-stat-label">Styles</div></div>
+      <div class="hero-stat-div"></div>
+      <div class="hero-stat"><div class="hero-stat-num">12K+</div><div class="hero-stat-label">Customers</div></div>
+      <div class="hero-stat-div"></div>
+      <div class="hero-stat"><div class="hero-stat-num">4.9★</div><div class="hero-stat-label">Rating</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Trust Bar -->
+<div class="trust-bar">
+  <div class="trust-inner">
+    <div class="trust-item"><i class="bi bi-truck trust-icon"></i><div><div class="trust-title">Free Shipping</div><div class="trust-sub">On orders over KES 5,000</div></div></div>
+    <div class="trust-item"><i class="bi bi-arrow-return-left trust-icon"></i><div><div class="trust-title">Free Returns</div><div class="trust-sub">Within 30 days</div></div></div>
+    <div class="trust-item"><i class="bi bi-shield-check trust-icon"></i><div><div class="trust-title">Secure Payment</div><div class="trust-sub">M-Pesa, Card & more</div></div></div>
+    <div class="trust-item"><i class="bi bi-headset trust-icon"></i><div><div class="trust-title">24/7 Support</div><div class="trust-sub">Always here to help</div></div></div>
+  </div>
+</div>
+
+<!-- New Arrivals -->
+<div class="section">
+  <div class="sec">
+    <div class="sec-head">
+      <div><div class="sec-label">Just Dropped</div><div class="sec-title">New <em>Arrivals</em></div></div>
+      <a href="products.html" class="view-all">View All <i class="bi bi-arrow-right"></i></a>
+    </div>
+    <div class="pgrid" id="newArrivalsGrid"></div>
+  </div>
+</div>
+
+<!-- Categories -->
+<div class="section section-alt">
+  <div class="sec">
+    <div class="sec-head">
+      <div><div class="sec-label">Explore</div><div class="sec-title">Shop by <em>Category</em></div></div>
+    </div>
+    <div class="catgrid">
+      <div class="catcard" onclick="window.location.href='products.html?cat=Women'">
+        <img src="/images/power-shoulder-blazer-dress.jpg" alt="Women">
+        <div class="catcard-ov"></div>
+        <div class="catcard-info"><div class="catcard-name">Women</div><div class="catcard-count">20 styles</div></div>
+      </div>
+      <div class="catcard" onclick="window.location.href='products.html?cat=Men'">
+        <img src="/images/premium-leather-jacket.jpg" alt="Men">
+        <div class="catcard-ov"></div>
+        <div class="catcard-info"><div class="catcard-name">Men</div><div class="catcard-count">20 styles</div></div>
+      </div>
+      <div class="catcard" onclick="window.location.href='products.html?cat=Shoes'">
+        <img src="/images/nike-air-force-1.jpg" alt="Shoes">
+        <div class="catcard-ov"></div>
+        <div class="catcard-info"><div class="catcard-name">Shoes</div><div class="catcard-count">18 styles</div></div>
+      </div>
+      <div class="catcard" onclick="window.location.href='products.html?cat=Watches'">
+        <img src="/images/casio-gshock-dw5600.jpg" alt="Watches">
+        <div class="catcard-ov"></div>
+        <div class="catcard-info"><div class="catcard-name">Watches</div><div class="catcard-count">12 styles</div></div>
+      </div>
+      <div class="catcard" onclick="window.location.href='products.html?cat=Accessories'">
+        <img src="/images/leather-tote-shoulder-bag.jpg" alt="Accessories">
+        <div class="catcard-ov"></div>
+        <div class="catcard-info"><div class="catcard-name">Accessories</div><div class="catcard-count">15 styles</div></div>
+      </div>
+      <div class="catcard" onclick="window.location.href='products.html?cat=Kids'">
+        <img src="/images/kids-denim-bib-set.jpg" alt="Kids">
+        <div class="catcard-ov"></div>
+        <div class="catcard-info"><div class="catcard-name">Kids</div><div class="catcard-count">8 styles</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Flash Sale -->
+<div class="flash-section">
+  <div class="flash-head">
+    <div>
+      <div class="flash-title">Flash <span>Sale</span></div>
+      <div style="color:rgba(255,255,255,0.5);font-size:13px;margin-top:4px;">Limited time — don't miss out</div>
+    </div>
+    <div class="countdown">
+      <div class="cdb"><div class="cdb-num" id="cdH">00</div><div class="cdb-lab">Hrs</div></div>
+      <span class="cdb-sep">:</span>
+      <div class="cdb"><div class="cdb-num" id="cdM">00</div><div class="cdb-lab">Min</div></div>
+      <span class="cdb-sep">:</span>
+      <div class="cdb"><div class="cdb-num" id="cdS">00</div><div class="cdb-lab">Sec</div></div>
+    </div>
+  </div>
+  <div class="fgrid" id="flashGrid"></div>
+</div>
+
+<!-- Featured -->
+<div class="section">
+  <div class="sec">
+    <div class="sec-head">
+      <div><div class="sec-label">Handpicked</div><div class="sec-title">Featured <em>Picks</em></div></div>
+      <a href="products.html" class="view-all">View All <i class="bi bi-arrow-right"></i></a>
+    </div>
+    <div class="pgrid" id="featuredGrid"></div>
+  </div>
+</div>
+
+<!-- Trending -->
+<div class="section section-alt">
+  <div class="sec">
+    <div class="sec-head">
+      <div><div class="sec-label">This Week</div><div class="sec-title">Trending <em>Now</em></div></div>
+      <a href="products.html" class="view-all">See All <i class="bi bi-arrow-right"></i></a>
+    </div>
+    <div class="tgrid">
+      <div class="tfeatured" onclick="window.location.href='product.html?id=23'">
+        <img src="/images/premium-leather-jacket.jpg" alt="Leather Jacket">
+        <div class="tov"></div>
+        <div class="tinfo">
+          <div class="t-rank">#1 THIS WEEK</div>
+          <div class="t-name">Premium Leather Jacket</div>
+          <div class="t-price">KES 38,350</div>
+          <button class="btn-primary" onclick="event.stopPropagation();addToCart({id:23,name:'Premium Leather Jacket',brand:'AllSaints',price:38350,imageUrl:'/images/premium-leather-jacket.jpg'})">
+            Add to Cart <i class="bi bi-bag-plus"></i>
+          </button>
+        </div>
+      </div>
+      <div class="tlist" id="trendingList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Popular -->
+<div class="section">
+  <div class="sec">
+    <div class="sec-head">
+      <div><div class="sec-label">Hot Right Now</div><div class="sec-title">Most <em>Popular</em></div></div>
+      <a href="products.html" class="view-all">View All <i class="bi bi-arrow-right"></i></a>
+    </div>
+    <div class="pgrid" id="moreGrid"></div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-logo">DRIP •</div>
+        <p class="footer-desc">Kenya's boldest fashion destination. Fresh drops, real style, delivered to your door.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Shop</h4>
+        <a href="products.html?cat=Women">Women</a>
+        <a href="products.html?cat=Men">Men</a>
+        <a href="products.html?cat=Shoes">Shoes</a>
+        <a href="products.html?cat=Watches">Watches</a>
+        <a href="products.html?cat=Accessories">Accessories</a>
+      </div>
+      <div class="footer-col">
+        <h4>Account</h4>
+        <a href="profile.html">My Profile</a>
+        <a href="orders.html">My Orders</a>
+        <a href="wishlist.html">Wishlist</a>
+      </div>
+      <div class="footer-col">
+        <h4>Help</h4>
+        <a href="#">Shipping Info</a>
+        <a href="#">Returns</a>
+        <a href="#">Size Guide</a>
+        <a href="#">Contact Us</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 DRIP Fashion Store. All rights reserved.</span>
+      <span>Made with ❤️ in Kenya</span>
+    </div>
+  </div>
+</footer>
+
+<!-- Cart -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-sidebar" id="cartSidebar">
+  <div class="cart-head">
+    <h2>Your Cart</h2>
+    <button class="cart-close" onclick="closeCart()"><i class="bi bi-x"></i></button>
+  </div>
+  <div class="cart-body" id="cartBody"></div>
+  <div class="cart-foot">
+    <div class="cart-sub"><span>Subtotal</span><span id="cartTotal">KES 0</span></div>
+    <a href="checkout.html" class="btn-primary" style="width:100%;justify-content:center;">Checkout <i class="bi bi-arrow-right"></i></a>
+  </div>
+</div>
+
+<!-- Mobile Menu -->
+<div class="mob-menu" id="mobMenu">
+  <button class="mob-close" onclick="toggleMenu()"><i class="bi bi-x"></i></button>
+  <a href="shop.html">Home <i class="bi bi-chevron-right" style="font-size:18px"></i></a>
+  <a href="products.html">Shop <i class="bi bi-chevron-right" style="font-size:18px"></i></a>
+  <a href="orders.html">My Orders <i class="bi bi-chevron-right" style="font-size:18px"></i></a>
+  <a href="wishlist.html">Wishlist <i class="bi bi-chevron-right" style="font-size:18px"></i></a>
+  <a href="profile.html">Profile <i class="bi bi-chevron-right" style="font-size:18px"></i></a>
+</div>
+
+<!-- Bottom Nav -->
+<div class="bnav">
+  <div class="bnav-inner">
+    <a href="shop.html" class="bn active"><i class="bi bi-house-fill"></i>Home</a>
+    <a href="products.html" class="bn"><i class="bi bi-grid-fill"></i>Shop</a>
+    <a href="orders.html" class="bn"><i class="bi bi-truck"></i>Orders</a>
+    <a href="wishlist.html" class="bn"><i class="bi bi-heart-fill"></i>Wishlist</a>
+    <a href="profile.html" class="bn"><i class="bi bi-person-fill"></i>Profile</a>
+  </div>
+</div>
+
+<script>
+/* ── DATA ── */
+const PRODUCTS = [
+  {id:1,  name:'Floral Wrap Midi Dress',       brand:'Zara',           cat:'Women',       price:11570, old:15600,  badge:'new',  r:4.8, rv:234,  img:'/images/floral-wrap-midi-dress.jpg'},
+  {id:2,  name:'Wide Leg Linen Trousers',      brand:'H&M',            cat:'Women',       price:9360,  old:12350,  badge:'sale', r:4.6, rv:189,  img:'/images/wide-leg-linen-trousers.jpg'},
+  {id:3,  name:'Silk Satin Blouse',            brand:'Zara',           cat:'Women',       price:12350, old:null,   badge:'new',  r:4.9, rv:312,  img:'/images/silk-satin-blouse.jpg'},
+  {id:4,  name:'Oversized Knit Cardigan',      brand:"Pull&Bear",      cat:'Women',       price:14300, old:18850,  badge:'sale', r:4.7, rv:156,  img:'/images/oversized-knit-cardigan.jpg'},
+  {id:5,  name:'Pleated Mini Skirt',           brand:'Shein',          cat:'Women',       price:7540,  old:null,   badge:'hot',  r:4.5, rv:421,  img:'/images/pleated-mini-skirt.jpg'},
+  {id:6,  name:'Linen Co-ord Jumpsuit',        brand:'Mango',          cat:'Women',       price:17550, old:null,   badge:'sale', r:4.8, rv:201,  img:'/images/linen-coord-jumpsuit.jpg'},
+  {id:7,  name:'Boho Floral Maxi Dress',       brand:'ASOS',           cat:'Women',       price:10270, old:13650,  badge:'new',  r:4.7, rv:178,  img:'/images/boho-floral-maxi-dress.jpg'},
+  {id:8,  name:'Power Shoulder Blazer Dress',  brand:'Zara',           cat:'Women',       price:20540, old:27300,  badge:'hot',  r:4.9, rv:523,  img:'/images/power-shoulder-blazer-dress.jpg'},
+  {id:9,  name:'Ribbed Bodycon Mini Dress',    brand:'PrettyLittleThing',cat:'Women',     price:8580,  old:11440,  badge:'new',  r:4.6, rv:367,  img:'/images/ribbed-bodycon-mini-dress.jpg'},
+  {id:10, name:'Satin Slip Evening Dress',     brand:'ASOS',           cat:'Women',       price:15470, old:19890,  badge:'hot',  r:4.8, rv:289,  img:'/images/satin-slip-evening-dress.jpg'},
+  {id:11, name:'Cropped Denim Jacket',         brand:"Levi's",         cat:'Women',       price:16900, old:22100,  badge:'new',  r:4.7, rv:198,  img:'/images/cropped-denim-jacket-women.jpg'},
+  {id:12, name:'High Waist Mom Jeans',         brand:"Levi's",         cat:'Women',       price:13520, old:17550,  badge:'sale', r:4.8, rv:445,  img:'/images/high-waist-mom-jeans.jpg'},
+  {id:13, name:'Printed Wrap Blouse',          brand:'H&M',            cat:'Women',       price:8190,  old:null,   badge:'new',  r:4.5, rv:132,  img:'/images/printed-wrap-blouse.jpg'},
+  {id:14, name:'Velvet Midi Slip Dress',       brand:'Zara',           cat:'Women',       price:18200, old:23400,  badge:'hot',  r:4.9, rv:312,  img:'/images/velvet-midi-slip-dress.jpg'},
+  {id:15, name:'Trench Coat Classic',          brand:'Burberry',       cat:'Women',       price:45500, old:58500,  badge:'sale', r:4.9, rv:187,  img:'/images/trench-coat-classic.jpg'},
+  {id:16, name:'Corset Top Bralette',          brand:'Shein',          cat:'Women',       price:5720,  old:7800,   badge:'hot',  r:4.4, rv:567,  img:'/images/corset-top-bralette.jpg'},
+  {id:17, name:'Campus Oversized Hoodie',      brand:'Champion',       cat:'Women',       price:9100,  old:12350,  badge:'new',  r:4.7, rv:423,  img:'/images/campus-oversized-hoodie.jpg'},
+  {id:18, name:'Leather Mini Skirt',           brand:'Zara',           cat:'Women',       price:12870, old:16900,  badge:'hot',  r:4.8, rv:234,  img:'/images/pleated-mini-skirt.jpg'},
+  {id:19, name:'Printed Maxi Wrap Skirt',      brand:'Mango',          cat:'Women',       price:10920, old:null,   badge:'new',  r:4.6, rv:156,  img:'/images/printed-maxi-wrap-skirt.jpg'},
+  {id:20, name:'Puffer Quilted Jacket',        brand:'The North Face', cat:'Women',       price:28600, old:36400,  badge:'sale', r:4.9, rv:389,  img:'/images/puffer-quilted-jacket-women.jpg'},
+  {id:21, name:'Slim Fit Chino Trousers',      brand:'Zara Man',       cat:'Men',         price:11050, old:14300,  badge:'sale', r:4.7, rv:298,  img:'/images/slim-fit-chino-trousers.jpg'},
+  {id:22, name:'Oxford Button-Down Shirt',     brand:'Ralph Lauren',   cat:'Men',         price:8840,  old:null,   badge:'new',  r:4.8, rv:356,  img:'/images/oxford-button-down-shirt.jpg'},
+  {id:23, name:'Premium Leather Jacket',       brand:'AllSaints',      cat:'Men',         price:38350, old:49400,  badge:'hot',  r:4.9, rv:421,  img:'/images/premium-leather-jacket.jpg'},
+  {id:24, name:'Merino Wool Crew Sweater',     brand:'Uniqlo',         cat:'Men',         price:16640, old:21450,  badge:'sale', r:4.8, rv:267,  img:'/images/merino-wool-crew-sweater.jpg'},
+  {id:25, name:'Cargo Utility Shorts',         brand:'Carhartt',       cat:'Men',         price:8060,  old:10400,  badge:'new',  r:4.6, rv:189,  img:'/images/cargo-utility-shorts.jpg'},
+  {id:26, name:'Linen Summer Shirt',           brand:'Zara Man',       cat:'Men',         price:10140, old:13000,  badge:'sale', r:4.7, rv:234,  img:'/images/linen-summer-shirt.jpg'},
+  {id:27, name:'Classic Denim Jacket',         brand:"Levi's",         cat:'Men',         price:18850, old:24700,  badge:'hot',  r:4.8, rv:312,  img:'/images/classic-denim-jacket-men.jpg'},
+  {id:28, name:'Tech Fleece Track Suit',       brand:'Nike',           cat:'Men',         price:21840, old:28600,  badge:'new',  r:4.9, rv:567,  img:'/images/tech-fleece-track-suit.jpg'},
+  {id:29, name:'2-Piece Business Suit',        brand:'Hugo Boss',      cat:'Men',         price:65000, old:84500,  badge:'hot',  r:4.9, rv:189,  img:'/images/2-piece-business-suit.jpg'},
+  {id:30, name:'Slim Fit Tuxedo Suit',         brand:'Calvin Klein',   cat:'Men',         price:72800, old:91000,  badge:'new',  r:4.9, rv:134,  img:'/images/wide-leg-linen-trousers.jpg'},
+  {id:31, name:'Campus Graphic Hoodie',        brand:'Adidas',         cat:'Men',         price:9750,  old:13000,  badge:'hot',  r:4.7, rv:678,  img:'/images/campus-oversized-hoodie.jpg'},
+  {id:32, name:'Oversized Streetwear Tee',     brand:'Supreme',        cat:'Men',         price:7150,  old:null,   badge:'new',  r:4.6, rv:423,  img:'/images/oversized-streetwear-tee.jpg'},
+  {id:33, name:'Slim Chino Suit Trousers',     brand:'Hugo Boss',      cat:'Men',         price:18200, old:23400,  badge:'sale', r:4.8, rv:156,  img:'/images/slim-chino-suit-trousers.jpg'},
+  {id:34, name:'Puffer Down Jacket',           brand:'The North Face', cat:'Men',         price:32500, old:42250,  badge:'sale', r:4.9, rv:345,  img:'/images/puffer-down-jacket-men.jpg'},
+  {id:35, name:'Campus Jogger Pants',          brand:'Adidas',         cat:'Men',         price:8450,  old:11050,  badge:'new',  r:4.7, rv:512,  img:'/images/campus-jogger-pants.jpg'},
+  {id:36, name:'Flannel Check Overshirt',      brand:'Carhartt',       cat:'Men',         price:12350, old:16250,  badge:'hot',  r:4.7, rv:289,  img:'/images/flannel-check-overshirt.jpg'},
+  {id:37, name:'Polo Shirt Classic Fit',       brand:'Ralph Lauren',   cat:'Men',         price:10400, old:13520,  badge:'sale', r:4.8, rv:478,  img:'/images/polo-shirt-classic-fit.jpg'},
+  {id:38, name:'Washed Denim Jeans',           brand:"Levi's",         cat:'Men',         price:15470, old:20150,  badge:'new',  r:4.8, rv:623,  img:'/images/washed-denim-jeans.jpg'},
+  {id:39, name:'Bomber Flight Jacket',         brand:'Alpha Industries',cat:'Men',        price:24700, old:31850,  badge:'hot',  r:4.9, rv:267,  img:'/images/bomber-flight-jacket.jpg'},
+  {id:40, name:'Formal Dress Shirt White',     brand:'Calvin Klein',   cat:'Men',         price:9100,  old:11700,  badge:'sale', r:4.7, rv:334,  img:'/images/oxford-button-down-shirt.jpg'},
+  {id:41, name:'Adidas Forum Low Sneakers',    brand:'Adidas',         cat:'Shoes',       price:14300, old:18200,  badge:'hot',  r:4.8, rv:789,  img:'/images/adidas-forum-low.jpg'},
+  {id:42, name:'Nike Air Force 1 White',       brand:'Nike',           cat:'Shoes',       price:16250, old:20800,  badge:'hot',  r:4.9, rv:1234, img:'/images/nike-air-force-1.jpg'},
+  {id:43, name:'Adidas Stan Smith',            brand:'Adidas',         cat:'Shoes',       price:13000, old:16900,  badge:'sale', r:4.8, rv:956,  img:'/images/adidas-stan-smith.jpg'},
+  {id:44, name:'Nike Air Max 270',             brand:'Nike',           cat:'Shoes',       price:22100, old:28600,  badge:'new',  r:4.9, rv:678,  img:'/images/nike-air-max-270.jpg'},
+  {id:45, name:'Chelsea Ankle Boots',          brand:'Dr. Martens',    cat:'Shoes',       price:25350, old:32500,  badge:'hot',  r:4.8, rv:445,  img:'/images/chelsea-ankle-boots.jpg'},
+  {id:46, name:'Platform Block Heel Sandals',  brand:'Steve Madden',   cat:'Shoes',       price:12350, old:15990,  badge:'new',  r:4.6, rv:312,  img:'/images/platform-block-heel-sandals.jpg'},
+  {id:47, name:'New Balance 574 Classic',      brand:'New Balance',    cat:'Shoes',       price:17550, old:22750,  badge:'sale', r:4.8, rv:534,  img:'/images/adidas-stan-smith.jpg'},
+  {id:48, name:'Converse Chuck Taylor High',   brand:'Converse',       cat:'Shoes',       price:11700, old:14950,  badge:'hot',  r:4.7, rv:892,  img:'/images/converse-chuck-taylor-high.jpg'},
+  {id:49, name:'Leather Oxford Dress Shoes',   brand:'Clarks',         cat:'Shoes',       price:19500, old:25350,  badge:'sale', r:4.8, rv:267,  img:'/images/leather-oxford-dress-shoes.jpg'},
+  {id:50, name:'Vans Old Skool Classic',       brand:'Vans',           cat:'Shoes',       price:10400, old:13520,  badge:'new',  r:4.7, rv:1023, img:'/images/vans-old-skool-classic.jpg'},
+  {id:51, name:'Puma Suede Classic',           brand:'Puma',           cat:'Shoes',       price:11050, old:14300,  badge:'hot',  r:4.6, rv:445,  img:'/images/puma-suede-classic.jpg'},
+  {id:52, name:'Timberland 6-Inch Boots',      brand:'Timberland',     cat:'Shoes',       price:26000, old:33800,  badge:'sale', r:4.9, rv:623,  img:'/images/timberland-6inch-boots.jpg'},
+  {id:53, name:'Loafer Penny Shoes',           brand:'Gucci',          cat:'Shoes',       price:48100, old:62400,  badge:'hot',  r:4.9, rv:189,  img:'/images/gucci-horsebit-loafers.jpg'},
+  {id:54, name:'Running Sneakers Pro',         brand:'Nike',           cat:'Shoes',       price:19500, old:25350,  badge:'new',  r:4.8, rv:567,  img:'/images/nike-air-force-1.jpg'},
+  {id:55, name:'Adidas Ultraboost 22',         brand:'Adidas',         cat:'Shoes',       price:24700, old:32500,  badge:'hot',  r:4.9, rv:834,  img:'/images/adidas-forum-low.jpg'},
+  {id:56, name:'Slip-On Canvas Shoes',         brand:'Vans',           cat:'Shoes',       price:8450,  old:10920,  badge:'sale', r:4.6, rv:378,  img:'/images/vans-old-skool-classic.jpg'},
+  {id:57, name:'Stiletto Pointed Heels',       brand:'Steve Madden',   cat:'Shoes',       price:14950, old:19500,  badge:'new',  r:4.7, rv:234,  img:'/images/platform-block-heel-sandals.jpg'},
+  {id:58, name:'Jordan 1 Retro High',          brand:'Jordan',         cat:'Shoes',       price:29900, old:38350,  badge:'hot',  r:4.9, rv:1567, img:'/images/jordan-1-retro-high.jpg'},
+  {id:59, name:'Casio G-Shock DW-5600',        brand:'Casio',          cat:'Watches',     price:13000, old:16900,  badge:'hot',  r:4.8, rv:934,  img:'/images/casio-gshock-dw5600.jpg'},
+  {id:60, name:'Seiko 5 Sports Automatic',     brand:'Seiko',          cat:'Watches',     price:22100, old:28600,  badge:'new',  r:4.9, rv:456,  img:'/images/seiko-5-sports-automatic.jpg'},
+  {id:61, name:'Daniel Wellington Classic',    brand:'Daniel Wellington',cat:'Watches',   price:19500, old:25350,  badge:'sale', r:4.8, rv:789,  img:'/images/daniel-wellington-classic.jpg'},
+  {id:62, name:'Fossil Gen 6 Smartwatch',      brand:'Fossil',         cat:'Watches',     price:32500, old:42250,  badge:'new',  r:4.7, rv:345,  img:'/images/fossil-gen6-smartwatch.jpg'},
+  {id:63, name:'Casio Vintage Gold',           brand:'Casio',          cat:'Watches',     price:9100,  old:11700,  badge:'hot',  r:4.7, rv:623,  img:'/images/casio-vintage-gold.jpg'},
+  {id:64, name:'Tommy Hilfiger Classic',       brand:'Tommy Hilfiger', cat:'Watches',     price:16250, old:21060,  badge:'sale', r:4.7, rv:289,  img:'/images/tommy-hilfiger-classic-watch.jpg'},
+  {id:65, name:'Citizen Eco-Drive Solar',      brand:'Citizen',        cat:'Watches',     price:28600, old:37050,  badge:'new',  r:4.9, rv:412,  img:'/images/citizen-eco-drive-solar.jpg'},
+  {id:66, name:'Nixon Time Teller',            brand:'Nixon',          cat:'Watches',     price:14300, old:18590,  badge:'hot',  r:4.6, rv:267,  img:'/images/nixon-time-teller.jpg'},
+  {id:67, name:'Armani Exchange Stainless',    brand:'Armani Exchange',cat:'Watches',     price:24700, old:32110,  badge:'sale', r:4.8, rv:198,  img:'/images/armani-exchange-stainless.jpg'},
+  {id:68, name:'Garmin Forerunner 255',        brand:'Garmin',         cat:'Watches',     price:45500, old:58500,  badge:'new',  r:4.9, rv:534,  img:'/images/garmin-forerunner-255.jpg'},
+  {id:69, name:'Casio F-91W Digital',          brand:'Casio',          cat:'Watches',     price:3250,  old:4550,   badge:'sale', r:4.6, rv:1234, img:'/images/casio-f91w-digital.jpg'},
+  {id:70, name:'Michael Kors Rose Gold',       brand:'Michael Kors',   cat:'Watches',     price:35100, old:45500,  badge:'hot',  r:4.8, rv:367,  img:'/images/michael-kors-rose-gold.jpg'},
+  {id:71, name:'Leather Tote Shoulder Bag',    brand:'Coach',          cat:'Accessories', price:23140, old:30030,  badge:'hot',  r:4.8, rv:345,  img:'/images/leather-tote-shoulder-bag.jpg'},
+  {id:72, name:'Silk Printed Square Scarf',    brand:'Gucci',          cat:'Accessories', price:8450,  old:10920,  badge:'sale', r:4.7, rv:234,  img:'/images/silk-printed-square-scarf.jpg'},
+  {id:73, name:'Mini Crossbody Bag',           brand:'Coach',          cat:'Accessories', price:17550, old:22750,  badge:'new',  r:4.8, rv:412,  img:'/images/mini-crossbody-bag.jpg'},
+  {id:74, name:'Snapback Cap Streetwear',      brand:'New Era',        cat:'Accessories', price:5850,  old:7800,   badge:'hot',  r:4.6, rv:678,  img:'/images/snapback-cap-streetwear.jpg'},
+  {id:75, name:'Gold Cuban Link Chain',        brand:'DRIP Gold',      cat:'Accessories', price:11570, old:15080,  badge:'hot',  r:4.9, rv:423,  img:'/images/gold-cuban-link-chain.jpg'},
+  {id:76, name:'Aviator Sunglasses',           brand:'Ray-Ban',        cat:'Accessories', price:22100, old:28730,  badge:'sale', r:4.9, rv:567,  img:'/images/aviator-sunglasses.jpg'},
+  {id:77, name:'Leather Belt Braided',         brand:'Tommy Hilfiger', cat:'Accessories', price:6500,  old:8450,   badge:'new',  r:4.7, rv:189,  img:'/images/leather-belt-braided.jpg'},
+  {id:78, name:'Canvas Backpack Campus',       brand:'Herschel',       cat:'Accessories', price:14300, old:18590,  badge:'hot',  r:4.8, rv:534,  img:'/images/leather-belt-braided.jpg'},
+  {id:79, name:'Gold Hoop Earrings Set',       brand:'DRIP Gold',      cat:'Accessories', price:4550,  old:5850,   badge:'new',  r:4.7, rv:312,  img:'/images/gold-hoop-earrings-set.jpg'},
+  {id:80, name:'Waist Fanny Pack',             brand:'Adidas',         cat:'Accessories', price:5200,  old:6760,   badge:'sale', r:4.5, rv:289,  img:'/images/leather-tote-shoulder-bag.jpg'},
+  {id:81, name:'Beanie Knit Winter Hat',       brand:'Carhartt',       cat:'Accessories', price:4160,  old:5460,   badge:'new',  r:4.7, rv:445,  img:'/images/beanie-knit-winter-hat.jpg'},
+  {id:82, name:'Cat Eye Sunglasses',           brand:'Prada',          cat:'Accessories', price:29900, old:38870,  badge:'hot',  r:4.9, rv:178,  img:'/images/aviator-sunglasses.jpg'},
+  {id:83, name:'Leather Card Holder Wallet',   brand:'Coach',          cat:'Accessories', price:7150,  old:9295,   badge:'sale', r:4.8, rv:234,  img:'/images/leather-card-holder-wallet.jpg'},
+  {id:84, name:'Straw Bucket Hat Summer',      brand:'H&M',            cat:'Accessories', price:4550,  old:5850,   badge:'new',  r:4.6, rv:312,  img:'/images/straw-bucket-hat-summer.jpg'},
+  {id:85, name:'Statement Pearl Necklace',     brand:'DRIP Gold',      cat:'Accessories', price:8840,  old:11440,  badge:'hot',  r:4.8, rv:267,  img:'/images/statement-pearl-necklace.jpg'},
+  {id:86, name:'Kids Denim Bib Set',           brand:'H&M Kids',       cat:'Kids',        price:7150,  old:9295,   badge:'new',  r:4.7, rv:134,  img:'/images/kids-denim-bib-set.jpg'},
+  {id:87, name:'Girls Tutu Party Dress',       brand:'Zara Kids',      cat:'Kids',        price:6240,  old:8190,   badge:'hot',  r:4.8, rv:178,  img:'/images/girls-tutu-party-dress.jpg'},
+  {id:88, name:'Kids Air Max Sneakers',        brand:'Nike Kids',      cat:'Kids',        price:8060,  old:10400,  badge:'sale', r:4.6, rv:98,   img:'/images/nike-air-force-1.jpg'},
+  {id:89, name:'Boys Zip-Up Hoodie',           brand:'Adidas Kids',    cat:'Kids',        price:5460,  old:6760,   badge:'new',  r:4.5, rv:87,   img:'/images/kids-denim-bib-set.jpg'},
+  {id:90, name:'Girls Floral Sundress',        brand:'H&M Kids',       cat:'Kids',        price:5850,  old:7540,   badge:'hot',  r:4.7, rv:156,  img:'/images/girls-tutu-party-dress.jpg'},
+  {id:91, name:'Boys Cargo Shorts',            brand:'Zara Kids',      cat:'Kids',        price:4550,  old:5980,   badge:'sale', r:4.5, rv:112,  img:'/images/kids-denim-bib-set.jpg'},
+  {id:92, name:'Kids School Backpack',         brand:'Adidas Kids',    cat:'Kids',        price:6500,  old:8450,   badge:'new',  r:4.8, rv:234,  img:'/images/leather-belt-braided.jpg'},
+  {id:93, name:'Baby Onesie Set 3-Pack',       brand:'H&M Baby',       cat:'Kids',        price:3900,  old:5070,   badge:'hot',  r:4.9, rv:345,  img:'/images/kids-denim-bib-set.jpg'},
+];
+
+const TRENDING_DATA = [
+  {rank:2, id:8,  name:'Power Shoulder Blazer Dress', cat:'Women',      price:'KES 20,540', img:'/images/power-shoulder-blazer-dress.jpg'},
+  {rank:3, id:42, name:'Nike Air Force 1',            cat:'Shoes',       price:'KES 16,250', img:'/images/nike-air-force-1.jpg'},
+  {rank:4, id:71, name:'Leather Tote Bag',            cat:'Accessories', price:'KES 23,140', img:'/images/leather-tote-shoulder-bag.jpg'},
+  {rank:5, id:58, name:'Jordan 1 Retro High',         cat:'Shoes',       price:'KES 29,900', img:'/images/jordan-1-retro-high.jpg'},
+  {rank:6, id:29, name:'2-Piece Business Suit',       cat:'Men',         price:'KES 65,000', img:'/images/2-piece-business-suit.jpg'},
+];
+
+/* ── HELPERS ── */
+function kes(n) { return 'KES ' + Number(n).toLocaleString('en-KE'); }
+
+/* ── CART ── */
+var cart = JSON.parse(sessionStorage.getItem('drip-cart') || '[]');
+function saveCart() { sessionStorage.setItem('drip-cart', JSON.stringify(cart)); }
+
+function addToCart(p) {
+  var item = cart.find(function(i){ return i.id === p.id; });
+  if (item) { item.qty++; } else { cart.push(Object.assign({}, p, {qty:1})); }
+  saveCart(); renderCart(); openCart();
+}
+
+function changeQty(id, d) {
+  var item = cart.find(function(i){ return i.id === id; });
+  if (!item) return;
+  item.qty += d;
+  if (item.qty <= 0) cart = cart.filter(function(i){ return i.id !== id; });
+  saveCart(); renderCart();
+}
+
+function removeItem(id) {
+  cart = cart.filter(function(i){ return i.id !== id; });
+  saveCart(); renderCart();
+}
+
+function renderCart() {
+  var total = cart.reduce(function(s,i){ return s + i.qty; }, 0);
+  document.getElementById('cartCount').textContent = total;
+  var body = document.getElementById('cartBody');
+  if (!cart.length) {
+    body.innerHTML = '<div class="cart-empty"><i class="bi bi-bag-x"></i><p>Your cart is empty</p></div>';
+  } else {
+    body.innerHTML = cart.map(function(item) {
+      return '<div class="cart-item">' +
+        '<img class="ci-img" src="'+item.img+'" onerror="this.src=\'\'">' +
+        '<div style="flex:1">' +
+          '<div class="ci-name">'+item.name+'</div>' +
+          '<div class="ci-price">'+kes(item.price)+'</div>' +
+          '<div class="ci-qty">' +
+            '<button class="qbtn" onclick="changeQty('+item.id+',-1)">−</button>' +
+            '<span>'+item.qty+'</span>' +
+            '<button class="qbtn" onclick="changeQty('+item.id+',1)">+</button>' +
+          '</div>' +
+        '</div>' +
+        '<button class="ci-rm" onclick="removeItem('+item.id+')"><i class="bi bi-trash"></i></button>' +
+      '</div>';
+    }).join('');
+  }
+  var sub = cart.reduce(function(s,i){ return s + i.price * i.qty; }, 0);
+  document.getElementById('cartTotal').textContent = kes(sub);
+}
+
+function openCart()  { document.getElementById('cartOverlay').classList.add('open'); document.getElementById('cartSidebar').classList.add('open'); }
+function closeCart() { document.getElementById('cartOverlay').classList.remove('open'); document.getElementById('cartSidebar').classList.remove('open'); }
+
+/* ── RENDER CARDS ── */
+function pCard(p) {
+  var badge = p.badge ? '<span class="pbadge b-'+p.badge+'">'+p.badge.toUpperCase()+'</span>' : '';
+  var oldHtml = p.old ? '<span class="pold">'+kes(p.old)+'</span>' : '';
+  return '<div class="pcard" onclick="window.location.href=\'product.html?id='+p.id+'\'">' +
+    '<div class="pimg">' +
+      '<img src="'+p.img+'" alt="'+p.name+'" loading="lazy">' +
+      badge +
+      '<button class="pwish" onclick="event.stopPropagation()" title="Wishlist"><i class="bi bi-heart"></i></button>' +
+    '</div>' +
+    '<div class="pinfo">' +
+      '<div class="pbrand">'+p.brand+'</div>' +
+      '<div class="pname">'+p.name+'</div>' +
+      '<div class="pprices"><span class="pprice">'+kes(p.price)+'</span>'+oldHtml+'</div>' +
+      '<div class="prating"><i class="bi bi-star-fill" style="color:#f4b942;font-size:11px"></i> '+p.r+' ('+p.rv+')</div>' +
+      '<button class="padd" onclick="event.stopPropagation();addToCart({id:'+p.id+',name:\''+p.name.replace(/'/g,"\\'")+ '\',brand:\''+p.brand+'\',price:'+p.price+',img:\''+p.img+'\'})"><i class="bi bi-bag-plus"></i> Add to Cart</button>' +
+    '</div>' +
+  '</div>';
+}
+
+function fCard(p) {
+  var disc = p.old ? Math.round((1 - p.price/p.old)*100) : 0;
+  return '<div class="fcard" onclick="window.location.href=\'product.html?id='+p.id+'\'">' +
+    '<div class="fcard-img"><img src="'+p.img+'" alt="'+p.name+'" loading="lazy">' +
+    (disc ? '<span class="fdisc">-'+disc+'%</span>' : '') + '</div>' +
+    '<div class="finfo"><div class="fname">'+p.name+'</div>' +
+    '<div class="fprices"><span class="fprice">'+kes(p.price)+'</span>' +
+    (p.old ? '<span class="fold">'+kes(p.old)+'</span>' : '') + '</div></div></div>';
+}
+
+function tItem(t) {
+  return '<div class="titem" onclick="window.location.href=\'product.html?id='+t.id+'\'">' +
+    '<div class="tnum">'+t.rank+'</div>' +
+    '<div class="tthumb"><img src="'+t.img+'" loading="lazy"></div>' +
+    '<div class="tmeta"><div class="tmeta-name">'+t.name+'</div><div class="tmeta-cat">'+t.cat+'</div></div>' +
+    '<div class="tprice">'+t.price+'</div>' +
+  '</div>';
+}
+
+/* ── POPULATE GRIDS ── */
+document.getElementById('newArrivalsGrid').innerHTML = PRODUCTS.filter(function(p){return p.badge==='new';}).slice(0,8).map(pCard).join('');
+document.getElementById('featuredGrid').innerHTML    = PRODUCTS.filter(function(p){return p.r>=4.8;}).slice(0,8).map(pCard).join('');
+document.getElementById('moreGrid').innerHTML        = PRODUCTS.filter(function(p){return p.badge==='hot';}).slice(0,8).map(pCard).join('');
+document.getElementById('flashGrid').innerHTML       = PRODUCTS.filter(function(p){return p.old;}).sort(function(a,b){return (b.old-b.price)/b.old-(a.old-a.price)/a.old;}).slice(0,4).map(fCard).join('');
+document.getElementById('trendingList').innerHTML    = TRENDING_DATA.map(tItem).join('');
+
+/* ── COUNTDOWN ── */
+function tick() {
+  var now = new Date(), end = new Date();
+  end.setHours(23,59,59,0);
+  var diff = Math.max(0, end - now);
+  var h = Math.floor(diff/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
+  document.getElementById('cdH').textContent = String(h).padStart(2,'0');
+  document.getElementById('cdM').textContent = String(m).padStart(2,'0');
+  document.getElementById('cdS').textContent = String(s).padStart(2,'0');
+}
+tick(); setInterval(tick, 1000);
+
+/* ── MOBILE MENU ── */
+function toggleMenu() {
+  var menu = document.getElementById('mobMenu');
+  var icon = document.getElementById('menuIcon');
+  var open = menu.classList.toggle('open');
+  icon.className = open ? 'bi bi-x' : 'bi bi-list';
+  document.body.style.overflow = open ? 'hidden' : '';
+}
+
+/* ── AUTH ── */
+(function() {
+  var token = sessionStorage.getItem('drip-token');
+  if (!token) { window.location.href = 'index.html'; return; }
+  var user = null;
+  try { user = JSON.parse(sessionStorage.getItem('drip-user')); } catch(e) {}
+  var authBtn  = document.getElementById('authBtn');
+  var greeting = document.getElementById('userGreeting');
+  var nameEl   = document.getElementById('userName');
+  var logoutBtn= document.getElementById('logoutBtn');
+  if (authBtn)  authBtn.style.display  = 'none';
+  if (greeting) greeting.style.display = 'inline';
+  if (logoutBtn)logoutBtn.style.display= 'inline';
+  if (nameEl && user) nameEl.textContent = (user.name || user.email || 'User').split(' ')[0];
+})();
+
+function logout() {
+  sessionStorage.removeItem('drip-token');
+  sessionStorage.removeItem('drip-user');
+  window.location.href = 'index.html';
+}
+
+renderCart();
+</script>
+</body>
+</html>

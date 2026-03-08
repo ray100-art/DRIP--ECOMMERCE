@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DRIP — Search</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black: #0a0a0a; --white: #fafaf8; --cream: #f5f0e8;
+      --red: #c8102e; --gray-100: #f4f4f4; --gray-200: #e8e8e8;
+      --gray-500: #888; --gray-700: #444; --green: #16a34a; --gold: #c9a84c;
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--gray-100); color: var(--black); min-height: 100vh; }
+
+    /* NAV */
+    nav { background: var(--black); height: 64px; display: flex; align-items: center; padding: 0 40px; position: sticky; top: 0; z-index: 100; }
+    .nav-inner { width: 100%; max-width: 1280px; margin: 0 auto; display: flex; align-items: center; gap: 20px; }
+    .nav-logo { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 0.1em; color: var(--white); text-decoration: none; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .nav-logo-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--red); }
+
+    /* SEARCH BAR */
+    .search-bar-wrap { flex: 1; max-width: 680px; margin: 0 auto; position: relative; }
+    .search-bar { width: 100%; padding: 12px 50px 12px 20px; background: rgba(255,255,255,0.1); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 12px; color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 15px; outline: none; transition: all .2s; }
+    .search-bar::placeholder { color: rgba(255,255,255,0.35); }
+    .search-bar:focus { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.4); }
+    .search-bar-icon { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.4); font-size: 18px; cursor: pointer; transition: color .2s; }
+    .search-bar-icon:hover { color: var(--white); }
+    .search-clear { position: absolute; right: 42px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.3); font-size: 14px; cursor: pointer; display: none; }
+    .search-clear.visible { display: block; }
+    .nav-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    .nav-icon-btn { background: none; border: none; color: rgba(255,255,255,0.6); font-size: 18px; cursor: pointer; transition: color .2s; position: relative; }
+    .nav-icon-btn:hover { color: var(--white); }
+    .cart-count { position: absolute; top: -6px; right: -6px; width: 16px; height: 16px; border-radius: 50%; background: var(--red); color: #fff; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+
+    /* AUTOCOMPLETE */
+    .autocomplete { position: absolute; top: calc(100% + 8px); left: 0; right: 0; background: var(--white); border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); overflow: hidden; z-index: 50; display: none; }
+    .autocomplete.open { display: block; animation: fadeDown .2s ease; }
+    @keyframes fadeDown { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+    .ac-section { padding: 12px 16px 4px; font-size: 10px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gray-500); }
+    .ac-item { display: flex; align-items: center; gap: 12px; padding: 10px 16px; cursor: pointer; transition: background .15s; }
+    .ac-item:hover { background: var(--gray-100); }
+    .ac-emoji { width: 36px; height: 36px; background: var(--gray-100); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .ac-name { font-size: 13px; font-weight: 600; }
+    .ac-price { font-size: 12px; color: var(--gray-500); margin-left: auto; }
+    .ac-query-item { display: flex; align-items: center; gap: 10px; padding: 10px 16px; cursor: pointer; font-size: 13px; transition: background .15s; }
+    .ac-query-item:hover { background: var(--gray-100); }
+    .ac-query-item i { color: var(--gray-400); }
+
+    /* LAYOUT */
+    .search-layout { max-width: 1280px; margin: 0 auto; padding: 32px 40px 80px; }
+
+    /* HEADER ROW */
+    .search-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+    .search-results-title { font-family: 'Bebas Neue', sans-serif; font-size: 40px; letter-spacing: 0.03em; }
+    .search-results-title span { color: var(--red); }
+    .search-count { font-size: 14px; color: var(--gray-500); margin-top: 4px; }
+    .sort-wrap { display: flex; align-items: center; gap: 10px; }
+    .sort-label { font-size: 13px; color: var(--gray-500); }
+    .sort-select { padding: 9px 14px; border: 1.5px solid var(--gray-200); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13px; background: var(--white); outline: none; cursor: pointer; }
+
+    /* FILTERS */
+    .filter-strip { display: flex; gap: 8px; margin-bottom: 28px; flex-wrap: wrap; }
+    .filter-chip { padding: 7px 16px; border-radius: 20px; border: 1.5px solid var(--gray-200); background: var(--white); font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .2s; display: flex; align-items: center; gap: 6px; }
+    .filter-chip:hover { border-color: var(--black); color: var(--black); }
+    .filter-chip.active { background: var(--black); color: var(--white); border-color: var(--black); }
+    .filter-chip.active i { color: rgba(255,255,255,0.6); }
+    .filter-chip i { font-size: 10px; }
+
+    /* RESULTS GRID */
+    .results-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+    .product-card { background: var(--white); border-radius: 16px; overflow: hidden; cursor: pointer; transition: all .3s; position: relative; }
+    .product-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(0,0,0,0.1); }
+    .card-img { aspect-ratio: 3/4; background: var(--gray-100); display: flex; align-items: center; justify-content: center; font-size: 70px; position: relative; }
+    .card-badge { position: absolute; top: 12px; left: 12px; font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; }
+    .badge-new  { background: var(--black); color: var(--white); }
+    .badge-hot  { background: var(--red);   color: var(--white); }
+    .badge-sale { background: var(--gold);  color: var(--white); }
+    .card-wish { position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.9); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--gray-500); transition: all .2s; }
+    .card-wish:hover { color: var(--red); }
+    .card-add-hover { position: absolute; bottom: 0; left: 0; right: 0; background: var(--black); color: var(--white); padding: 12px; text-align: center; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; transform: translateY(100%); transition: transform .25s; }
+    .product-card:hover .card-add-hover { transform: translateY(0); }
+    .card-info { padding: 14px 16px; }
+    .card-name { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+    .card-cat { font-size: 11px; color: var(--gray-500); margin-bottom: 8px; }
+    .card-price-row { display: flex; align-items: center; justify-content: space-between; }
+    .card-price { font-size: 15px; font-weight: 700; }
+    .card-old { font-size: 12px; color: var(--gray-500); text-decoration: line-through; margin-left: 6px; }
+    .card-rating { font-size: 11px; color: var(--gold); }
+
+    /* HIGHLIGHT */
+    mark { background: rgba(200,16,46,0.12); color: var(--red); border-radius: 2px; padding: 0 2px; }
+
+    /* EMPTY STATE */
+    .empty-state { text-align: center; padding: 80px 32px; }
+    .empty-icon { font-size: 80px; margin-bottom: 20px; opacity: 0.2; }
+    .empty-title { font-family: 'Bebas Neue', sans-serif; font-size: 48px; margin-bottom: 10px; }
+    .empty-sub { color: var(--gray-500); font-size: 15px; margin-bottom: 28px; }
+
+    /* POPULAR SEARCHES */
+    .popular-section { margin-top: 48px; }
+    .popular-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 0.05em; margin-bottom: 16px; }
+    .popular-tags { display: flex; gap: 10px; flex-wrap: wrap; }
+    .popular-tag { padding: 10px 20px; background: var(--white); border: 1.5px solid var(--gray-200); border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s; }
+    .popular-tag:hover { background: var(--black); color: var(--white); border-color: var(--black); }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--black); color: var(--white); padding: 14px 24px; border-radius: 12px; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 10px; z-index: 200; transition: transform .4s cubic-bezier(.34,1.56,.64,1); }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast i { color: var(--green); font-size: 18px; }
+
+    @media (max-width: 1024px) { .results-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 768px) { .results-grid { grid-template-columns: repeat(2, 1fr); } .search-layout { padding: 24px 16px 60px; } nav { padding: 0 16px; } }
+    @media (max-width: 480px) { .filter-strip { gap: 6px; } .filter-chip { font-size: 11px; padding: 6px 12px; } }
+  
+    body { animation: pageIn .35s ease both; }
+    @keyframes pageIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    @media (min-width: 769px) {
+      #hamburgerBtn { display: none !important; }
+      .mobile-menu { display: none !important; }
+      .bottom-nav { display: none !important; }
+    }
+    .mobile-menu { position:fixed; inset:0; z-index:500; background:#0a0a0a; display:flex; flex-direction:column; padding:80px 32px 40px; transform:translateX(100%); transition:transform .35s cubic-bezier(0.22,1,0.36,1); }
+    .mobile-menu.open { transform:translateX(0); }
+    .mobile-menu-link { font-family:'Bebas Neue',sans-serif; font-size:40px; letter-spacing:0.06em; color:#fff; text-decoration:none; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:space-between; transition:color .2s; }
+    .mobile-menu-link:hover { color:#b8942a; }
+    .mobile-menu-close { position:absolute; top:20px; right:20px; background:none; border:none; color:#fff; font-size:28px; cursor:pointer; }
+    .bottom-nav { display:none; position:fixed; bottom:0; left:0; right:0; z-index:300; background:#fff; border-top:1px solid #e8e8e8; padding:8px 0 max(8px,env(safe-area-inset-bottom)); box-shadow:0 -4px 20px rgba(0,0,0,0.08); }
+    .bottom-nav-inner { display:flex; justify-content:space-around; align-items:center; }
+    .bottom-nav-item { display:flex; flex-direction:column; align-items:center; gap:3px; color:#888; text-decoration:none; font-size:10px; font-weight:600; letter-spacing:0.05em; padding:4px 8px; transition:color .2s; background:none; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; }
+    .bottom-nav-item i { font-size:20px; }
+    .bottom-nav-item.active { color:#0a0a0a; }
+    .bottom-nav-item.active i { color:#c8102e; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="shop.html" class="nav-logo">DRIP <span class="nav-logo-dot"></span></a>
+    <div class="search-bar-wrap">
+      <input class="search-bar" id="searchInput" type="text" placeholder="Search for styles, brands, products..." autocomplete="off" oninput="onSearchInput()" onkeydown="onKeyDown(event)"/>
+      <i class="bi bi-x-lg search-clear" id="searchClear" onclick="clearSearch()"></i>
+      <i class="bi bi-search search-bar-icon" onclick="doSearch()"></i>
+      <div class="autocomplete" id="autocomplete"></div>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" onclick="window.location.href='wishlist.html'"><i class="bi bi-heart"></i></button>
+      <button class="nav-icon-btn" onclick="window.location.href='checkout.html'"><i class="bi bi-bag"></i><div class="cart-count" id="cartCount">0</div></button>
+    </div>
+  </div>
+</nav>
+
+<div class="search-layout">
+  <div class="search-header">
+    <div>
+      <div class="search-results-title" id="resultsTitle">Search <span id="queryDisplay">Everything</span></div>
+      <div class="search-count" id="resultsCount">Showing all 32 products</div>
+    </div>
+    <div class="sort-wrap">
+      <span class="sort-label">Sort by:</span>
+      <select class="sort-select" onchange="sortResults(this.value)">
+        <option value="featured">Featured</option>
+        <option value="price-asc">Price: Low to High</option>
+        <option value="price-desc">Price: High to Low</option>
+        <option value="newest">Newest</option>
+        <option value="rating">Top Rated</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="filter-strip" id="filterStrip">
+    <div class="filter-chip active" onclick="filterCat('', this)">All</div>
+    <div class="filter-chip" onclick="filterCat('Women', this)">Women</div>
+    <div class="filter-chip" onclick="filterCat('Men', this)">Men</div>
+    <div class="filter-chip" onclick="filterCat('Shoes', this)">Shoes</div>
+    <div class="filter-chip" onclick="filterCat('Accessories', this)">Accessories</div>
+    <div class="filter-chip" onclick="filterCat('Kids', this)">Kids</div>
+    <div class="filter-chip" onclick="filterBadge('SALE', this)"><i class="bi bi-tag-fill"></i> Sale</div>
+    <div class="filter-chip" onclick="filterBadge('NEW', this)"><i class="bi bi-star-fill"></i> New</div>
+    <div class="filter-chip" onclick="filterBadge('HOT', this)"><i class="bi bi-fire"></i> Hot</div>
+  </div>
+
+  <div class="results-grid" id="resultsGrid"></div>
+
+  <div class="popular-section" id="popularSection">
+    <div class="popular-title">Popular Searches</div>
+    <div class="popular-tags">
+      <div class="popular-tag" onclick="setSearch('dress')">Dress</div>
+      <div class="popular-tag" onclick="setSearch('jacket')">Jacket</div>
+      <div class="popular-tag" onclick="setSearch('sneakers')">Sneakers</div>
+      <div class="popular-tag" onclick="setSearch('bag')">Bag</div>
+      <div class="popular-tag" onclick="setSearch('sale')">Sale Items</div>
+      <div class="popular-tag" onclick="setSearch('new arrivals')">New Arrivals</div>
+      <div class="popular-tag" onclick="setSearch('boots')">Boots</div>
+      <div class="popular-tag" onclick="setSearch('shirt')">Shirt</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><i class="bi bi-check-circle-fill"></i><span id="toastMsg">Done!</span></div>
+
+<script>
+
+  const KES_RATE = 130;
+  function toKES(usd) { return Math.round(usd * KES_RATE); }
+  function fmtKES(n) { return 'KES ' + n.toLocaleString('en-KE'); }
+
+const ALL_PRODUCTS = [
+  {id:1, name:'Floral Wrap Dress',       cat:'Women',       price:89,  oldPrice:null, badge:'NEW',  emoji:'👗', rating:4.9, tags:['dress','women','floral','wrap']},
+  {id:2, name:'Wide Leg Trousers',        cat:'Women',       price:72,  oldPrice:95,   badge:'SALE', emoji:'👖', rating:4.6, tags:['trousers','pants','women','wide leg']},
+  {id:3, name:'Silk Blouse',              cat:'Women',       price:95,  oldPrice:null, badge:'HOT',  emoji:'👚', rating:4.8, tags:['blouse','top','women','silk']},
+  {id:4, name:'Knit Cardigan',            cat:'Women',       price:110, oldPrice:null, badge:'NEW',  emoji:'🧶', rating:4.7, tags:['cardigan','knitwear','women']},
+  {id:5, name:'Mini Skirt',               cat:'Women',       price:58,  oldPrice:75,   badge:'SALE', emoji:'👗', rating:4.4, tags:['skirt','women','mini']},
+  {id:6, name:'Linen Jumpsuit',           cat:'Women',       price:135, oldPrice:null, badge:'NEW',  emoji:'👘', rating:4.8, tags:['jumpsuit','linen','women']},
+  {id:7, name:'Maxi Sundress',            cat:'Women',       price:79,  oldPrice:99,   badge:'SALE', emoji:'👗', rating:4.5, tags:['dress','sundress','women','maxi']},
+  {id:8, name:'Blazer Dress',             cat:'Women',       price:158, oldPrice:null, badge:'HOT',  emoji:'🥻', rating:4.9, tags:['dress','blazer','women','formal']},
+  {id:9, name:'Slim Fit Chinos',          cat:'Men',         price:85,  oldPrice:null, badge:'NEW',  emoji:'👖', rating:4.6, tags:['chinos','trousers','men']},
+  {id:10,name:'Oxford Shirt',             cat:'Men',         price:68,  oldPrice:null, badge:'NEW',  emoji:'👔', rating:4.7, tags:['shirt','oxford','men']},
+  {id:11,name:'Leather Jacket',           cat:'Men',         price:295, oldPrice:null, badge:'HOT',  emoji:'🧥', rating:4.9, tags:['jacket','leather','men']},
+  {id:12,name:'Merino Wool Sweater',       cat:'Men',         price:128, oldPrice:160,  badge:'SALE', emoji:'🧥', rating:4.8, tags:['sweater','wool','men']},
+  {id:13,name:'Cargo Shorts',             cat:'Men',         price:62,  oldPrice:null, badge:'NEW',  emoji:'🩳', rating:4.3, tags:['shorts','cargo','men']},
+  {id:14,name:'Linen Shirt',              cat:'Men',         price:78,  oldPrice:null, badge:'NEW',  emoji:'👕', rating:4.6, tags:['shirt','linen','men']},
+  {id:15,name:'Denim Jacket',             cat:'Men',         price:145, oldPrice:180,  badge:'SALE', emoji:'🧥', rating:4.7, tags:['jacket','denim','men']},
+  {id:16,name:'Track Suit',               cat:'Men',         price:168, oldPrice:null, badge:'HOT',  emoji:'🩱', rating:4.5, tags:['tracksuit','sportswear','men']},
+  {id:17,name:'Chunky Sneakers',          cat:'Shoes',       price:149, oldPrice:189,  badge:'SALE', emoji:'👟', rating:4.9, tags:['sneakers','shoes','chunky']},
+  {id:18,name:'Leather Boots',            cat:'Shoes',       price:225, oldPrice:null, badge:'HOT',  emoji:'👢', rating:4.8, tags:['boots','leather','shoes']},
+  {id:19,name:'Platform Sandals',         cat:'Shoes',       price:95,  oldPrice:null, badge:'NEW',  emoji:'👡', rating:4.6, tags:['sandals','platform','shoes']},
+  {id:20,name:'Running Shoes',            cat:'Shoes',       price:135, oldPrice:160,  badge:'SALE', emoji:'👟', rating:4.7, tags:['running','shoes','sport']},
+  {id:21,name:'Slip-On Loafers',          cat:'Shoes',       price:112, oldPrice:null, badge:'NEW',  emoji:'🥿', rating:4.5, tags:['loafers','slip on','shoes']},
+  {id:22,name:'High-Top Sneakers',        cat:'Shoes',       price:158, oldPrice:null, badge:'HOT',  emoji:'👟', rating:4.8, tags:['sneakers','high top','shoes']},
+  {id:23,name:'Leather Tote Bag',         cat:'Accessories', price:178, oldPrice:null, badge:'NEW',  emoji:'👜', rating:4.9, tags:['bag','tote','leather','accessories']},
+  {id:24,name:'Silk Scarf',               cat:'Accessories', price:65,  oldPrice:null, badge:'NEW',  emoji:'🧣', rating:4.6, tags:['scarf','silk','accessories']},
+  {id:25,name:'Crossbody Bag',            cat:'Accessories', price:135, oldPrice:160,  badge:'SALE', emoji:'👛', rating:4.7, tags:['bag','crossbody','accessories']},
+  {id:26,name:'Bucket Hat',               cat:'Accessories', price:45,  oldPrice:null, badge:'HOT',  emoji:'🧢', rating:4.4, tags:['hat','bucket hat','accessories']},
+  {id:27,name:'Gold Chain Necklace',      cat:'Accessories', price:89,  oldPrice:null, badge:'HOT',  emoji:'📿', rating:4.8, tags:['necklace','gold','chain','jewellery','accessories']},
+  {id:28,name:'Sunglasses',               cat:'Accessories', price:128, oldPrice:150,  badge:'SALE', emoji:'🕶️', rating:4.7, tags:['sunglasses','glasses','accessories']},
+  {id:29,name:'Kids Denim Set',           cat:'Kids',        price:55,  oldPrice:null, badge:'NEW',  emoji:'👦', rating:4.6, tags:['denim','kids','set']},
+  {id:30,name:'Girls Tutu Dress',         cat:'Kids',        price:48,  oldPrice:null, badge:'NEW',  emoji:'👧', rating:4.7, tags:['dress','tutu','kids','girls']},
+  {id:31,name:'Kids Sneakers',            cat:'Kids',        price:62,  oldPrice:75,   badge:'SALE', emoji:'👟', rating:4.5, tags:['sneakers','kids']},
+  {id:32,name:'Boys Hoodie',              cat:'Kids',        price:42,  oldPrice:null, badge:'NEW',  emoji:'👕', rating:4.6, tags:['hoodie','boys','kids']},
+];
+
+let currentQuery = '';
+let currentCat   = '';
+let currentBadge = '';
+let currentSort  = 'featured';
+
+/* ===== SEARCH INPUT ===== */
+function onSearchInput() {
+  const q = document.getElementById('searchInput').value;
+  document.getElementById('searchClear').classList.toggle('visible', q.length > 0);
+  showAutocomplete(q);
+  renderResults();
+  updateHeader();
+}
+
+function onKeyDown(e) {
+  if (e.key === 'Enter') { doSearch(); document.getElementById('autocomplete').classList.remove('open'); }
+  if (e.key === 'Escape') { document.getElementById('autocomplete').classList.remove('open'); }
+}
+
+function doSearch() {
+  currentQuery = document.getElementById('searchInput').value;
+  renderResults();
+  updateHeader();
+  document.getElementById('autocomplete').classList.remove('open');
+}
+
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  currentQuery = '';
+  document.getElementById('searchClear').classList.remove('visible');
+  document.getElementById('autocomplete').classList.remove('open');
+  renderResults();
+  updateHeader();
+}
+
+function setSearch(q) {
+  document.getElementById('searchInput').value = q;
+  currentQuery = q;
+  document.getElementById('searchClear').classList.add('visible');
+  renderResults();
+  updateHeader();
+}
+
+/* ===== AUTOCOMPLETE ===== */
+function showAutocomplete(q) {
+  const ac = document.getElementById('autocomplete');
+  if (!q || q.length < 2) { ac.classList.remove('open'); return; }
+  const matches = ALL_PRODUCTS.filter(p => p.name.toLowerCase().includes(q.toLowerCase())).slice(0,5);
+  const suggestions = ['dress', 'jacket', 'sneakers', 'bag', 'shirt', 'boots'].filter(s => s.includes(q.toLowerCase())).slice(0,3);
+  let html = '';
+  if (suggestions.length) { html += `<div class="ac-section">Suggestions</div>` + suggestions.map(s=>`<div class="ac-query-item" onclick="setSearch('${s}')"><i class="bi bi-search"></i>${s}</div>`).join(''); }
+  if (matches.length)     { html += `<div class="ac-section">Products</div>` + matches.map(p=>`<div class="ac-item" onclick="window.location.href='product.html?id=${p.id}'"><div class="ac-emoji">${p.emoji}</div><div class="ac-name">${highlight(p.name,q)}</div><div class="ac-price">${fmtKES(toKES(p.price))}</div></div>`).join(''); }
+  if (html) { ac.innerHTML = html; ac.classList.add('open'); } else { ac.classList.remove('open'); }
+}
+
+/* ===== FILTERS ===== */
+function filterCat(cat, btn) {
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  currentCat = cat; currentBadge = '';
+  renderResults(); updateHeader();
+}
+function filterBadge(badge, btn) {
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  currentBadge = badge; currentCat = '';
+  renderResults(); updateHeader();
+}
+
+function sortResults(val) { currentSort = val; renderResults(); }
+
+/* ===== RENDER ===== */
+function getFiltered() {
+  let list = [...ALL_PRODUCTS];
+  if (currentQuery) { const q = currentQuery.toLowerCase(); list = list.filter(p => p.name.toLowerCase().includes(q) || p.cat.toLowerCase().includes(q) || p.tags.some(t => t.includes(q))); }
+  if (currentCat)   { list = list.filter(p => p.cat === currentCat); }
+  if (currentBadge) { list = list.filter(p => p.badge === currentBadge); }
+  if (currentSort === 'price-asc')  list.sort((a,b) => a.price - b.price);
+  if (currentSort === 'price-desc') list.sort((a,b) => b.price - a.price);
+  if (currentSort === 'rating')     list.sort((a,b) => b.rating - a.rating);
+  if (currentSort === 'newest')     list.sort((a,b) => b.id - a.id);
+  return list;
+}
+
+function highlight(text, q) {
+  if (!q) return text;
+  const re = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+  return text.replace(re, '<mark>$1</mark>');
+}
+
+function renderResults() {
+  const list = getFiltered();
+  const q = currentQuery;
+  document.getElementById('popularSection').style.display = list.length === 0 || !q ? '' : 'none';
+
+  if (list.length === 0) {
+    document.getElementById('resultsGrid').innerHTML = `
+      <div class="empty-state" style="grid-column:1/-1;">
+        <div class="empty-icon">🔍</div>
+        <div class="empty-title">No Results Found</div>
+        <div class="empty-sub">Try a different search term or browse our full collection.</div>
+        <button onclick="clearSearch()" style="padding:13px 32px;background:var(--black);color:#fff;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">Browse All Products</button>
+      </div>`;
+    return;
+  }
+
+  const wl = JSON.parse(sessionStorage.getItem('drip-wishlist') || '[]');
+  document.getElementById('resultsGrid').innerHTML = list.map(p => `
+    <div class="product-card" onclick="window.location.href='product.html?id=${p.id}'">
+      <div class="card-img">
+        ${p.emoji}
+        <div class="card-badge badge-${p.badge.toLowerCase()}">${p.badge}</div>
+        <button class="card-wish ${wl.includes(p.id)?'active':''}" onclick="event.stopPropagation();toggleWish(${p.id},this)" style="${wl.includes(p.id)?'color:var(--red)':''}">
+          <i class="bi bi-heart${wl.includes(p.id)?'-fill':''}"></i>
+        </button>
+        <div class="card-add-hover" onclick="event.stopPropagation();addToCart(${p.id})">Add to Bag</div>
+      </div>
+      <div class="card-info">
+        <div class="card-cat">${p.cat}</div>
+        <div class="card-name">${highlight(p.name, q)}</div>
+        <div class="card-price-row">
+          <div><span class="card-price">$${p.price}</span>${p.oldPrice?`<span class="card-old">$${p.oldPrice}</span>`:''}</div>
+          <div class="card-rating">★ ${p.rating}</div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function updateHeader() {
+  const list = getFiltered();
+  const q = currentQuery;
+  document.getElementById('queryDisplay').textContent = q ? `"${q}"` : 'Everything';
+  document.getElementById('resultsCount').textContent = `${list.length} product${list.length !== 1 ? 's' : ''} found`;
+}
+
+function toggleWish(id, btn) {
+  const wl = JSON.parse(sessionStorage.getItem('drip-wishlist') || '[]');
+  const idx = wl.indexOf(id);
+  const adding = idx === -1;
+  if (adding) wl.push(id); else wl.splice(idx, 1);
+  sessionStorage.setItem('drip-wishlist', JSON.stringify(wl));
+  btn.style.color = adding ? 'var(--red)' : '';
+  btn.innerHTML = `<i class="bi bi-heart${adding?'-fill':''}"></i>`;
+  showToast(adding ? 'Added to wishlist!' : 'Removed from wishlist');
+}
+
+function addToCart(id) {
+  const p = ALL_PRODUCTS.find(x => x.id === id);
+  if (!p) return;
+  const cart = JSON.parse(sessionStorage.getItem('drip-cart') || '[]');
+  const ex = cart.find(i => i.id === id);
+  if (ex) ex.qty++; else cart.push({id, name:p.name, price:p.price, emoji:p.emoji, qty:1});
+  sessionStorage.setItem('drip-cart', JSON.stringify(cart));
+  document.getElementById('cartCount').textContent = cart.reduce((s,i) => s + i.qty, 0);
+  showToast(p.name + ' added to bag!');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Close autocomplete on outside click
+document.addEventListener('click', e => { if (!e.target.closest('.search-bar-wrap')) document.getElementById('autocomplete').classList.remove('open'); });
+
+// Init from URL params
+const urlQ = new URLSearchParams(window.location.search).get('q');
+if (urlQ) { document.getElementById('searchInput').value = urlQ; currentQuery = urlQ; document.getElementById('searchClear').classList.add('visible'); }
+
+document.getElementById('cartCount').textContent = JSON.parse(sessionStorage.getItem('drip-cart')||'[]').reduce((s,i)=>s+i.qty,0);
+renderResults();
+updateHeader();
+</script>
+
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-menu-close" onclick="toggleMobileMenu()"><i class="bi bi-x"></i></button>
+  <a href="shop.html"     class="mobile-menu-link">Home      <i class="bi bi-chevron-right" style="font-size:20px"></i></a>
+  <a href="products.html" class="mobile-menu-link">Shop      <i class="bi bi-chevron-right" style="font-size:20px"></i></a>
+  <a href="orders.html"   class="mobile-menu-link">My Orders <i class="bi bi-chevron-right" style="font-size:20px"></i></a>
+  <a href="wishlist.html" class="mobile-menu-link">Wishlist  <i class="bi bi-chevron-right" style="font-size:20px"></i></a>
+  <a href="profile.html"  class="mobile-menu-link">Profile   <i class="bi bi-chevron-right" style="font-size:20px"></i></a>
+</div>
+<div class="bottom-nav" id="bottomNav">
+  <div class="bottom-nav-inner">
+    <a href="shop.html"     class="bottom-nav-item"><i class="bi bi-house-fill"></i>Home</a>
+    <a href="products.html" class="bottom-nav-item"><i class="bi bi-grid-fill"></i>Shop</a>
+    <a href="orders.html"   class="bottom-nav-item"><i class="bi bi-truck"></i>Orders</a>
+    <a href="wishlist.html" class="bottom-nav-item"><i class="bi bi-heart-fill"></i>Wishlist</a>
+    <a href="profile.html"  class="bottom-nav-item"><i class="bi bi-person-fill"></i>Profile</a>
+  </div>
+</div>
+</body>
+</html>

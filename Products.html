@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DRIP — Shop All</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Playfair+Display:ital,wght@1,400;1,700&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black: #0a0a0a;
+      --white: #fafaf8;
+      --cream: #f5f0e8;
+      --red: #c8102e;
+      --red-dark: #9e0c24;
+      --gray-100: #f4f4f4;
+      --gray-200: #e8e8e8;
+      --gray-500: #888;
+      --gray-700: #444;
+      --gold: #c9a84c;
+      --nav-h: 68px;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--white); color: var(--black); overflow-x: hidden; }
+
+    /* ===== ANNOUNCE ===== */
+    .announce-bar { background: var(--black); color: var(--white); text-align: center; font-size: 12px; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; padding: 9px 16px; overflow: hidden; }
+    .announce-track { display: flex; gap: 80px; width: max-content; animation: marquee 28s linear infinite; }
+    .announce-track span { white-space: nowrap; }
+    .announce-track span i { color: var(--red); margin: 0 6px; }
+    @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+    /* ===== NAVBAR ===== */
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(250,250,248,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--gray-200); height: var(--nav-h); display: flex; align-items: center; }
+    .nav-inner { width: 100%; max-width: 1400px; margin: 0 auto; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 0.1em; color: var(--black); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .nav-logo-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--red); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.5);opacity:.6} }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a { font-size: 13px; font-weight: 500; letter-spacing: 0.05em; text-decoration: none; color: var(--gray-700); text-transform: uppercase; transition: color .2s; position: relative; padding-bottom: 2px; }
+    .nav-links a::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 1.5px; background: var(--red); transition: width .25s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--black); }
+    .nav-links a:hover::after, .nav-links a.active::after { width: 100%; }
+    .nav-actions { display: flex; align-items: center; gap: 6px; }
+    .nav-icon-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 17px; color: var(--gray-700); transition: all .2s; position: relative; }
+    .nav-icon-btn:hover { background: var(--gray-100); color: var(--black); }
+    .cart-badge { position: absolute; top: 4px; right: 4px; width: 17px; height: 17px; border-radius: 50%; background: var(--red); color: #fff; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .user-greeting { display: none; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; }
+    .user-greeting.visible { display: flex; }
+    .logout-btn { padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--gray-200); background: none; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--gray-700); transition: all .2s; display: none; }
+    .logout-btn:hover { border-color: var(--red); color: var(--red); }
+
+    /* ===== PAGE HERO ===== */
+    .page-hero {
+      background: var(--black);
+      padding: 64px 32px;
+      position: relative;
+      overflow: hidden;
+    }
+    .page-hero::before {
+      content: 'SHOP';
+      position: absolute; right: -20px; top: -20px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 220px; color: rgba(255,255,255,0.03);
+      line-height: 1; pointer-events: none;
+    }
+    .page-hero-inner { max-width: 1400px; margin: 0 auto; position: relative; z-index: 1; }
+    .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 20px; }
+    .breadcrumb a { color: rgba(255,255,255,0.4); text-decoration: none; transition: color .2s; }
+    .breadcrumb a:hover { color: var(--white); }
+    .breadcrumb i { font-size: 10px; }
+    .page-hero-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(48px, 6vw, 80px); letter-spacing: 0.03em; color: var(--white); line-height: 1; }
+    .page-hero-title em { font-family: 'Playfair Display', serif; font-style: italic; color: var(--cream); }
+    .page-hero-sub { font-size: 14px; color: rgba(255,255,255,0.4); margin-top: 12px; font-weight: 300; }
+
+    /* ===== FILTER TABS ===== */
+    .filter-tabs-wrap { background: var(--white); border-bottom: 1px solid var(--gray-200); position: sticky; top: var(--nav-h); z-index: 90; }
+    .filter-tabs-inner { max-width: 1400px; margin: 0 auto; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; gap: 20px; overflow-x: auto; }
+    .category-tabs { display: flex; gap: 0; }
+    .cat-tab { padding: 18px 24px; border: none; background: none; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; color: var(--gray-500); cursor: pointer; border-bottom: 2.5px solid transparent; transition: all .2s; white-space: nowrap; }
+    .cat-tab:hover { color: var(--black); }
+    .cat-tab.active { color: var(--black); border-bottom-color: var(--red); font-weight: 600; }
+    .filter-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    .sort-select { padding: 8px 14px; border: 1.5px solid var(--gray-200); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--black); background: var(--white); cursor: pointer; outline: none; }
+    .sort-select:focus { border-color: var(--black); }
+    .results-count { font-size: 13px; color: var(--gray-500); white-space: nowrap; }
+
+    /* ===== MAIN LAYOUT ===== */
+    .shop-layout { max-width: 1400px; margin: 0 auto; padding: 40px 32px; display: grid; grid-template-columns: 240px 1fr; gap: 40px; }
+
+    /* ===== SIDEBAR FILTERS ===== */
+    .sidebar { position: sticky; top: calc(var(--nav-h) + 57px); height: fit-content; }
+    .filter-group { margin-bottom: 32px; }
+    .filter-title { font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--black); margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+    .filter-title i { font-size: 12px; color: var(--gray-500); transition: transform .2s; }
+    .filter-title.open i { transform: rotate(180deg); }
+    .filter-options { display: flex; flex-direction: column; gap: 8px; }
+    .filter-check { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 4px 0; }
+    .filter-check input { width: 16px; height: 16px; accent-color: var(--red); cursor: pointer; }
+    .filter-check-label { font-size: 13px; color: var(--gray-700); flex: 1; }
+    .filter-check-count { font-size: 11px; color: var(--gray-500); }
+    .price-range { margin-top: 8px; }
+    .price-inputs { display: flex; gap: 8px; align-items: center; }
+    .price-input { width: 80px; padding: 8px 10px; border: 1.5px solid var(--gray-200); border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; }
+    .price-input:focus { border-color: var(--black); }
+    .price-sep { font-size: 12px; color: var(--gray-500); }
+    .clear-filters { width: 100%; padding: 10px; border: 1.5px solid var(--gray-200); border-radius: 8px; background: none; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; color: var(--gray-500); transition: all .2s; margin-top: 8px; }
+    .clear-filters:hover { border-color: var(--red); color: var(--red); }
+    .filter-divider { height: 1px; background: var(--gray-200); margin-bottom: 28px; }
+
+    /* ===== PRODUCTS GRID ===== */
+    .products-area { }
+    .active-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+    .filter-pill { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--black); color: #fff; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 0.05em; }
+    .filter-pill button { background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; font-size: 12px; padding: 0; line-height: 1; }
+    .filter-pill button:hover { color: #fff; }
+
+    .products-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .product-card { border-radius: 12px; overflow: hidden; background: var(--white); cursor: pointer; transition: all .3s; position: relative; border: 1px solid var(--gray-100); }
+    .product-card:hover { transform: translateY(-6px); box-shadow: 0 20px 60px rgba(0,0,0,0.1); border-color: transparent; }
+    .product-card:hover .product-actions { opacity: 1; transform: translateY(0); }
+    .product-img { height: 260px; display: flex; align-items: center; justify-content: center; font-size: 72px; position: relative; overflow: hidden; }
+    .product-img img { width:100%; height:100%; object-fit:cover; transition:transform .4s ease; position:absolute; top:0; left:0; }
+    .product-card:hover .product-img img { transform:scale(1.06); }
+    .product-badge { position: absolute; top: 12px; left: 12px; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; }
+    .badge-new  { background: var(--black); color: var(--white); }
+    .badge-hot  { background: var(--red); color: var(--white); }
+    .badge-sale { background: var(--gold); color: var(--white); }
+    .wishlist-btn { position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; border-radius: 50%; background: var(--white); border: none; cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; color: var(--gray-500); transition: all .2s; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .wishlist-btn:hover, .wishlist-btn.active { color: var(--red); }
+    .product-actions { position: absolute; bottom: 0; left: 0; right: 0; background: var(--black); padding: 14px 16px; display: flex; gap: 8px; opacity: 0; transform: translateY(10px); transition: all .25s; }
+    .action-btn { flex: 1; padding: 10px; border: none; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.05em; cursor: pointer; transition: all .2s; }
+    .action-btn-primary { background: var(--red); color: #fff; }
+    .action-btn-primary:hover { background: var(--red-dark); }
+    .action-btn-outline { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+    .action-btn-outline:hover { background: rgba(255,255,255,0.2); }
+    .product-info { padding: 16px 18px 20px; }
+    .product-category { font-size: 10px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gray-500); margin-bottom: 5px; }
+    .product-name { font-size: 15px; font-weight: 600; color: var(--black); margin-bottom: 6px; }
+    .product-rating { display: flex; align-items: center; gap: 4px; margin-bottom: 10px; }
+    .stars { color: var(--gold); font-size: 11px; }
+    .rating-count { font-size: 11px; color: var(--gray-500); }
+    .product-price { display: flex; align-items: center; gap: 8px; }
+    .price-main { font-size: 18px; font-weight: 700; color: var(--black); }
+    .price-old { font-size: 13px; color: var(--gray-500); text-decoration: line-through; }
+
+    /* No results */
+    .no-results { grid-column: 1/-1; text-align: center; padding: 80px 0; color: var(--gray-500); }
+    .no-results i { font-size: 48px; margin-bottom: 16px; display: block; }
+    .no-results h3 { font-size: 20px; font-weight: 600; color: var(--black); margin-bottom: 8px; }
+
+    /* Load more */
+    .load-more-wrap { text-align: center; margin-top: 48px; }
+    .load-more-btn { padding: 14px 48px; background: none; border: 2px solid var(--black); border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all .2s; }
+    .load-more-btn:hover { background: var(--black); color: var(--white); }
+
+    /* ===== CART SIDEBAR ===== */
+    .cart-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; opacity: 0; pointer-events: none; transition: opacity .3s; }
+    .cart-overlay.open { opacity: 1; pointer-events: all; }
+    .cart-sidebar { position: fixed; top: 0; right: 0; bottom: 0; width: 420px; background: var(--white); z-index: 201; transform: translateX(100%); transition: transform .35s cubic-bezier(.4,0,.2,1); display: flex; flex-direction: column; }
+    .cart-sidebar.open { transform: translateX(0); }
+    .cart-header { padding: 24px 28px; border-bottom: 1px solid var(--gray-200); display: flex; justify-content: space-between; align-items: center; }
+    .cart-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 0.05em; }
+    .cart-close { width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid var(--gray-200); background: none; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all .2s; }
+    .cart-close:hover { border-color: var(--black); }
+    .cart-items { flex: 1; overflow-y: auto; padding: 20px 28px; }
+    .cart-empty { text-align: center; padding: 60px 0; color: var(--gray-500); }
+    .cart-empty i { font-size: 48px; margin-bottom: 16px; display: block; }
+    .cart-item { display: flex; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--gray-100); }
+    .cart-item-emoji { width: 72px; height: 72px; background: var(--gray-100); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 32px; flex-shrink: 0; }
+    .cart-item-info { flex: 1; }
+    .cart-item-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .cart-item-price { font-size: 15px; font-weight: 700; color: var(--red); }
+    .cart-item-qty { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+    .qty-btn { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--gray-200); background: none; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: all .2s; }
+    .qty-btn:hover { border-color: var(--black); background: var(--black); color: #fff; }
+    .qty-num { font-size: 14px; font-weight: 600; min-width: 20px; text-align: center; }
+    .cart-footer { padding: 20px 28px; border-top: 1px solid var(--gray-200); }
+    .cart-subtotal { display: flex; justify-content: space-between; align-items: center; font-size: 15px; font-weight: 600; margin-bottom: 16px; }
+    .cart-checkout-btn { width: 100%; padding: 16px; background: var(--black); color: #fff; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; transition: background .2s; }
+    .cart-checkout-btn:hover { background: var(--red); }
+
+    /* ===== FOOTER ===== */
+    footer { background: var(--black); color: var(--white); padding: 60px 32px 32px; margin-top: 80px; }
+    .footer-inner { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 24px; }
+    .footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 0.1em; }
+    .footer-copy { font-size: 12px; color: rgba(255,255,255,0.3); }
+    .footer-links-row { display: flex; gap: 24px; }
+    .footer-links-row a { font-size: 12px; color: rgba(255,255,255,0.4); text-decoration: none; transition: color .2s; }
+    .footer-links-row a:hover { color: var(--white); }
+
+    /* ===== BACK TO TOP ===== */
+    .back-top { position: fixed; bottom: 32px; right: 32px; z-index: 99; width: 44px; height: 44px; border-radius: 50%; background: var(--black); color: var(--white); border: none; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: all .3s; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+    .back-top.visible { opacity: 1; pointer-events: all; }
+    .back-top:hover { background: var(--red); transform: translateY(-3px); }
+
+    /* ===== RESPONSIVE ===== */
+        @media (min-width: 769px) {
+      #hamburgerBtn { display: none !important; }
+      .mobile-menu { display: none !important; }
+      .bottom-nav { display: none !important; }
+    }
+    @media (max-width: 1024px) {
+      .shop-layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+      .products-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 768px) {
+      #hamburgerBtn { display: flex !important; }
+      .nav-links, ul.nav-links { display: none !important; }
+      .nav-links { display: none; }
+      .shop-layout { padding: 24px 16px; }
+      .products-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+      .cart-sidebar { width: 100%; }
+      .filter-tabs-inner { padding: 0 16px; }
+    }
+    @media (max-width: 480px) {
+      .products-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .product-img { height: 180px; font-size: 48px; }
+    }
+  
+    body { animation: pageIn .35s ease both; }
+    @keyframes pageIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    .reveal { opacity:0; transform:translateY(28px); transition: opacity .55s ease, transform .55s ease; }
+    .reveal.visible { opacity:1; transform:translateY(0); }
+    .mobile-menu { position:fixed; inset:0; z-index:500; background:#0a0a0a; display:flex; flex-direction:column; padding:80px 32px 40px; transform:translateX(100%); transition:transform .35s cubic-bezier(0.22,1,0.36,1); }
+    .mobile-menu.open { transform:translateX(0); }
+    .mobile-menu-link { font-family:'Bebas Neue',sans-serif; font-size:40px; letter-spacing:0.06em; color:#fff; text-decoration:none; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:space-between; transition:color .2s; }
+    .mobile-menu-link:hover { color:#b8942a; }
+    .mobile-menu-close { position:absolute; top:20px; right:20px; background:none; border:none; color:#fff; font-size:28px; cursor:pointer; }
+    .bottom-nav { display:none; position:fixed; bottom:0; left:0; right:0; z-index:300; background:#fff; border-top:1px solid #e8e8e8; padding:8px 0 max(8px,env(safe-area-inset-bottom)); box-shadow:0 -4px 20px rgba(0,0,0,0.08); }
+    .bottom-nav-inner { display:flex; justify-content:space-around; align-items:center; }
+    .bottom-nav-item { display:flex; flex-direction:column; align-items:center; gap:3px; color:#888; text-decoration:none; font-size:10px; font-weight:600; letter-spacing:0.05em; padding:4px 8px; transition:color .2s; background:none; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; }
+    .bottom-nav-item i { font-size:20px; }
+    .bottom-nav-item.active { color:#0a0a0a; }
+    .bottom-nav-item.active i { color:#c8102e; }
+  </style>
+</head>
+<body>
+
+<!-- Announce -->
+<div class="announce-bar">
+  <div class="announce-track">
+    <span>Free shipping on orders over KES 5,000 <i class="bi bi-truck"></i></span>
+    <span>New Collection 2026 is here <i class="bi bi-stars"></i></span>
+    <span>Use code DRIP20 for 20% off <i class="bi bi-tag-fill"></i></span>
+    <span>Free returns within 30 days <i class="bi bi-arrow-return-left"></i></span>
+    <span>Free shipping on orders over KES 5,000 <i class="bi bi-truck"></i></span>
+    <span>New Collection 2026 is here <i class="bi bi-stars"></i></span>
+    <span>Use code DRIP20 for 20% off <i class="bi bi-tag-fill"></i></span>
+    <span>Free returns within 30 days <i class="bi bi-arrow-return-left"></i></span>
+  </div>
+</div>
+
+<!-- Navbar -->
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">DRIP <span class="nav-logo-dot"></span></a>
+    <ul class="nav-links">
+      <li><a href="shop.html">Home</a></li>
+      <li><a href="products.html" class="active">Shop</a></li>
+      <li><a href="orders.html">My Orders</a></li>
+      <li><a href="wishlist.html">Wishlist</a></li>
+      <li><a href="profile.html">Profile</a></li>
+      <li><a href="products.html?badge=sale">Sale</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="nav-icon-btn" onclick="window.location.href='search.html'"><i class="bi bi-search"></i></button>
+      <button class="nav-icon-btn" onclick="window.location.href='wishlist.html'"><i class="bi bi-heart"></i></button>
+      <button class="nav-icon-btn" id="authBtn" onclick="window.location.href='index.html'"><i class="bi bi-person"></i></button>
+      <button class="nav-icon-btn" id="profileBtn" onclick="window.location.href='profile.html'" style="display:none;" title="My Profile"><i class="bi bi-person-circle"></i></button>
+      <span class="user-greeting" id="userGreeting">Hi, <strong id="userFirstName"></strong></span>
+      <button class="logout-btn" id="logoutBtn" onclick="handleLogout()">Sign Out</button>
+      <button class="nav-icon-btn" onclick="openCart()">
+        <i class="bi bi-bag"></i>
+        <span class="cart-badge" id="cartCount">0</span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Page Hero -->
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="breadcrumb">
+      <a href="index.html">Home</a>
+      <i class="bi bi-chevron-right"></i>
+      <span id="breadcrumbCurrent">All Products</span>
+    </div>
+    <div class="page-hero-title" id="pageTitle">Shop <em>Everything</em></div>
+    <div class="page-hero-sub" id="pageSubtitle">Discover our full collection — 32 styles curated for you</div>
+  </div>
+</div>
+
+<!-- Filter Tabs -->
+<div class="filter-tabs-wrap">
+  <div class="filter-tabs-inner">
+    <div class="category-tabs">
+      <button class="cat-tab active" data-cat="All"         onclick="selectCategory('All')">All</button>
+      <button class="cat-tab"        data-cat="Women"       onclick="selectCategory('Women')">Women</button>
+      <button class="cat-tab"        data-cat="Men"         onclick="selectCategory('Men')">Men</button>
+      <button class="cat-tab"        data-cat="Shoes"       onclick="selectCategory('Shoes')">Shoes</button>
+      <button class="cat-tab"        data-cat="Accessories" onclick="selectCategory('Accessories')">Accessories</button>
+      <button class="cat-tab"        data-cat="Kids"        onclick="selectCategory('Kids')">Kids</button>
+      <button class="cat-tab"        data-cat="Watches"     onclick="selectCategory('Watches')">Watches</button>
+    </div>
+    <div class="filter-right">
+      <span class="results-count" id="resultsCount">32 products</span>
+      <select class="sort-select" id="sortSelect" onchange="renderProducts()">
+        <option value="default">Sort: Featured</option>
+        <option value="price-asc">Price: Low to High</option>
+        <option value="price-desc">Price: High to Low</option>
+        <option value="rating">Top Rated</option>
+        <option value="newest">New Arrivals</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- Main Layout -->
+<div class="shop-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+
+    <div class="filter-group">
+      <div class="filter-title open" onclick="toggleFilter(this)">
+        Price Range <i class="bi bi-chevron-down"></i>
+      </div>
+      <div class="price-range">
+        <div class="price-inputs">
+          <input type="number" class="price-input" id="priceMin" placeholder="$0" min="0" onchange="renderProducts()"/>
+          <span class="price-sep">—</span>
+          <input type="number" class="price-input" id="priceMax" placeholder="KES 65,000" min="0" onchange="renderProducts()"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-divider"></div>
+
+    <div class="filter-group">
+      <div class="filter-title open" onclick="toggleFilter(this)">
+        Badge <i class="bi bi-chevron-down"></i>
+      </div>
+      <div class="filter-options">
+        <label class="filter-check">
+          <input type="checkbox" value="new"  onchange="renderProducts()"/> 
+          <span class="filter-check-label">New Arrivals</span>
+          <span class="filter-check-count">10</span>
+        </label>
+        <label class="filter-check">
+          <input type="checkbox" value="hot"  onchange="renderProducts()"/>
+          <span class="filter-check-label">🔥 Hot Right Now</span>
+          <span class="filter-check-count">13</span>
+        </label>
+        <label class="filter-check">
+          <input type="checkbox" value="sale" onchange="renderProducts()"/>
+          <span class="filter-check-label">% On Sale</span>
+          <span class="filter-check-count">9</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="filter-divider"></div>
+
+    <div class="filter-group">
+      <div class="filter-title open" onclick="toggleFilter(this)">
+        Rating <i class="bi bi-chevron-down"></i>
+      </div>
+      <div class="filter-options">
+        <label class="filter-check">
+          <input type="radio" name="rating" value="4.8" onchange="renderProducts()"/>
+          <span class="filter-check-label">★★★★★ 4.8+</span>
+        </label>
+        <label class="filter-check">
+          <input type="radio" name="rating" value="4.5" onchange="renderProducts()"/>
+          <span class="filter-check-label">★★★★☆ 4.5+</span>
+        </label>
+        <label class="filter-check">
+          <input type="radio" name="rating" value="0" onchange="renderProducts()"/>
+          <span class="filter-check-label">All Ratings</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="filter-divider"></div>
+
+    <button class="clear-filters" onclick="clearAllFilters()">
+      <i class="bi bi-x-circle"></i> Clear All Filters
+    </button>
+  </aside>
+
+  <!-- Products -->
+  <div class="products-area">
+    <div class="active-filters" id="activeFilters"></div>
+    <div class="products-grid" id="productsGrid"></div>
+    <div class="load-more-wrap" id="loadMoreWrap" style="display:none;">
+      <button class="load-more-btn" onclick="loadMore()">Load More <i class="bi bi-arrow-down"></i></button>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">DRIP</div>
+    <div class="footer-links-row">
+      <a href="index.html">Home</a>
+      <a href="#">About</a>
+      <a href="#">Contact</a>
+      <a href="#">Privacy</a>
+    </div>
+    <div class="footer-copy">© 2026 DRIP Fashion Store</div>
+  </div>
+</footer>
+
+<!-- Cart Sidebar -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-sidebar" id="cartSidebar">
+  <div class="cart-header">
+    <div class="cart-title">Your Bag</div>
+    <button class="cart-close" onclick="closeCart()"><i class="bi bi-x-lg"></i></button>
+  </div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-footer">
+    <div class="cart-subtotal">
+      <span>Subtotal</span>
+      <span id="cartTotal">$0.00</span>
+    </div>
+    <button class="cart-checkout-btn" onclick="window.location.href='checkout.html'">
+      Checkout <i class="bi bi-arrow-right"></i>
+    </button>
+  </div>
+</div>
+
+<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+  <i class="bi bi-arrow-up"></i>
+</button>
+
+<script>
+/* ===== ALL PRODUCTS ===== */
+const ALL_PRODUCTS = [
+  // ── WOMEN (20 items) ──────────────────────────────────────────
+  {id:1,  name:'Floral Wrap Midi Dress',      brand:'Zara',        category:'Women',       price:11570, oldPrice:15600, badge:'new',  rating:4.8, reviews:234, bg:'#f0d4d0', imageUrl:'/images/floral-wrap-midi-dress.jpg'},
+  {id:2,  name:'Wide Leg Linen Trousers',     brand:'H&M',         category:'Women',       price:9360,  oldPrice:12350, badge:'sale', rating:4.6, reviews:189, bg:'#f0ead0', imageUrl:'/images/wide-leg-linen-trousers.jpg'},
+  {id:3,  name:'Silk Satin Blouse',           brand:'Zara',        category:'Women',       price:12350, oldPrice:null,  badge:'new',  rating:4.9, reviews:312, bg:'#d0f0d4', imageUrl:'/images/silk-satin-blouse.jpg'},
+  {id:4,  name:'Oversized Knit Cardigan',     brand:'Pull&Bear',   category:'Women',       price:14300, oldPrice:18850, badge:'sale', rating:4.7, reviews:156, bg:'#f0e4d0', imageUrl:'/images/oversized-knit-cardigan.jpg'},
+  {id:5,  name:'Pleated Mini Skirt',          brand:'Shein',       category:'Women',       price:7540,  oldPrice:null,  badge:'hot',  rating:4.5, reviews:421, bg:'#d4d0f0', imageUrl:'/images/pleated-mini-skirt.jpg'},
+  {id:6,  name:'Linen Co-ord Jumpsuit',       brand:'Mango',       category:'Women',       price:17550, oldPrice:null,  badge:'sale', rating:4.8, reviews:201, bg:'#d0d0f0', imageUrl:'/images/linen-coord-jumpsuit.jpg'},
+  {id:7,  name:'Boho Floral Maxi Dress',      brand:'ASOS',        category:'Women',       price:10270, oldPrice:13650, badge:'new',  rating:4.7, reviews:178, bg:'#f0d4e8', imageUrl:'/images/boho-floral-maxi-dress.jpg'},
+  {id:8,  name:'Power Shoulder Blazer Dress', brand:'Zara',        category:'Women',       price:20540, oldPrice:27300, badge:'hot',  rating:4.9, reviews:523, bg:'#e8d0f0', imageUrl:'/images/power-shoulder-blazer-dress.jpg'},
+  {id:9,  name:'Ribbed Bodycon Mini Dress',   brand:'PrettyLittleThing', category:'Women', price:8580,  oldPrice:11440, badge:'new',  rating:4.6, reviews:367, bg:'#f0d0d8', imageUrl:'/images/ribbed-bodycon-mini-dress.jpg'},
+  {id:10, name:'Satin Slip Evening Dress',    brand:'ASOS',        category:'Women',       price:15470, oldPrice:19890, badge:'hot',  rating:4.8, reviews:289, bg:'#d0e8f0', imageUrl:'/images/satin-slip-evening-dress.jpg'},
+  {id:11, name:'Cropped Denim Jacket',        brand:'Levi\'s',     category:'Women',       price:16900, oldPrice:22100, badge:'new',  rating:4.7, reviews:198, bg:'#d0d8f0', imageUrl:'/images/cropped-denim-jacket-women.jpg'},
+  {id:12, name:'High Waist Mom Jeans',        brand:'Levi\'s',     category:'Women',       price:13520, oldPrice:17550, badge:'sale', rating:4.8, reviews:445, bg:'#d4e0f0', imageUrl:'/images/high-waist-mom-jeans.jpg'},
+  {id:13, name:'Printed Wrap Blouse',         brand:'H&M',         category:'Women',       price:8190,  oldPrice:null,  badge:'new',  rating:4.5, reviews:132, bg:'#f0e8d0', imageUrl:'/images/printed-wrap-blouse.jpg'},
+  {id:14, name:'Velvet Midi Slip Dress',      brand:'Zara',        category:'Women',       price:18200, oldPrice:23400, badge:'hot',  rating:4.9, reviews:312, bg:'#e8d0f0', imageUrl:'/images/velvet-midi-slip-dress.jpg'},
+  {id:15, name:'Trench Coat Classic',         brand:'Burberry',    category:'Women',       price:45500, oldPrice:58500, badge:'sale', rating:4.9, reviews:187, bg:'#e8e0d0', imageUrl:'/images/trench-coat-classic.jpg'},
+  {id:16, name:'Corset Top Bralette',         brand:'Shein',       category:'Women',       price:5720,  oldPrice:7800,  badge:'hot',  rating:4.4, reviews:567, bg:'#f0d0e8', imageUrl:'/images/corset-top-bralette.jpg'},
+  {id:17, name:'Campus Oversized Hoodie',     brand:'Champion',    category:'Women',       price:9100,  oldPrice:12350, badge:'new',  rating:4.7, reviews:423, bg:'#d8f0d0', imageUrl:'/images/campus-oversized-hoodie.jpg'},
+  {id:18, name:'Leather Mini Skirt',          brand:'Zara',        category:'Women',       price:12870, oldPrice:16900, badge:'hot',  rating:4.8, reviews:234, bg:'#2a2a2a', imageUrl:'/images/pleated-mini-skirt.jpg'},
+  {id:19, name:'Printed Maxi Wrap Skirt',     brand:'Mango',       category:'Women',       price:10920, oldPrice:null,  badge:'new',  rating:4.6, reviews:156, bg:'#f0e0d4', imageUrl:'/images/printed-maxi-wrap-skirt.jpg'},
+  {id:20, name:'Puffer Quilted Jacket',       brand:'The North Face', category:'Women',    price:28600, oldPrice:36400, badge:'sale', rating:4.9, reviews:389, bg:'#d0e8f0', imageUrl:'/images/puffer-quilted-jacket-women.jpg'},
+
+  // ── MEN (20 items) ───────────────────────────────────────────
+  {id:21, name:'Slim Fit Chino Trousers',     brand:'Zara Man',    category:'Men',         price:11050, oldPrice:14300, badge:'sale', rating:4.7, reviews:298, bg:'#e0d8c8', imageUrl:'/images/slim-fit-chino-trousers.jpg'},
+  {id:22, name:'Oxford Button-Down Shirt',    brand:'Ralph Lauren', category:'Men',        price:8840,  oldPrice:null,  badge:'new',  rating:4.8, reviews:356, bg:'#d4e4f0', imageUrl:'/images/oxford-button-down-shirt.jpg'},
+  {id:23, name:'Premium Leather Jacket',      brand:'AllSaints',   category:'Men',         price:38350, oldPrice:49400, badge:'hot',  rating:4.9, reviews:421, bg:'#2a2a2a', imageUrl:'/images/premium-leather-jacket.jpg'},
+  {id:24, name:'Merino Wool Crew Sweater',    brand:'Uniqlo',      category:'Men',         price:16640, oldPrice:21450, badge:'sale', rating:4.8, reviews:267, bg:'#e8e0d4', imageUrl:'/images/merino-wool-crew-sweater.jpg'},
+  {id:25, name:'Cargo Utility Shorts',        brand:'Carhartt',    category:'Men',         price:8060,  oldPrice:10400, badge:'new',  rating:4.6, reviews:189, bg:'#d8e8d4', imageUrl:'/images/cargo-utility-shorts.jpg'},
+  {id:26, name:'Linen Summer Shirt',          brand:'Zara Man',    category:'Men',         price:10140, oldPrice:13000, badge:'sale', rating:4.7, reviews:234, bg:'#f0ead4', imageUrl:'/images/linen-summer-shirt.jpg'},
+  {id:27, name:'Classic Denim Jacket',        brand:'Levi\'s',     category:'Men',         price:18850, oldPrice:24700, badge:'hot',  rating:4.8, reviews:312, bg:'#c8d8e8', imageUrl:'/images/classic-denim-jacket-men.jpg'},
+  {id:28, name:'Tech Fleece Track Suit',      brand:'Nike',        category:'Men',         price:21840, oldPrice:28600, badge:'new',  rating:4.9, reviews:567, bg:'#1a1a2a', imageUrl:'/images/tech-fleece-track-suit.jpg'},
+  {id:29, name:'2-Piece Business Suit',       brand:'Hugo Boss',   category:'Men',         price:65000, oldPrice:84500, badge:'hot',  rating:4.9, reviews:189, bg:'#2a2a38', imageUrl:'/images/2-piece-business-suit.jpg'},
+  {id:30, name:'Slim Fit Tuxedo Suit',        brand:'Calvin Klein', category:'Men',        price:72800, oldPrice:91000, badge:'new',  rating:4.9, reviews:134, bg:'#1a1a1a', imageUrl:'/images/wide-leg-linen-trousers.jpg'},
+  {id:31, name:'Campus Graphic Hoodie',       brand:'Adidas',      category:'Men',         price:9750,  oldPrice:13000, badge:'hot',  rating:4.7, reviews:678, bg:'#1a2a4a', imageUrl:'/images/campus-oversized-hoodie.jpg'},
+  {id:32, name:'Oversized Streetwear Tee',    brand:'Supreme',     category:'Men',         price:7150,  oldPrice:null,  badge:'new',  rating:4.6, reviews:423, bg:'#f5f5f5', imageUrl:'/images/oversized-streetwear-tee.jpg'},
+  {id:33, name:'Slim Chino Suit Trousers',    brand:'Hugo Boss',   category:'Men',         price:18200, oldPrice:23400, badge:'sale', rating:4.8, reviews:156, bg:'#3a3a48', imageUrl:'/images/slim-chino-suit-trousers.jpg'},
+  {id:34, name:'Puffer Down Jacket',          brand:'The North Face', category:'Men',      price:32500, oldPrice:42250, badge:'sale', rating:4.9, reviews:345, bg:'#1a1a2a', imageUrl:'/images/puffer-down-jacket-men.jpg'},
+  {id:35, name:'Campus Jogger Pants',         brand:'Adidas',      category:'Men',         price:8450,  oldPrice:11050, badge:'new',  rating:4.7, reviews:512, bg:'#2a3a2a', imageUrl:'/images/campus-jogger-pants.jpg'},
+  {id:36, name:'Flannel Check Overshirt',     brand:'Carhartt',    category:'Men',         price:12350, oldPrice:16250, badge:'hot',  rating:4.7, reviews:289, bg:'#4a2a2a', imageUrl:'/images/flannel-check-overshirt.jpg'},
+  {id:37, name:'Polo Shirt Classic Fit',      brand:'Ralph Lauren', category:'Men',        price:10400, oldPrice:13520, badge:'sale', rating:4.8, reviews:478, bg:'#d4e8f0', imageUrl:'/images/polo-shirt-classic-fit.jpg'},
+  {id:38, name:'Washed Denim Jeans',          brand:'Levi\'s',     category:'Men',         price:15470, oldPrice:20150, badge:'new',  rating:4.8, reviews:623, bg:'#3a4a5a', imageUrl:'/images/washed-denim-jeans.jpg'},
+  {id:39, name:'Bomber Flight Jacket',        brand:'Alpha Industries', category:'Men',    price:24700, oldPrice:31850, badge:'hot',  rating:4.9, reviews:267, bg:'#2a3a1a', imageUrl:'/images/bomber-flight-jacket.jpg'},
+  {id:40, name:'Formal Dress Shirt White',    brand:'Calvin Klein', category:'Men',        price:9100,  oldPrice:11700, badge:'sale', rating:4.7, reviews:334, bg:'#f5f5f5', imageUrl:'/images/oxford-button-down-shirt.jpg'},
+
+  // ── SHOES (18 items) ────────────────────────────────────────
+  {id:41, name:'Adidas Forum Low Sneakers',   brand:'Adidas',      category:'Shoes',       price:14300, oldPrice:18200, badge:'hot',  rating:4.8, reviews:789, bg:'#f5f5f5', imageUrl:'/images/adidas-forum-low.jpg'},
+  {id:42, name:'Nike Air Force 1 White',      brand:'Nike',        category:'Shoes',       price:16250, oldPrice:20800, badge:'hot',  rating:4.9, reviews:1234,bg:'#f5f5f5', imageUrl:'/images/nike-air-force-1.jpg'},
+  {id:43, name:'Adidas Stan Smith',           brand:'Adidas',      category:'Shoes',       price:13000, oldPrice:16900, badge:'sale', rating:4.8, reviews:956, bg:'#f5f5f5', imageUrl:'/images/adidas-stan-smith.jpg'},
+  {id:44, name:'Nike Air Max 270',            brand:'Nike',        category:'Shoes',       price:22100, oldPrice:28600, badge:'new',  rating:4.9, reviews:678, bg:'#1a1a1a', imageUrl:'/images/nike-air-max-270.jpg'},
+  {id:45, name:'Chelsea Ankle Boots',         brand:'Dr. Martens', category:'Shoes',       price:25350, oldPrice:32500, badge:'hot',  rating:4.8, reviews:445, bg:'#2a1a0a', imageUrl:'/images/chelsea-ankle-boots.jpg'},
+  {id:46, name:'Platform Block Heel Sandals', brand:'Steve Madden',category:'Shoes',       price:12350, oldPrice:15990, badge:'new',  rating:4.6, reviews:312, bg:'#e8d4c0', imageUrl:'/images/platform-block-heel-sandals.jpg'},
+  {id:47, name:'New Balance 574 Classic',     brand:'New Balance', category:'Shoes',       price:17550, oldPrice:22750, badge:'sale', rating:4.8, reviews:534, bg:'#d4d4d4', imageUrl:'/images/adidas-stan-smith.jpg'},
+  {id:48, name:'Converse Chuck Taylor High',  brand:'Converse',    category:'Shoes',       price:11700, oldPrice:14950, badge:'hot',  rating:4.7, reviews:892, bg:'#1a1a1a', imageUrl:'/images/converse-chuck-taylor-high.jpg'},
+  {id:49, name:'Leather Oxford Dress Shoes',  brand:'Clarks',      category:'Shoes',       price:19500, oldPrice:25350, badge:'sale', rating:4.8, reviews:267, bg:'#3a1a0a', imageUrl:'/images/leather-oxford-dress-shoes.jpg'},
+  {id:50, name:'Vans Old Skool Classic',      brand:'Vans',        category:'Shoes',       price:10400, oldPrice:13520, badge:'new',  rating:4.7, reviews:1023,bg:'#1a1a1a', imageUrl:'/images/vans-old-skool-classic.jpg'},
+  {id:51, name:'Puma Suede Classic',          brand:'Puma',        category:'Shoes',       price:11050, oldPrice:14300, badge:'hot',  rating:4.6, reviews:445, bg:'#2a1a1a', imageUrl:'/images/puma-suede-classic.jpg'},
+  {id:52, name:'Timberland 6-Inch Boots',     brand:'Timberland',  category:'Shoes',       price:26000, oldPrice:33800, badge:'sale', rating:4.9, reviews:623, bg:'#c8a878', imageUrl:'/images/timberland-6inch-boots.jpg'},
+  {id:53, name:'Loafer Penny Shoes',          brand:'Gucci',       category:'Shoes',       price:48100, oldPrice:62400, badge:'hot',  rating:4.9, reviews:189, bg:'#2a1a0a', imageUrl:'/images/gucci-horsebit-loafers.jpg'},
+  {id:54, name:'Running Sneakers Pro',        brand:'Nike',        category:'Shoes',       price:19500, oldPrice:25350, badge:'new',  rating:4.8, reviews:567, bg:'#1a2a4a', imageUrl:'/images/nike-air-force-1.jpg'},
+  {id:55, name:'Adidas Ultraboost 22',        brand:'Adidas',      category:'Shoes',       price:24700, oldPrice:32500, badge:'hot',  rating:4.9, reviews:834, bg:'#f0f0f0', imageUrl:'/images/adidas-forum-low.jpg'},
+  {id:56, name:'Slip-On Canvas Shoes',        brand:'Vans',        category:'Shoes',       price:8450,  oldPrice:10920, badge:'sale', rating:4.6, reviews:378, bg:'#e8e8e8', imageUrl:'/images/vans-old-skool-classic.jpg'},
+  {id:57, name:'Stiletto Pointed Heels',      brand:'Steve Madden',category:'Shoes',       price:14950, oldPrice:19500, badge:'new',  rating:4.7, reviews:234, bg:'#1a0a0a', imageUrl:'/images/platform-block-heel-sandals.jpg'},
+  {id:58, name:'Jordan 1 Retro High',         brand:'Jordan',      category:'Shoes',       price:29900, oldPrice:38350, badge:'hot',  rating:4.9, reviews:1567,bg:'#c8102e', imageUrl:'/images/jordan-1-retro-high.jpg'},
+
+  // ── WATCHES (12 items) ───────────────────────────────────────
+  {id:59, name:'Casio G-Shock DW-5600',       brand:'Casio',       category:'Watches',     price:13000, oldPrice:16900, badge:'hot',  rating:4.8, reviews:934, bg:'#1a1a1a', imageUrl:'/images/casio-gshock-dw5600.jpg'},
+  {id:60, name:'Seiko 5 Sports Automatic',    brand:'Seiko',       category:'Watches',     price:22100, oldPrice:28600, badge:'new',  rating:4.9, reviews:456, bg:'#2a3a4a', imageUrl:'/images/seiko-5-sports-automatic.jpg'},
+  {id:61, name:'Daniel Wellington Classic',   brand:'Daniel Wellington', category:'Watches',price:19500,oldPrice:25350, badge:'sale', rating:4.8, reviews:789, bg:'#f0ead8', imageUrl:'/images/daniel-wellington-classic.jpg'},
+  {id:62, name:'Fossil Gen 6 Smartwatch',     brand:'Fossil',      category:'Watches',     price:32500, oldPrice:42250, badge:'new',  rating:4.7, reviews:345, bg:'#2a2a2a', imageUrl:'/images/fossil-gen6-smartwatch.jpg'},
+  {id:63, name:'Casio Vintage Gold',          brand:'Casio',       category:'Watches',     price:9100,  oldPrice:11700, badge:'hot',  rating:4.7, reviews:623, bg:'#c8a830', imageUrl:'/images/casio-vintage-gold.jpg'},
+  {id:64, name:'Tommy Hilfiger Classic',      brand:'Tommy Hilfiger', category:'Watches',  price:16250, oldPrice:21060, badge:'sale', rating:4.7, reviews:289, bg:'#1a2a4a', imageUrl:'/images/tommy-hilfiger-classic-watch.jpg'},
+  {id:65, name:'Citizen Eco-Drive Solar',     brand:'Citizen',     category:'Watches',     price:28600, oldPrice:37050, badge:'new',  rating:4.9, reviews:412, bg:'#3a2a1a', imageUrl:'/images/citizen-eco-drive-solar.jpg'},
+  {id:66, name:'Nixon Time Teller',           brand:'Nixon',       category:'Watches',     price:14300, oldPrice:18590, badge:'hot',  rating:4.6, reviews:267, bg:'#1a1a1a', imageUrl:'/images/nixon-time-teller.jpg'},
+  {id:67, name:'Armani Exchange Stainless',   brand:'Armani Exchange', category:'Watches', price:24700, oldPrice:32110, badge:'sale', rating:4.8, reviews:198, bg:'#2a2a2a', imageUrl:'/images/armani-exchange-stainless.jpg'},
+  {id:68, name:'Garmin Forerunner 255',       brand:'Garmin',      category:'Watches',     price:45500, oldPrice:58500, badge:'new',  rating:4.9, reviews:534, bg:'#1a2a1a', imageUrl:'/images/garmin-forerunner-255.jpg'},
+  {id:69, name:'Casio F-91W Digital',         brand:'Casio',       category:'Watches',     price:3250,  oldPrice:4550,  badge:'sale', rating:4.6, reviews:1234,bg:'#1a1a1a', imageUrl:'/images/casio-f91w-digital.jpg'},
+  {id:70, name:'Michael Kors Rose Gold',      brand:'Michael Kors', category:'Watches',    price:35100, oldPrice:45500, badge:'hot',  rating:4.8, reviews:367, bg:'#e8c4b4', imageUrl:'/images/michael-kors-rose-gold.jpg'},
+
+  // ── ACCESSORIES (15 items) ───────────────────────────────────
+  {id:71, name:'Leather Tote Shoulder Bag',   brand:'Coach',       category:'Accessories', price:23140, oldPrice:30030, badge:'hot',  rating:4.8, reviews:345, bg:'#c8a878', imageUrl:'/images/leather-tote-shoulder-bag.jpg'},
+  {id:72, name:'Silk Printed Square Scarf',   brand:'Gucci',       category:'Accessories', price:8450,  oldPrice:10920, badge:'sale', rating:4.7, reviews:234, bg:'#f0d4c0', imageUrl:'/images/silk-printed-square-scarf.jpg'},
+  {id:73, name:'Mini Crossbody Bag',          brand:'Coach',       category:'Accessories', price:17550, oldPrice:22750, badge:'new',  rating:4.8, reviews:412, bg:'#2a1a0a', imageUrl:'/images/mini-crossbody-bag.jpg'},
+  {id:74, name:'Snapback Cap Streetwear',     brand:'New Era',     category:'Accessories', price:5850,  oldPrice:7800,  badge:'hot',  rating:4.6, reviews:678, bg:'#1a1a1a', imageUrl:'/images/snapback-cap-streetwear.jpg'},
+  {id:75, name:'Gold Cuban Link Chain',       brand:'DRIP Gold',   category:'Accessories', price:11570, oldPrice:15080, badge:'hot',  rating:4.9, reviews:423, bg:'#c8a830', imageUrl:'/images/gold-cuban-link-chain.jpg'},
+  {id:76, name:'Aviator Sunglasses',          brand:'Ray-Ban',     category:'Accessories', price:22100, oldPrice:28730, badge:'sale', rating:4.9, reviews:567, bg:'#1a1a0a', imageUrl:'/images/aviator-sunglasses.jpg'},
+  {id:77, name:'Leather Belt Braided',        brand:'Tommy Hilfiger', category:'Accessories',price:6500, oldPrice:8450, badge:'new',  rating:4.7, reviews:189, bg:'#3a2a1a', imageUrl:'/images/leather-belt-braided.jpg'},
+  {id:78, name:'Canvas Backpack Campus',      brand:'Herschel',    category:'Accessories', price:14300, oldPrice:18590, badge:'hot',  rating:4.8, reviews:534, bg:'#4a3a2a', imageUrl:'/images/leather-belt-braided.jpg'},
+  {id:79, name:'Gold Hoop Earrings Set',      brand:'DRIP Gold',   category:'Accessories', price:4550,  oldPrice:5850,  badge:'new',  rating:4.7, reviews:312, bg:'#c8a830', imageUrl:'/images/gold-hoop-earrings-set.jpg'},
+  {id:80, name:'Waist Fanny Pack',            brand:'Adidas',      category:'Accessories', price:5200,  oldPrice:6760,  badge:'sale', rating:4.5, reviews:289, bg:'#1a1a2a', imageUrl:'/images/leather-tote-shoulder-bag.jpg'},
+  {id:81, name:'Beanie Knit Winter Hat',      brand:'Carhartt',    category:'Accessories', price:4160,  oldPrice:5460,  badge:'new',  rating:4.7, reviews:445, bg:'#2a2a2a', imageUrl:'/images/beanie-knit-winter-hat.jpg'},
+  {id:82, name:'Cat Eye Sunglasses',          brand:'Prada',       category:'Accessories', price:29900, oldPrice:38870, badge:'hot',  rating:4.9, reviews:178, bg:'#1a0a0a', imageUrl:'/images/aviator-sunglasses.jpg'},
+  {id:83, name:'Leather Card Holder Wallet',  brand:'Coach',       category:'Accessories', price:7150,  oldPrice:9295, badge:'sale', rating:4.8, reviews:234, bg:'#3a2a1a', imageUrl:'/images/leather-card-holder-wallet.jpg'},
+  {id:84, name:'Straw Bucket Hat Summer',     brand:'H&M',         category:'Accessories', price:4550,  oldPrice:5850,  badge:'new',  rating:4.6, reviews:312, bg:'#e8d4a0', imageUrl:'/images/straw-bucket-hat-summer.jpg'},
+  {id:85, name:'Statement Pearl Necklace',    brand:'DRIP Gold',   category:'Accessories', price:8840,  oldPrice:11440, badge:'hot',  rating:4.8, reviews:267, bg:'#f5f0e8', imageUrl:'/images/statement-pearl-necklace.jpg'},
+
+  // ── KIDS (8 items) ──────────────────────────────────────────
+  {id:86, name:'Kids Denim Bib Set',          brand:'H&M Kids',    category:'Kids',        price:7150,  oldPrice:9295,  badge:'new',  rating:4.7, reviews:134, bg:'#d0f0f0', imageUrl:'/images/kids-denim-bib-set.jpg'},
+  {id:87, name:'Girls Tutu Party Dress',      brand:'Zara Kids',   category:'Kids',        price:6240,  oldPrice:8190,  badge:'hot',  rating:4.8, reviews:178, bg:'#f0d0f0', imageUrl:'/images/girls-tutu-party-dress.jpg'},
+  {id:88, name:'Kids Air Max Sneakers',       brand:'Nike Kids',   category:'Kids',        price:8060,  oldPrice:10400, badge:'sale', rating:4.6, reviews:98,  bg:'#f0f0d0', imageUrl:'/images/nike-air-force-1.jpg'},
+  {id:89, name:'Boys Zip-Up Hoodie',          brand:'Adidas Kids', category:'Kids',        price:5460,  oldPrice:6760,  badge:'new',  rating:4.5, reviews:87,  bg:'#d0d0f0', imageUrl:'/images/kids-denim-bib-set.jpg'},
+  {id:90, name:'Girls Floral Sundress',       brand:'H&M Kids',    category:'Kids',        price:5850,  oldPrice:7540,  badge:'hot',  rating:4.7, reviews:156, bg:'#f0e0f0', imageUrl:'/images/girls-tutu-party-dress.jpg'},
+  {id:91, name:'Boys Cargo Shorts',           brand:'Zara Kids',   category:'Kids',        price:4550,  oldPrice:5980,  badge:'sale', rating:4.5, reviews:112, bg:'#d8e8d4', imageUrl:'/images/kids-denim-bib-set.jpg'},
+  {id:92, name:'Kids School Backpack',        brand:'Adidas Kids', category:'Kids',        price:6500,  oldPrice:8450,  badge:'new',  rating:4.8, reviews:234, bg:'#d0e0f0', imageUrl:'/images/leather-belt-braided.jpg'},
+  {id:93, name:'Baby Onesie Set 3-Pack',      brand:'H&M Baby',    category:'Kids',        price:3900,  oldPrice:5070,  badge:'hot',  rating:4.9, reviews:345, bg:'#f0f0d8', imageUrl:'/images/kids-denim-bib-set.jpg'},
+];
+
+/* ===== STATE ===== */
+var activeCategory = 'All';
+var visibleCount   = 12;
+const PAGE_SIZE    = 12;
+var cart = JSON.parse(sessionStorage.getItem('drip-cart') || '[]');
+
+/* ===== URL PARAMS ===== */
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('cat')) {
+  activeCategory = urlParams.get('cat');
+  // Activate the correct tab button
+  document.querySelectorAll('.cat-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.cat === activeCategory);
+  });
+}
+if (urlParams.get('badge')) document.querySelectorAll('.filter-check input[type=checkbox]').forEach(cb => { if (cb.value === urlParams.get('badge')) cb.checked = true; });
+
+/* ===== CATEGORY ===== */
+function selectCategory(cat) {
+  activeCategory = cat;
+  visibleCount = PAGE_SIZE;
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.toggle('active', t.dataset.cat === cat));
+  const titles = { All:'Shop Everything', Women:'Women\'s Collection', Men:'Men\'s Collection', Shoes:'Footwear', Accessories:'Accessories', Kids:'Kids\' Collection', Watches:'Watches & Timepieces' };
+  const subs   = { All:'Discover our full collection — 93 styles curated for you', Women:'Elegant, bold, effortless.', Men:'Sharp, modern, refined.', Shoes:'Step into something special.', Accessories:'The details that define you.', Kids:'Fun styles for little ones.', Watches:'Precision on your wrist.' };
+  document.getElementById('pageTitle').innerHTML = titles[cat].replace(/'/g,"'");
+  document.getElementById('pageSubtitle').textContent = subs[cat];
+  document.getElementById('breadcrumbCurrent').textContent = cat === 'All' ? 'All Products' : cat;
+  renderProducts();
+}
+
+/* ===== FILTERS ===== */
+function getFilters() {
+  const badges    = [...document.querySelectorAll('.filter-check input[type=checkbox]:checked')].map(c => c.value);
+  const ratingEl  = document.querySelector('input[name=rating]:checked');
+  const minRating = ratingEl ? parseFloat(ratingEl.value) : 0;
+  const minPrice  = parseFloat(document.getElementById('priceMin').value) || 0;
+  const maxPrice  = parseFloat(document.getElementById('priceMax').value) || Infinity;
+  return { badges, minRating, minPrice, maxPrice };
+}
+
+function toggleFilter(el) {
+  el.classList.toggle('open');
+  const next = el.nextElementSibling;
+  if (next) next.style.display = el.classList.contains('open') ? '' : 'none';
+}
+
+function clearAllFilters() {
+  document.querySelectorAll('.filter-check input').forEach(i => i.checked = false);
+  document.querySelectorAll('input[name=rating]').forEach(i => i.checked = false);
+  document.getElementById('priceMin').value = '';
+  document.getElementById('priceMax').value = '';
+  activeCategory = 'All';
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.toggle('active', t.dataset.cat === 'All'));
+  visibleCount = PAGE_SIZE;
+  renderProducts();
+}
+
+/* ===== RENDER ===== */
+function renderProducts() {
+  const { badges, minRating, minPrice, maxPrice } = getFilters();
+  const sort = document.getElementById('sortSelect').value;
+
+  let filtered = ALL_PRODUCTS.filter(p => {
+    if (activeCategory !== 'All' && p.category !== activeCategory) return false;
+    if (badges.length && !badges.includes(p.badge)) return false;
+    if (p.rating < minRating) return false;
+    if (p.price < minPrice || p.price > maxPrice) return false;
+    return true;
+  });
+
+  if (sort === 'price-asc')  filtered.sort((a,b) => a.price - b.price);
+  if (sort === 'price-desc') filtered.sort((a,b) => b.price - a.price);
+  if (sort === 'rating')     filtered.sort((a,b) => b.rating - a.rating);
+  if (sort === 'newest')     filtered = filtered.filter(p => p.badge === 'new').concat(filtered.filter(p => p.badge !== 'new'));
+
+  document.getElementById('resultsCount').textContent = `${filtered.length} product${filtered.length !== 1 ? 's' : ''}`;
+
+  const visible = filtered.slice(0, visibleCount);
+  const grid = document.getElementById('productsGrid');
+
+  if (visible.length === 0) {
+    grid.innerHTML = `<div class="no-results"><i class="bi bi-search"></i><h3>No products found</h3><p>Try adjusting your filters</p></div>`;
+  } else {
+    grid.innerHTML = visible.map(productCard).join('');
+  }
+
+  document.getElementById('loadMoreWrap').style.display = filtered.length > visibleCount ? 'block' : 'none';
+
+  // active filter pills
+  const pills = [];
+  if (activeCategory !== 'All') pills.push({label: activeCategory, clear: () => selectCategory('All')});
+  badges.forEach(b => pills.push({label: b.toUpperCase(), clear: () => { document.querySelector(`.filter-check input[value="${b}"]`).checked = false; renderProducts(); }}));
+  document.getElementById('activeFilters').innerHTML = pills.map((p,i) =>
+    `<div class="filter-pill">${p.label} <button onclick="clearPill(${i})">×</button></div>`
+  ).join('');
+  window._filterPills = pills;
+}
+
+function clearPill(i) { window._filterPills[i].clear(); }
+function loadMore() { visibleCount += PAGE_SIZE; renderProducts(); }
+
+/* ===== PRODUCT CARD ===== */
+function productCard(p) {
+  const imgSrc = p.imageUrl || '';
+  return `
+    <div class="product-card reveal" onclick="window.location.href='product.html?id='+${p.id}">
+      <div class="product-img" style="background:${p.bg || '#f5f5f5'};position:relative;overflow:hidden;">
+        ${imgSrc ? `<img src="${imgSrc}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">` : ''}
+        ${p.badge ? `<div class="product-badge badge-${p.badge}">${p.badge.toUpperCase()}</div>` : ''}
+        <div class="product-actions">
+          <button class="action-btn action-btn-primary" onclick="event.stopPropagation();addToCart({id:${p.id},name:'${p.name}',brand:'${p.brand||''}',price:${p.price},imageUrl:'${imgSrc}'})">Add to Bag</button>
+          <button class="action-btn action-btn-outline" onclick="event.stopPropagation();addToWishlist({id:${p.id},name:'${p.name}',price:${p.price},imageUrl:'${imgSrc}'})"><i class="bi bi-heart"></i></button>
+        </div>
+      </div>
+      <div class="product-info">
+        <div class="product-brand">${p.brand || ''}</div>
+        <div class="product-name">${p.name}</div>
+        <div class="product-price-row">
+          <span class="product-price">KES ${p.price.toLocaleString('en-KE')}</span>
+          ${p.oldPrice ? `<span class="product-old-price">KES ${p.oldPrice.toLocaleString('en-KE')}</span>` : ''}
+        </div>
+        <div class="product-rating"><i class="bi bi-star-fill" style="color:#f59e0b;font-size:11px;"></i> ${p.rating} <span style="color:#888">(${p.reviews})</span></div>
+      </div>
+    </div>`;
+}
+
+/* ===== CART ===== */
+function saveCart() { sessionStorage.setItem('drip-cart', JSON.stringify(cart)); }
+function addToCart(product) {
+  const ex = cart.find(i => i.id === product.id);
+  if (ex) ex.qty++; else cart.push({...product, qty:1});
+  saveCart(); updateCartUI(); openCart();
+}
+function changeQty(id, delta) {
+  const item = cart.find(i => i.id === id);
+  if (!item) return;
+  item.qty = Math.max(0, item.qty + delta);
+  if (item.qty === 0) cart = cart.filter(i => i.id !== id);
+  saveCart(); updateCartUI();
+}
+function updateCartUI() {
+  document.getElementById('cartCount').textContent = cart.reduce((s,i) => s + i.qty, 0);
+  const container = document.getElementById('cartItems');
+  if (cart.length === 0) {
+    container.innerHTML = `<div class="cart-empty"><i class="bi bi-bag"></i><p>Your bag is empty</p></div>`;
+  } else {
+    container.innerHTML = cart.map(item => `
+      <div class="cart-item">
+        <div class="cart-item-emoji">${item.emoji}</div>
+        <div class="cart-item-info">
+          <div class="cart-item-name">${item.name}</div>
+          <div class="cart-item-price">$${item.price.toFixed(2)}</div>
+          <div class="cart-item-qty">
+            <button class="qty-btn" onclick="changeQty(${item.id},-1)">-</button>
+            <span class="qty-num">${item.qty}</span>
+            <button class="qty-btn" onclick="changeQty(${item.id},1)">+</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+  document.getElementById('cartTotal').textContent = '$' + cart.reduce((s,i) => s + i.price * i.qty, 0).toFixed(2);
+}
+function openCart()  { document.getElementById('cartOverlay').classList.add('open'); document.getElementById('cartSidebar').classList.add('open'); }
+function closeCart() { document.getElementById('cartOverlay').classList.remove('open'); document.getElementById('cartSidebar').classList.remove('open'); }
+
+/* ===== AUTH ===== */
+function getToken() { return sessionStorage.getItem('drip-token'); }
+function getUser()  { const u = sessionStorage.getItem('drip-user'); return u ? JSON.parse(u) : null; }
+function handleLogout() { sessionStorage.removeItem('drip-token'); sessionStorage.removeItem('drip-user'); window.location.href = 'login.html'; }
+function updateNavbarUserState() {
+  const user = getUser();
+  const authBtn = document.getElementById('authBtn');
+  const greeting = document.getElementById('userGreeting');
+  const name = document.getElementById('userFirstName');
+  const logout = document.getElementById('logoutBtn');
+  if (user && getToken()) {
+    authBtn.style.display = 'none';
+    greeting.classList.add('visible');
+    name.textContent = user.firstName;
+    logout.style.display = 'flex';
+  } else {
+    authBtn.style.display = 'flex';
+    greeting.classList.remove('visible');
+    logout.style.display = 'none';
+  }
+}
+
+/* ===== BACK TO TOP ===== */
+window.addEventListener('scroll', () => {
+  document.getElementById('backTop').classList.toggle('visible', window.scrollY > 400);
+});
+
+/* ===== INIT ===== */
+updateNavbarUserState();
+updateCartUI();
+selectCategory(activeCategory);
+</script>
+
+<div class="mobile-menu" id="mobileMenu" style="visibility:hidden;pointer-events:none;">
+  <button class="mobile-menu-close" onclick="toggleMobileMenu()"><i class="bi bi-x"></i></button>
+  <a href="shop.html"     class="mobile-menu-link">Home      <i class="bi bi-chevron-right" style="font-size:20px"></i></a>
+  <a href="products.html" class="mobile-menu-link">Shop      <i class="bi bi-chevron-right" style="font-size:20px"></i></a>
+  <a href="orders.html"   class="mobile-menu-link">My Orders <i class="bi bi-chevron-right" style="font-size:20px"></i></a>
+  <a href="wishlist.html" class="mobile-menu-link">Wishlist  <i class="bi bi-chevron-right" style="font-size:20px"></i></a>
+  <a href="profile.html"  class="mobile-menu-link">Profile   <i class="bi bi-chevron-right" style="font-size:20px"></i></a>
+</div>
+<div class="bottom-nav" id="bottomNav">
+  <div class="bottom-nav-inner">
+    <a href="shop.html" class="bottom-nav-item"><i class="bi bi-house-fill"></i>Home</a>
+    <a href="products.html" class="bottom-nav-item active"><i class="bi bi-grid-fill"></i>Shop</a>
+    <a href="orders.html" class="bottom-nav-item"><i class="bi bi-truck"></i>Orders</a>
+    <a href="wishlist.html" class="bottom-nav-item"><i class="bi bi-heart-fill"></i>Wishlist</a>
+    <a href="profile.html" class="bottom-nav-item"><i class="bi bi-person-fill"></i>Profile</a>
+  </div>
+</div>
+</body>
+</html>

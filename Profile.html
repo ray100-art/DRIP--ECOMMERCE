@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DRIP — My Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black: #0a0a0a; --white: #fafaf8; --cream: #f5f0e8;
+      --red: #c8102e; --red-dark: #9e0c24;
+      --gray-100: #f4f4f4; --gray-200: #e8e8e8; --gray-500: #888; --gray-700: #444;
+      --green: #16a34a; --green-bg: #dcfce7;
+      --blue: #2563eb; --blue-bg: #dbeafe;
+      --orange: #ea580c; --orange-bg: #ffedd5;
+      --gold: #c9a84c;
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--gray-100); color: var(--black); min-height: 100vh; }
+
+    nav { background: var(--black); height: 64px; display: flex; align-items: center; padding: 0 40px; position: sticky; top: 0; z-index: 100; }
+    .nav-inner { width: 100%; max-width: 1280px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 0.1em; color: var(--white); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .nav-logo-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--red); }
+    .nav-links { display: flex; gap: 28px; }
+    .nav-links a { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 13px; font-weight: 500; transition: color .2s; }
+    .nav-links a:hover { color: var(--white); }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-icon-btn { background: none; border: none; color: rgba(255,255,255,0.6); font-size: 18px; cursor: pointer; transition: color .2s; position: relative; }
+    .nav-icon-btn:hover { color: var(--white); }
+    .cart-count { position: absolute; top: -6px; right: -6px; width: 16px; height: 16px; border-radius: 50%; background: var(--red); color: #fff; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+
+    /* HERO BANNER */
+    .profile-hero { background: var(--black); padding: 40px; position: relative; overflow: hidden; }
+    .profile-hero::before { content: 'DRIP'; position: absolute; right: -20px; top: -30px; font-family: 'Bebas Neue', sans-serif; font-size: 200px; color: rgba(255,255,255,0.03); letter-spacing: 0.05em; pointer-events: none; }
+    .profile-hero-inner { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; gap: 28px; }
+    .avatar-wrap { position: relative; }
+    .avatar { width: 96px; height: 96px; border-radius: 50%; background: var(--red); display: flex; align-items: center; justify-content: center; font-size: 36px; color: #fff; font-family: 'Bebas Neue', sans-serif; border: 3px solid rgba(255,255,255,0.15); flex-shrink: 0; }
+    .avatar-edit { position: absolute; bottom: 0; right: 0; width: 28px; height: 28px; border-radius: 50%; background: var(--white); border: 2px solid var(--black); display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; color: var(--black); transition: background .2s; }
+    .avatar-edit:hover { background: var(--gray-100); }
+    .profile-info { flex: 1; }
+    .profile-name { font-family: 'Bebas Neue', sans-serif; font-size: 44px; letter-spacing: 0.03em; color: var(--white); line-height: 1; }
+    .profile-email { font-size: 14px; color: rgba(255,255,255,0.4); margin-top: 4px; }
+    .profile-meta { display: flex; gap: 16px; margin-top: 12px; flex-wrap: wrap; }
+    .profile-tag { display: flex; align-items: center; gap: 6px; font-size: 12px; color: rgba(255,255,255,0.5); }
+    .profile-tag i { font-size: 14px; }
+    .profile-tag.gold { color: var(--gold); }
+    .profile-stats { display: flex; gap: 28px; margin-left: auto; }
+    .profile-stat { text-align: center; }
+    .profile-stat-val { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--white); line-height: 1; }
+    .profile-stat-label { font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 2px; }
+    .logout-btn { padding: 10px 20px; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); border: 1.5px solid rgba(255,255,255,0.12); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .2s; display: flex; align-items: center; gap: 6px; }
+    .logout-btn:hover { background: rgba(200,16,46,0.2); border-color: var(--red); color: var(--red); }
+
+    /* LAYOUT */
+    .profile-layout { max-width: 1280px; margin: 0 auto; padding: 32px 40px 80px; display: grid; grid-template-columns: 240px 1fr; gap: 28px; align-items: start; }
+
+    /* SIDEBAR NAV */
+    .profile-nav { background: var(--white); border-radius: 16px; overflow: hidden; position: sticky; top: 88px; }
+    .pnav-item { display: flex; align-items: center; gap: 12px; padding: 15px 20px; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--gray-700); transition: all .2s; border-left: 3px solid transparent; }
+    .pnav-item i { font-size: 17px; width: 20px; text-align: center; color: var(--gray-500); }
+    .pnav-item:hover { background: var(--gray-100); color: var(--black); }
+    .pnav-item.active { background: #fce7eb; color: var(--red); border-left-color: var(--red); }
+    .pnav-item.active i { color: var(--red); }
+    .pnav-divider { height: 1px; background: var(--gray-200); }
+
+    /* PANEL */
+    .panel { background: var(--white); border-radius: 16px; padding: 28px; margin-bottom: 20px; }
+    .panel-title { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 0.05em; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; }
+    .panel-edit-btn { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; padding: 6px 16px; border: 1.5px solid var(--gray-200); border-radius: 8px; background: none; cursor: pointer; color: var(--gray-700); transition: all .2s; }
+    .panel-edit-btn:hover { border-color: var(--black); color: var(--black); }
+
+    /* TAB PAGES */
+    .tab-page { display: none; }
+    .tab-page.active { display: block; animation: fadeUp .3s ease; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+    /* FORM */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .form-row.full { grid-template-columns: 1fr; }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray-500); }
+    .field input, .field select { padding: 12px 14px; border: 1.5px solid var(--gray-200); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; transition: border-color .2s; background: var(--white); }
+    .field input:focus, .field select:focus { border-color: var(--black); }
+    .field input:disabled { background: var(--gray-100); color: var(--gray-500); cursor: not-allowed; }
+    .save-btn { padding: 12px 28px; background: var(--black); color: #fff; border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: background .2s; }
+    .save-btn:hover { background: var(--red); }
+
+    /* ORDERS */
+    .order-list { display: flex; flex-direction: column; gap: 14px; }
+    .order-card { border: 1.5px solid var(--gray-200); border-radius: 14px; overflow: hidden; transition: border-color .2s; cursor: pointer; }
+    .order-card:hover { border-color: var(--black); }
+    .order-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: var(--gray-100); }
+    .order-id { font-size: 12px; font-weight: 800; letter-spacing: 0.1em; font-family: monospace; }
+    .order-date { font-size: 12px; color: var(--gray-500); }
+    .badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .badge-green  { background: var(--green-bg);  color: var(--green); }
+    .badge-blue   { background: var(--blue-bg);   color: var(--blue); }
+    .badge-orange { background: var(--orange-bg); color: var(--orange); }
+    .badge-gray   { background: var(--gray-100);  color: var(--gray-500); border: 1px solid var(--gray-200); }
+    .order-body { padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .order-items { display: flex; gap: 8px; }
+    .order-item-emoji { width: 44px; height: 44px; border-radius: 8px; background: var(--gray-100); display: flex; align-items: center; justify-content: center; font-size: 22px; }
+    .order-total { font-size: 18px; font-weight: 700; white-space: nowrap; }
+    .order-reorder { padding: 8px 16px; border: 1.5px solid var(--gray-200); border-radius: 8px; background: none; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .2s; white-space: nowrap; }
+    .order-reorder:hover { background: var(--black); color: #fff; border-color: var(--black); }
+
+    /* ADDRESSES */
+    .address-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .address-card { border: 1.5px solid var(--gray-200); border-radius: 12px; padding: 18px; position: relative; transition: border-color .2s; }
+    .address-card.default { border-color: var(--black); }
+    .address-default-tag { position: absolute; top: 12px; right: 12px; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; background: var(--black); color: #fff; padding: 3px 8px; border-radius: 4px; }
+    .address-name { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+    .address-text { font-size: 13px; color: var(--gray-500); line-height: 1.7; }
+    .address-actions { display: flex; gap: 8px; margin-top: 14px; }
+    .addr-btn { padding: 7px 14px; border: 1.5px solid var(--gray-200); border-radius: 7px; background: none; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .2s; }
+    .addr-btn:hover { border-color: var(--black); }
+    .add-address-card { border: 2px dashed var(--gray-200); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; cursor: pointer; transition: all .2s; min-height: 140px; color: var(--gray-500); }
+    .add-address-card:hover { border-color: var(--black); color: var(--black); }
+    .add-address-card i { font-size: 28px; }
+    .add-address-card span { font-size: 13px; font-weight: 600; }
+
+    /* LOYALTY */
+    .loyalty-card { background: linear-gradient(135deg, var(--black) 0%, #1a1a1a 100%); border-radius: 20px; padding: 32px; color: var(--white); margin-bottom: 20px; position: relative; overflow: hidden; }
+    .loyalty-card::before { content: ''; position: absolute; top: -40px; right: -40px; width: 200px; height: 200px; border-radius: 50%; background: rgba(200,16,46,0.15); }
+    .loyalty-tier { font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .loyalty-points { font-family: 'Bebas Neue', sans-serif; font-size: 64px; letter-spacing: 0.03em; line-height: 1; color: var(--white); }
+    .loyalty-points-label { font-size: 14px; color: rgba(255,255,255,0.5); margin-bottom: 24px; }
+    .loyalty-progress-track { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
+    .loyalty-progress-fill { height: 100%; background: linear-gradient(90deg, var(--red), var(--gold)); border-radius: 3px; }
+    .loyalty-progress-label { display: flex; justify-content: space-between; font-size: 11px; color: rgba(255,255,255,0.4); }
+    .loyalty-benefits { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 24px; }
+    .loyalty-benefit { display: flex; align-items: center; gap: 8px; font-size: 12px; color: rgba(255,255,255,0.6); }
+    .loyalty-benefit i { color: var(--gold); font-size: 14px; }
+
+    /* SECURITY */
+    .security-row { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; border-bottom: 1px solid var(--gray-100); }
+    .security-row:last-child { border-bottom: none; }
+    .security-label { font-size: 14px; font-weight: 600; }
+    .security-sub { font-size: 12px; color: var(--gray-500); margin-top: 3px; }
+    .toggle { position: relative; width: 44px; height: 24px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; inset: 0; background: var(--gray-200); border-radius: 24px; cursor: pointer; transition: .3s; }
+    .toggle-slider::before { content: ''; position: absolute; width: 18px; height: 18px; border-radius: 50%; background: #fff; top: 3px; left: 3px; transition: .3s; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+    .toggle input:checked + .toggle-slider { background: var(--green); }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(20px); }
+    .change-btn { padding: 8px 18px; border: 1.5px solid var(--gray-200); border-radius: 8px; background: none; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .2s; }
+    .change-btn:hover { border-color: var(--black); }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--black); color: var(--white); padding: 14px 24px; border-radius: 12px; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 10px; z-index: 200; transition: transform .4s cubic-bezier(.34,1.56,.64,1); }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast i { color: var(--green); font-size: 18px; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .profile-layout { grid-template-columns: 1fr; padding: 20px 16px 60px; }
+      .profile-nav { position: static; display: flex; flex-wrap: wrap; border-radius: 12px; overflow-x: auto; }
+      .pnav-item { border-left: none; border-bottom: 3px solid transparent; flex: 1; justify-content: center; min-width: 80px; padding: 12px 8px; font-size: 12px; }
+      .pnav-item span { display: none; }
+      .pnav-item i { font-size: 20px; width: auto; }
+      .pnav-item.active { border-bottom-color: var(--red); background: #fce7eb; }
+      .profile-stats { display: none; }
+      .profile-hero-inner { flex-wrap: wrap; gap: 16px; }
+      .profile-hero { padding: 28px 20px; }
+      nav { padding: 0 16px; }
+      .nav-links { display: none; }
+    }
+
+    @media (max-width: 600px) {
+      /* Hero */
+      .profile-hero { padding: 20px 16px; }
+      .profile-name { font-size: 32px; }
+      .profile-hero-inner { gap: 14px; }
+      .avatar { width: 72px; height: 72px; font-size: 28px; }
+
+      /* Layout */
+      .profile-layout { padding: 16px 12px 60px; gap: 16px; }
+
+      /* Panel */
+      .panel { padding: 18px 14px; border-radius: 12px; }
+      .panel-title { font-size: 20px; flex-wrap: wrap; gap: 8px; }
+
+      /* Nav tabs — show icons + short text */
+      .pnav-item { min-width: 60px; padding: 10px 6px; }
+      .pnav-item span { display: none; }
+
+      /* Form — all fields stack */
+      .form-row { grid-template-columns: 1fr; gap: 12px; margin-bottom: 12px; }
+      .form-row.full { grid-template-columns: 1fr; }
+      .field input, .field select { padding: 10px 12px; font-size: 14px; }
+      .save-btn { width: 100%; padding: 14px; font-size: 14px; }
+
+      /* Orders */
+      .order-header { flex-wrap: wrap; gap: 6px; padding: 12px 14px; }
+      .order-body { flex-wrap: wrap; padding: 12px 14px; gap: 10px; }
+      .order-total { font-size: 16px; }
+      .order-reorder { font-size: 11px; padding: 6px 12px; }
+      .order-items { flex-wrap: wrap; }
+
+      /* Addresses */
+      .address-grid { grid-template-columns: 1fr; gap: 12px; }
+      .address-card { padding: 14px; }
+      .address-actions { flex-wrap: wrap; gap: 6px; }
+      .addr-btn { font-size: 11px; padding: 6px 10px; }
+
+      /* Loyalty */
+      .loyalty-card { padding: 20px 16px; border-radius: 14px; }
+      .loyalty-points { font-size: 48px; }
+      .loyalty-benefits { grid-template-columns: 1fr; gap: 8px; }
+
+      /* Security */
+      .security-row { flex-wrap: wrap; gap: 10px; padding: 14px 0; }
+      .change-btn { font-size: 11px; padding: 6px 12px; }
+
+      /* Nav */
+      nav { padding: 0 12px; }
+    }
+  
+    body { animation: pageIn .35s ease both; }
+    @keyframes pageIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    .reveal { opacity:0; transform:translateY(28px); transition: opacity .55s ease, transform .55s ease; }
+    .reveal.visible { opacity:1; transform:translateY(0); }
+    .mobile-menu { position:fixed; inset:0; z-index:500; background:#0a0a0a; display:flex; flex-direction:column; padding:80px 32px 40px; transform:translateX(100%); transition:transform .35s cubic-bezier(0.22,1,0.36,1); }
+    .mobile-menu.open { transform:translateX(0); }
+    .mobile-menu-link { font-family:'Bebas Neue',sans-serif; font-size:40px; letter-spacing:0.06em; color:#fff; text-decoration:none; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:space-between; transition:color .2s; }
+    .mobile-menu-link:hover { color:#b8942a; }
+    .mobile-menu-close { position:absolute; top:20px; right:20px; background:none; border:none; color:#fff; font-size:28px; cursor:pointer; }
+    .bottom-nav { display:none; position:fixed; bottom:0; left:0; right:0; z-index:300; background:#fff; border-top:1px solid #e8e8e8; padding:8px 0 max(8px,env(safe-area-inset-bottom)); box-shadow:0 -4px 20px rgba(0,0,0,0.08); }
+    .bottom-nav-inner { display:flex; justify-content:space-around; align-items:center; }
+    .bottom-nav-item { display:flex; flex-direction:column; align-items:center; gap:3px; color:#888; text-decoration:none; font-size:10px; font-weight:600; letter-spacing:0.05em; padding:4px 8px; transition:color .2s; background:none; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; }
+    .bottom-nav-item i { font-size:20px; }
+    .bottom-nav-item.active { color:#0a0a0a; }
+    .bottom-nav-item.active i { color:#c8102e; }
+      @media (min-width: 769px) {
+      #hamburgerBtn { display: none !important; }
+      .mobile-menu { display: none !important; }
+      .bottom-nav { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="shop.html" class="nav-logo">DRIP <span class="nav-logo-dot"></span></a>
+    <div class="nav-links">
+      <a href="shop.html">Home</a>
+      <a href="products.html">Shop</a>
+      <a href="orders.html">My Orders</a>
+      <a href="wishlist.html">Wishlist</a>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" onclick="window.location.href='wishlist.html'"><i class="bi bi-heart"></i></button>
+      <button class="nav-icon-btn" onclick="window.location.href='checkout.html'"><i class="bi bi-bag"></i><div class="cart-count" id="cartCount">0</div></button>
+    </div>
+  </div>
+</nav>
+
+<div class="profile-hero">
+  <div class="profile-hero-inner">
+    <div class="avatar-wrap">
+      <div class="avatar" id="avatarEl">A</div>
+      <div class="avatar-edit"><i class="bi bi-pencil-fill"></i></div>
+    </div>
+    <div class="profile-info">
+      <div class="profile-name" id="heroName">My Account</div>
+      <div class="profile-email" id="heroEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="ff9e929e8d9ebf9a929e9693d19c9092">[email&#160;protected]</a></div>
+      <div class="profile-meta">
+        <div class="profile-tag gold"><i class="bi bi-star-fill"></i> Gold Member</div>
+        <div class="profile-tag"><i class="bi bi-calendar3"></i> Member since Jan 2025</div>
+        <div class="profile-tag"><i class="bi bi-bag-check"></i> 8 orders</div>
+      </div>
+    </div>
+    <div class="profile-stats">
+      <div class="profile-stat"><div class="profile-stat-val">1,240</div><div class="profile-stat-label">Points</div></div>
+      <div class="profile-stat"><div class="profile-stat-val">KES 161,850</div><div class="profile-stat-label">Total Spent</div></div>
+      <div class="profile-stat"><div class="profile-stat-val">8</div><div class="profile-stat-label">Orders</div></div>
+    </div>
+    <button class="logout-btn" onclick="handleLogout()"><i class="bi bi-box-arrow-right"></i> Sign Out</button>
+      <button class="nav-icon-btn" id="hamburgerBtn" onclick="toggleMobileMenu()" style="display:none;"><i class="bi bi-list" id="hamburgerIcon"></i></button>
+  </div>
+</div>
+
+<div class="profile-layout">
+
+  <!-- SIDEBAR NAV -->
+  <div class="profile-nav">
+    <div class="pnav-item active" onclick="switchTab('details', this)"><i class="bi bi-person"></i> My Details</div>
+    <div class="pnav-divider"></div>
+    <div class="pnav-item" onclick="switchTab('orders', this)"><i class="bi bi-bag-check"></i> Order History</div>
+    <div class="pnav-divider"></div>
+    <div class="pnav-item" onclick="switchTab('addresses', this)"><i class="bi bi-geo-alt"></i> Addresses</div>
+    <div class="pnav-divider"></div>
+    <div class="pnav-item" onclick="switchTab('loyalty', this)"><i class="bi bi-star"></i> Loyalty</div>
+    <div class="pnav-divider"></div>
+    <div class="pnav-item" onclick="switchTab('security', this)"><i class="bi bi-shield-lock"></i> Security</div>
+    <div class="pnav-divider"></div>
+    <div class="pnav-item" onclick="switchTab('preferences', this)"><i class="bi bi-sliders"></i> Preferences</div>
+  </div>
+
+  <!-- CONTENT -->
+  <div>
+
+    <!-- DETAILS TAB -->
+    <div class="tab-page active" id="tab-details">
+      <div class="panel">
+        <div class="panel-title">Personal Details</div>
+        <div class="form-row">
+          <div class="field"><label>First Name</label><input id="f_first" placeholder="First name"/></div>
+          <div class="field"><label>Last Name</label><input id="f_last" placeholder="Last name"/></div>
+        </div>
+        <div class="form-row full">
+          <div class="field"><label>Email Address</label><input id="f_email" type="email" placeholder="Email address" readonly style="background:var(--gray-100);color:var(--gray-500);cursor:not-allowed;"/></div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label>Phone</label><input id="f_phone" placeholder="+254 700 000 000"/></div>
+          <div class="field"><label>Date of Birth</label><input id="f_dob" type="date"/></div>
+        </div>
+        <div class="form-row full">
+          <div class="field"><label>Gender</label>
+            <select id="f_gender">
+              <option>Prefer not to say</option>
+              <option>Female</option>
+              <option>Male</option>
+              <option>Non-binary</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-top:16px;" id="saveRow">
+          <button class="save-btn" onclick="saveDetails()">Save Changes</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ORDERS TAB -->
+    <div class="tab-page" id="tab-orders">
+      <div class="panel">
+        <div class="panel-title">Order History
+          <a href="orders.html" style="font-size:12px;font-weight:600;color:var(--red);text-decoration:none;margin-left:auto;">View All <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="order-list" id="orderList"><div style="text-align:center;padding:32px;color:var(--gray-500);font-size:14px;"><div style="width:32px;height:32px;border:2px solid var(--gray-200);border-top-color:var(--black);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px;"></div>Loading orders...</div></div>
+      </div>
+    </div>
+
+    <!-- ADDRESSES TAB -->
+    <div class="tab-page" id="tab-addresses">
+      <div class="panel">
+        <div class="panel-title">Saved Addresses</div>
+        <div class="address-grid" id="addressGrid"></div>
+      </div>
+      <!-- Add / Edit Address Form (hidden by default) -->
+      <div class="panel" id="addrFormPanel" style="display:none;margin-top:16px;">
+        <div class="panel-title" id="addrFormTitle">Add New Address</div>
+        <input type="hidden" id="addrEditIndex" value="-1"/>
+        <div class="form-row">
+          <div class="field"><label>Label (e.g. Home, Work)</label><input id="a_label" placeholder="Home"/></div>
+          <div class="field"><label>Full Name</label><input id="a_name" placeholder="Your full name"/></div>
+        </div>
+        <div class="form-row full">
+          <div class="field"><label>Street Address</label><input id="a_street" placeholder="e.g. 123 Kenyatta Avenue"/></div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label>City</label><input id="a_city" placeholder="Nairobi"/></div>
+          <div class="field"><label>County / State</label><input id="a_county" placeholder="Nairobi County"/></div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label>Phone</label><input id="a_phone" placeholder="+254 700 000 000"/></div>
+          <div class="field"><label>Postal Code</label><input id="a_zip" placeholder="00100"/></div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:8px;">
+          <button class="save-btn" onclick="saveAddress()">Save Address</button>
+          <button class="save-btn" style="background:var(--white);color:var(--black);border:1.5px solid var(--gray-200);" onclick="hideAddrForm()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOYALTY TAB -->
+    <div class="tab-page" id="tab-loyalty">
+      <div class="loyalty-card">
+        <div class="loyalty-tier"><i class="bi bi-star-fill"></i> Gold Tier Member</div>
+        <div class="loyalty-points">1,240</div>
+        <div class="loyalty-points-label">DRIP Points available</div>
+        <div class="loyalty-progress-track"><div class="loyalty-progress-fill" style="width:62%"></div></div>
+        <div class="loyalty-progress-label"><span>Gold: 1,000 pts</span><span>760 pts to Platinum</span></div>
+        <div class="loyalty-benefits">
+          <div class="loyalty-benefit"><i class="bi bi-check-circle-fill"></i> Free standard shipping</div>
+          <div class="loyalty-benefit"><i class="bi bi-check-circle-fill"></i> Early access to sales</div>
+          <div class="loyalty-benefit"><i class="bi bi-check-circle-fill"></i> Birthday 2x points</div>
+          <div class="loyalty-benefit"><i class="bi bi-check-circle-fill"></i> Priority support</div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Points History</div>
+        <div style="display:flex;flex-direction:column;gap:0;">
+          <div style="display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--gray-100);">
+            <div style="width:36px;height:36px;border-radius:50%;background:#dcfce7;color:#16a34a;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;"><i class="bi bi-bag-check"></i></div>
+            <div style="flex:1;font-size:13px;font-weight:500;">Order #DRP-001284</div>
+            <div style="font-size:14px;font-weight:700;color:var(--green);">+24 pts</div>
+            <div style="font-size:11px;color:var(--gray-500);">Mar 7</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--gray-100);">
+            <div style="width:36px;height:36px;border-radius:50%;background:#ede9fe;color:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;"><i class="bi bi-gift"></i></div>
+            <div style="flex:1;font-size:13px;font-weight:500;">Birthday bonus</div>
+            <div style="font-size:14px;font-weight:700;color:var(--green);">+50 pts</div>
+            <div style="font-size:11px;color:var(--gray-500);">Jun 15, 2025</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--gray-100);">
+            <div style="width:36px;height:36px;border-radius:50%;background:#dcfce7;color:#16a34a;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;"><i class="bi bi-bag-check"></i></div>
+            <div style="flex:1;font-size:13px;font-weight:500;">Order #DRP-001180</div>
+            <div style="font-size:14px;font-weight:700;color:var(--green);">+18 pts</div>
+            <div style="font-size:11px;color:var(--gray-500);">Feb 2</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;padding:14px 0;">
+            <div style="width:36px;height:36px;border-radius:50%;background:#ffedd5;color:#ea580c;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;"><i class="bi bi-arrow-return-left"></i></div>
+            <div style="flex:1;font-size:13px;font-weight:500;">Redeemed — KES 1,300 off</div>
+            <div style="font-size:14px;font-weight:700;color:var(--red);">-100 pts</div>
+            <div style="font-size:11px;color:var(--gray-500);">Jan 20</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECURITY TAB -->
+    <div class="tab-page" id="tab-security">
+      <div class="panel">
+        <div class="panel-title">Security Settings</div>
+        <div class="security-row"><div><div class="security-label">Password</div><div class="security-sub">Last changed 3 months ago</div></div><button class="change-btn" onclick="showToast('Password email sent!')">Change Password</button></div>
+        <div class="security-row"><div><div class="security-label">Two-Factor Authentication</div><div class="security-sub">Add extra security to your account</div></div><label class="toggle"><input type="checkbox"/><span class="toggle-slider"></span></label></div>
+        <div class="security-row"><div><div class="security-label">Login Notifications</div><div class="security-sub">Get notified on new sign-ins</div></div><label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label></div>
+        <div class="security-row"><div><div class="security-label">Connected Devices</div><div class="security-sub">iPhone 15, MacBook Pro (2 devices)</div></div><button class="change-btn">Manage</button></div>
+        <div class="security-row"><div><div class="security-label" style="color:var(--red)">Delete Account</div><div class="security-sub">Permanently remove your account and data</div></div><button class="change-btn" style="border-color:var(--red);color:var(--red);">Delete</button></div>
+      </div>
+    </div>
+
+    <!-- PREFERENCES TAB -->
+    <div class="tab-page" id="tab-preferences">
+      <div class="panel">
+        <div class="panel-title">Notification Preferences</div>
+        <div class="security-row"><div><div class="security-label">Order Updates</div><div class="security-sub">Shipping, delivery notifications</div></div><label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label></div>
+        <div class="security-row"><div><div class="security-label">Promotions & Sales</div><div class="security-sub">Flash sales, discounts, new arrivals</div></div><label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label></div>
+        <div class="security-row"><div><div class="security-label">Wishlist Price Drops</div><div class="security-sub">Alert when saved items go on sale</div></div><label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label></div>
+        <div class="security-row"><div><div class="security-label">DRIP Newsletter</div><div class="security-sub">Style tips and brand updates</div></div><label class="toggle"><input type="checkbox"/><span class="toggle-slider"></span></label></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Style Preferences</div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;">
+          ${['Women','Men','Shoes','Accessories','Streetwear','Minimalist','Luxury','Casual','Formal'].map(s=>`<button onclick="this.classList.toggle('active');this.style.background=this.classList.contains('active')?'var(--black)':'';this.style.color=this.classList.contains('active')?'#fff':'';this.style.borderColor=this.classList.contains('active')?'var(--black)':'';" style="padding:8px 18px;border:1.5px solid var(--gray-200);border-radius:20px;background:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;">${s}</button>`).join('')}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"><i class="bi bi-check-circle-fill"></i><span id="toastMsg">Done!</span></div>
+
+<script>
+  /* ══════════════════════════════════════════
+     AUTH HELPERS
+  ══════════════════════════════════════════ */
+  function getUser() {
+    try { return JSON.parse(sessionStorage.getItem('drip-user')); } catch { return null; }
+  }
+  function getToken() { return sessionStorage.getItem('drip-token'); }
+  function handleLogout() {
+    sessionStorage.removeItem('drip-token');
+    sessionStorage.removeItem('drip-user');
+    window.location.href = 'index.html';
+  }
+
+  /* ══════════════════════════════════════════
+     BOOT — run immediately on page load
+  ══════════════════════════════════════════ */
+  (function boot() {
+    const user = getUser();
+    if (!user || !getToken()) { window.location.href = 'index.html'; return; }
+
+    // Merge session data with any profile overrides saved locally
+    const saved  = JSON.parse(localStorage.getItem('drip-profile') || '{}');
+    const first  = saved.firstName || user.firstName || '';
+    const last   = saved.lastName  || user.lastName  || '';
+    const email  = user.email || '';
+    const full   = (first + ' ' + last).trim() || email || 'My Account';
+
+    // Hero banner
+    const heroName = document.getElementById('heroName');
+    if (heroName) heroName.textContent = full;
+
+    const heroEmail = document.getElementById('heroEmail');
+    if (heroEmail) heroEmail.textContent = email;
+
+    const avatarEl = document.getElementById('avatarEl');
+    if (avatarEl) avatarEl.textContent = (first || email || 'U')[0].toUpperCase();
+
+    // Personal details form — pre-fill
+    setVal('f_first', first);
+    setVal('f_last',  last);
+    setVal('f_email', email);
+    setVal('f_phone', saved.phone || '');
+    setVal('f_dob',   saved.dob   || '');
+
+    const genderSel = document.getElementById('f_gender');
+    if (genderSel && saved.gender) {
+      [...genderSel.options].forEach(o => { o.selected = o.text === saved.gender; });
+    }
+
+    // Cart count
+    const cart = JSON.parse(sessionStorage.getItem('drip-cart') || '[]');
+    const cc = document.getElementById('cartCount');
+    if (cc) cc.textContent = cart.reduce((s, i) => s + i.qty, 0);
+
+    // Nav greeting
+    const ng = document.getElementById('userGreeting');
+    if (ng) { ng.textContent = 'Hi, ' + (first || email); ng.style.display = 'flex'; }
+  })();
+
+  function setVal(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.value = val;
+  }
+
+  /* ══════════════════════════════════════════
+     TABS
+  ══════════════════════════════════════════ */
+  function switchTab(id, el) {
+    document.querySelectorAll('.tab-page').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.pnav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    el.classList.add('active');
+    // Lazy-load tab content
+    if (id === 'orders')    loadOrders();
+    if (id === 'addresses') renderAddresses();
+  }
+
+  /* ══════════════════════════════════════════
+     SAVE PERSONAL DETAILS
+  ══════════════════════════════════════════ */
+  function saveDetails() {
+    const first  = document.getElementById('f_first').value.trim();
+    const last   = document.getElementById('f_last').value.trim();
+    const phone  = document.getElementById('f_phone').value.trim();
+    const dob    = document.getElementById('f_dob').value;
+    const gSel   = document.getElementById('f_gender');
+    const gender = gSel ? gSel.options[gSel.selectedIndex].text : '';
+
+    if (!first) { showToast('Please enter your first name'); return; }
+
+    // Save to localStorage
+    const profileData = { firstName: first, lastName: last, phone, dob, gender };
+    localStorage.setItem('drip-profile', JSON.stringify(profileData));
+
+    // Update session user so nav greeting reflects change
+    const u = getUser();
+    if (u) {
+      u.firstName = first;
+      u.lastName  = last;
+      sessionStorage.setItem('drip-user', JSON.stringify(u));
+    }
+
+    // Update hero live
+    const full = (first + ' ' + last).trim();
+    const heroName = document.getElementById('heroName');
+    if (heroName) heroName.textContent = full;
+    const avatarEl = document.getElementById('avatarEl');
+    if (avatarEl) avatarEl.textContent = first[0].toUpperCase();
+
+    showToast('Profile saved successfully!');
+  }
+
+  /* ══════════════════════════════════════════
+     ORDER HISTORY TAB
+  ══════════════════════════════════════════ */
+  let ordersLoaded = false;
+  async function loadOrders() {
+    if (ordersLoaded) return;
+    const container = document.getElementById('orderList');
+    if (!container) return;
+    container.innerHTML = '<div style="text-align:center;padding:32px;color:#888;"><div style="width:28px;height:28px;border:2px solid #e8e8e8;border-top-color:#0a0a0a;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px;"></div>Loading orders...</div>';
+
+    const user  = getUser();
+    const token = getToken();
+    let orders  = [];
+
+    try {
+      const res = await fetch('http://localhost:8080/api/orders', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (!res.ok) throw new Error();
+      const all = await res.json();
+      orders = all
+        .filter(o => o.email === user?.email)
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 6);
+    } catch {
+      // Demo fallback
+      orders = [
+        { id: 1, items: [{emoji:'🧥'}],              total: 38350, status: 'shipped',   createdAt: new Date(Date.now() - 86400000).toISOString() },
+        { id: 2, items: [{emoji:'👗'},{emoji:'👖'}], total: 20930, status: 'delivered', createdAt: new Date(Date.now() - 86400000*4).toISOString() },
+        { id: 3, items: [{emoji:'👟'}],              total: 19370, status: 'pending',   createdAt: new Date(Date.now() - 3600000).toISOString() },
+      ];
+    }
+
+    ordersLoaded = true;
+
+    if (!orders.length) {
+      container.innerHTML = '<div style="text-align:center;padding:48px 20px;color:#888;font-size:14px;">No orders yet. <a href="products.html" style="color:#c8102e;font-weight:600;">Start shopping →</a></div>';
+      return;
+    }
+
+    const statusLabel = { delivered:'Delivered', shipped:'Shipped', confirmed:'Confirmed', pending:'Pending', cancelled:'Cancelled' };
+    const statusCls   = { delivered:'badge-green', shipped:'badge-blue', confirmed:'badge-blue', pending:'badge-yellow', cancelled:'badge-red' };
+
+    container.innerHTML = orders.map(o => {
+      const items   = o.items || [];
+      const emojis  = items.slice(0, 4).map(i => `<div class="order-item-emoji">${i.emoji || '📦'}</div>`).join('');
+      const date    = o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-KE', { day:'numeric', month:'short', year:'numeric' }) : '';
+      const oid     = '#DRIP-' + String(o.id).padStart(6, '0');
+      const cls     = statusCls[o.status]   || 'badge-yellow';
+      const lbl     = statusLabel[o.status] || o.status;
+      const total   = 'KES ' + Number(o.total).toLocaleString('en-KE');
+
+      return `<div class="order-card">
+        <div class="order-header">
+          <div>
+            <div class="order-id">${oid}</div>
+            <div class="order-date">${date}</div>
+          </div>
+          <span class="badge ${cls}">${lbl}</span>
+        </div>
+        <div class="order-body">
+          <div class="order-items">${emojis}
+            <div style="font-size:12px;color:#888;align-self:center;margin-left:6px;">${items.length} item${items.length !== 1 ? 's' : ''}</div>
+          </div>
+          <div class="order-total">${total}</div>
+          <button class="order-reorder" onclick="window.location.href='orders.html'">
+            <i class="bi bi-truck"></i> Track
+          </button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  // Load orders immediately since it's shown first on the Orders tab
+  // (will also be called when tab is clicked)
+
+  /* ══════════════════════════════════════════
+     ADDRESSES TAB
+  ══════════════════════════════════════════ */
+  function getAddresses() {
+    return JSON.parse(localStorage.getItem('drip-addresses') || '[]');
+  }
+  function saveAddresses(arr) {
+    localStorage.setItem('drip-addresses', JSON.stringify(arr));
+  }
+
+  function renderAddresses() {
+    const grid = document.getElementById('addressGrid');
+    if (!grid) return;
+    let addrs = getAddresses();
+
+    const user   = getUser();
+    const saved  = JSON.parse(localStorage.getItem('drip-profile') || '{}');
+    const first  = saved.firstName || user?.firstName || '';
+    const last   = saved.lastName  || user?.lastName  || '';
+    const full   = (first + ' ' + last).trim() || 'Your Name';
+
+    // Seed one default address on first visit
+    if (!addrs.length) {
+      addrs = [{ label:'Home', name: full, street:'', city:'Nairobi', county:'Nairobi County', phone: saved.phone || '', zip:'', isDefault: true }];
+    }
+
+    grid.innerHTML = addrs.map((a, i) => `
+      <div class="address-card ${a.isDefault ? 'default' : ''}">
+        ${a.isDefault ? '<div class="address-default-tag">Default</div>' : ''}
+        <div class="address-name">${a.label || 'Address'}</div>
+        <div class="address-text">
+          ${a.name || full}<br>
+          ${a.street || '<em style="color:#aaa">No street set</em>'}<br>
+          ${a.city || 'Nairobi'}${a.county ? ', ' + a.county : ''}<br>
+          Kenya ${a.zip || ''}
+        </div>
+        <div class="address-actions">
+          <button class="addr-btn" onclick="openAddrForm(${i})"><i class="bi bi-pencil"></i> Edit</button>
+          ${!a.isDefault ? `<button class="addr-btn" onclick="setDefault(${i})">Set Default</button>` : ''}
+          <button class="addr-btn" style="color:#c8102e" onclick="removeAddr(${i})"><i class="bi bi-trash"></i></button>
+        </div>
+      </div>`).join('') + `
+      <div class="add-address-card" onclick="openAddrForm(-1)">
+        <i class="bi bi-plus-circle" style="font-size:24px;margin-bottom:8px;"></i>
+        <span>Add New Address</span>
+      </div>`;
+  }
+
+  function openAddrForm(idx) {
+    const panel = document.getElementById('addrFormPanel');
+    panel.style.display = 'block';
+    document.getElementById('addrFormTitle').textContent = idx >= 0 ? 'Edit Address' : 'Add New Address';
+    document.getElementById('addrEditIndex').value = idx;
+
+    if (idx >= 0) {
+      const a = getAddresses()[idx];
+      setVal('a_label',  a.label  || '');
+      setVal('a_name',   a.name   || '');
+      setVal('a_street', a.street || '');
+      setVal('a_city',   a.city   || 'Nairobi');
+      setVal('a_county', a.county || '');
+      setVal('a_phone',  a.phone  || '');
+      setVal('a_zip',    a.zip    || '');
+    } else {
+      ['a_label','a_name','a_street','a_county','a_phone','a_zip'].forEach(id => setVal(id, ''));
+      setVal('a_city', 'Nairobi');
+      // Pre-fill name from profile
+      const u = getUser();
+      const s = JSON.parse(localStorage.getItem('drip-profile') || '{}');
+      const fn = ((s.firstName||u?.firstName||'') + ' ' + (s.lastName||u?.lastName||'')).trim();
+      if (fn) setVal('a_name', fn);
+      if (s.phone) setVal('a_phone', s.phone);
+    }
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function hideAddrForm() {
+    document.getElementById('addrFormPanel').style.display = 'none';
+  }
+
+  function saveAddress() {
+    const street = document.getElementById('a_street').value.trim();
+    if (!street) { showToast('Please enter a street address'); return; }
+
+    const entry = {
+      label:  document.getElementById('a_label').value.trim()  || 'Home',
+      name:   document.getElementById('a_name').value.trim(),
+      street: street,
+      city:   document.getElementById('a_city').value.trim()   || 'Nairobi',
+      county: document.getElementById('a_county').value.trim(),
+      phone:  document.getElementById('a_phone').value.trim(),
+      zip:    document.getElementById('a_zip').value.trim(),
+    };
+
+    const addrs   = getAddresses();
+    const editIdx = parseInt(document.getElementById('addrEditIndex').value);
+
+    if (editIdx >= 0) {
+      entry.isDefault = addrs[editIdx].isDefault;
+      addrs[editIdx]  = entry;
+    } else {
+      entry.isDefault = addrs.length === 0;
+      addrs.push(entry);
+    }
+
+    saveAddresses(addrs);
+    hideAddrForm();
+    renderAddresses();
+    showToast('Address saved!');
+  }
+
+  function setDefault(i) {
+    const addrs = getAddresses();
+    addrs.forEach((a, idx) => a.isDefault = idx === i);
+    saveAddresses(addrs);
+    renderAddresses();
+  }
+
+  function removeAddr(i) {
+    if (!confirm('Remove this address?')) return;
+    const addrs = getAddresses();
+    addrs.splice(i, 1);
+    if (addrs.length && !addrs.find(a => a.isDefault)) addrs[0].isDefault = true;
+    saveAddresses(addrs);
+    renderAddresses();
+  }
+
+  // Render addresses on page load (so first visit shows the seeded home address)
+  renderAddresses();
+
+  /* ══════════════════════════════════════════
+     TOAST
+  ══════════════════════════════════════════ */
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    const m = document.getElementById('toastMsg');
+    if (!t || !m) return;
+    m.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+</script>
+
+<div class="mobile-menu" id="mobileMenu" style="visibility:hidden;pointer-events:none;">
+  <button class="mobile-menu-close" onclick="toggleMobileMenu()"><i class="bi bi-x"></i></button>
+  <a href="shop.html"     class="mobile-menu-link">Home      <i class="bi bi-chevron-right" style="font-size:20px"></i></a>
+  <a href="products.html" class="mobile-menu-link">Shop      <i class="bi bi-chevron-right" style="font-size:20px"></i></a>
+  <a href="orders.html"   class="mobile-menu-link">My Orders <i class="bi bi-chevron-right" style="font-size:20px"></i></a>
+  <a href="wishlist.html" class="mobile-menu-link">Wishlist  <i class="bi bi-chevron-right" style="font-size:20px"></i></a>
+  <a href="profile.html"  class="mobile-menu-link">Profile   <i class="bi bi-chevron-right" style="font-size:20px"></i></a>
+</div>
+<div class="bottom-nav" id="bottomNav">
+  <div class="bottom-nav-inner">
+    <a href="shop.html" class="bottom-nav-item"><i class="bi bi-house-fill"></i>Home</a>
+    <a href="products.html" class="bottom-nav-item"><i class="bi bi-grid-fill"></i>Shop</a>
+    <a href="orders.html" class="bottom-nav-item"><i class="bi bi-truck"></i>Orders</a>
+    <a href="wishlist.html" class="bottom-nav-item"><i class="bi bi-heart-fill"></i>Wishlist</a>
+    <a href="profile.html" class="bottom-nav-item active"><i class="bi bi-person-fill"></i>Profile</a>
+  </div>
+</div>
+</body>
+</html>
